@@ -815,7 +815,8 @@ class ApiProfileController extends Controller
         //         return $p;
         //     });
 
-        $all_posts = Post::with([
+        $boostHours = 6;
+        $all_posts  = Post::with([
             'user',
             'likes',
             'comments' => function ($q) use ($auth) {
@@ -867,7 +868,16 @@ class ApiProfileController extends Controller
             ->whereDoesntHave('user', fn($q) =>
                 $q->whereHas('blockedByUsers', fn($q2) => $q2->where('blocks.user_id', $auth->id))
             )
-            ->inRandomOrder()
+        // ->inRandomOrder()
+        // --- Smart dynamic friend priority
+            ->orderByRaw("
+        CASE
+            WHEN user_id IN (" . implode(',', $friends) . ")
+                 AND created_at >= NOW() - INTERVAL $boostHours HOUR THEN 1
+            ELSE 0
+        END DESC
+    ")
+            ->orderBy('created_at', 'desc')
             ->get()
             ->map(function ($p) use ($auth) {
                 // Total comments (including replies)
