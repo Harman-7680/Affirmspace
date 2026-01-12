@@ -1,0 +1,205 @@
+<?php
+namespace App\Http\Controllers\Api;
+
+use App\Http\Controllers\Controller;
+use App\Models\Block;
+use App\Models\CounselorAvailability;
+use App\Models\Message;
+use App\Models\Rating;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+class ApiCounselorController extends Controller
+{
+    public function show($id) // particur profile page
+    {
+        $auth          = Auth::user();
+        $notifications = $auth->unreadNotifications;
+
+        $user = User::where('role', 1)
+            ->with([
+                'availabilities' => function ($query) {
+                    $query->where('available_date', '>=', now()->toDateString())
+                        ->orderBy('available_date')
+                        ->orderBy('start_time');
+                },
+                'specialization:id,name',
+            ])
+            ->findOrFail($id);
+
+        // Ratings
+        $averageRating = $user->ratingsReceived()->avg('rating');
+        $totalReviews  = $user->ratingsReceived()->count();
+
+        return response()->json([
+            'success'        => true,
+            'counselor'      => $user,
+            'notifications'  => $notifications,
+            'averageRating'  => round($averageRating ?? 0, 1),
+            'totalReviews'   => $totalReviews,
+            'specialization' => $user->specialization ? $user->specialization->name : null,
+        ]);
+    }
+
+    public function contact(Request $request, $id)
+    {
+        $request->validate([
+            'subject'         => 'required|string|max:255',
+            'message'         => 'required|string',
+            'email'           => 'required|email',
+            'availability_id' => 'required|exists:counselor_availabilities,id',
+        ]);
+
+        $availability = CounselorAvailability::findOrFail($request->availability_id);
+
+        // $alreadyBooked = Message::where('sender_id', auth()->id())
+        //     ->where('availability_id', $request->availability_id)
+        //     ->exists();
+
+        // if ($alreadyBooked) {
+        //     return response()->json([
+        //         'success' => false,
+        //         'message' => 'You already booked this appointment for this time slot!',
+        //     ], 409);
+        // }
+
+        $booking = Message::where('sender_id', auth()->id())
+            ->where('availability_id', $request->availability_id)
+            ->first();
+
+        if ($booking) {
+
+            // Pending booking
+            if ($booking->status === 'pending') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Your appointment request is pending approval.',
+                    'status'  => 'pending',
+                ], 409);
+            }
+
+            // Approved booking
+            if ($booking->status === 'approved') {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'You have already booked this appointment for this time slot!',
+                    'status'  => 'approved',
+                ], 409);
+            }
+        }
+
+        $message = Message::create([
+            'sender_id'       => auth()->id(),
+            'receiver_id'     => $id,
+            'subject'         => $request->subject,
+            'email'           => $request->email,
+            'message_body'    => $request->message,
+            'availability_id' => $request->availability_id,
+        ]);
+
+        return response()->json([
+            'success'      => true,
+            'message'      => 'Message sent successfully!',
+            'data'         => $message,
+            'availability' => $availability,
+        ], 201);
+    }
+
+    public function store(Request $request)
+    {
+        $request->validate([
+            'rating'       => 'required|integer|min:1|max:5',
+            'review'       => 'nullable|string|max:1000',
+            'counselor_id' => 'required|exists:users,id',
+        ]);
+
+        // Prevent duplicate ratings by the same user for the same counselor
+        $existing = Rating::where('user_id', Auth::id())
+            ->where('counselor_id', $request->counselor_id)
+            ->first();
+
+        if ($existing) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You already rated this counselor.',
+            ], 409); // 409 for Conflict
+        }
+
+        $rating = Rating::create([
+            'user_id'      => Auth::id(),
+            'counselor_id' => $request->counselor_id,
+            'rating'       => $request->rating,
+            'review'       => $request->review,
+        ]);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Rating submitted successfully!',
+            'data'    => $rating,
+        ], 201);
+    }
+
+    public function messages($user_id = null)
+    {
+        // abort_if(auth()->user()->role !== 1, 403);
+
+        $counselor     = auth()->user();
+        $notifications = $counselor->unreadNotifications;
+
+        /* ---------------- ACCEPTED APPOINTMENTS ---------------- */
+        $appointmentUserIds = Message::where('receiver_id', $counselor->id)
+            ->where('status', 'accepted')
+            ->pluck('sender_id')
+            ->unique()
+            ->values();
+
+        /* ---------------- BLOCKS ---------------- */
+        $blockedUsers = Block::where('user_id', $counselor->id)
+            ->pluck('blocked_id');
+
+        $blockedByUsers = Block::where('blocked_id', $counselor->id)
+            ->pluck('user_id');
+
+        $hiddenUsers = $blockedUsers
+            ->merge($blockedByUsers)
+            ->unique()
+            ->values();
+
+        $appointmentUserIds = $appointmentUserIds->diff($hiddenUsers);
+
+        /* ---------------- COUNSELEE LIST ---------------- */
+        $appointments = User::whereIn('id', $appointmentUserIds)
+            ->where('role', 0) // counselee
+            ->get();
+
+        /* ---------------- RECEIVER CHECK ---------------- */
+        $receiver = null;
+        if ($user_id) {
+            $isAllowed = Message::where('receiver_id', $counselor->id)
+                ->where('sender_id', $user_id)
+                ->where('status', 'accepted')
+                ->exists();
+
+            abort_if(! $isAllowed, 403);
+
+            $receiver = User::findOrFail($user_id);
+        }
+
+        $messages = Message::with([
+            'sender:id,first_name,last_name,image',
+        ])
+            ->where('receiver_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            // ->take(4) // latest 4
+            ->get();
+
+        return response()->json([
+            'appointments'  => $appointments,
+            'receiver'      => $receiver,
+            'notifications' => $notifications,
+            'messages'      => $messages,
+            'hiddenUsers'   => $hiddenUsers,
+        ]);
+    }
+}

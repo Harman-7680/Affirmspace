@@ -1,0 +1,83 @@
+.navigation .menu-item.active {
+    background-color: #f8d7da !important;
+    color: #721c24 !important;
+    font-weight: bold;
+    border-left: 4px solid #f5c6cb;
+}
+
+.navigation .menu-item.active:hover {
+    background-color: #f1b0b7 !important;
+}
+/* Base button style */
+.btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.3s ease;
+    text-decoration: none;
+    display: inline-block;
+}
+
+/* Active status button */
+.btn-active {
+    background-color: #16a34a;
+}
+.btn-active:hover {
+    background-color: #15803d;
+}
+
+/* Inactive status button */
+.btn-inactive {
+    background-color: #dc2626;
+}
+.btn-inactive:hover {
+    background-color: #b91c1c;
+}
+
+/* Primary and secondary buttons */
+.btn-primary {
+    background-color: #3b82f6;
+}
+.btn-primary:hover {
+    background-color: #2563eb;
+}
+
+.btn-secondary {
+    background-color: #6b7280;
+}
+.btn-secondary:hover {
+    background-color: #4b5563;
+}
+
+/* Pagination Button Base */
+.pagination-btn {
+    padding: 6px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-block;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+/* Outline-style primary */
+.pagination-btn-outline {
+    background-color: transparent;
+    color: #2563eb; /* Blue-600 */
+    border: 1px solid #2563eb;
+}
+
+.pagination-btn-outline:hover {
+    background-color: #2563eb;
+    color: #fff;
+}
+
+/* Disabled state */
+.pagination-btn:disabled,
+.pagination-btn[disabled] {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

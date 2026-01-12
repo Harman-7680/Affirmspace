@@ -1,0 +1,233 @@
+# AffirmSpace – Developer README
+
+## 1. Project Overview
+
+AffirmSpace is a multi-role web application built on Laravel. The platform supports three distinct user roles with clearly separated responsibilities, views, controllers, and layouts.
+
+### User Roles
+
+* **Admin**: Full control over the system. Can manage users, counselors, content, payments, and platform-level settings.
+* **Counselor**: Professional users who interact with counselees, manage their own data, and provide services.
+* **Counselee**: Normal end users. They can manage profiles, interact with counselors, use the dating feature, chat, and receive notifications.
+
+The project is structured to ensure role separation, scalability, and ease of understanding for future developers.
+
+---
+
+## 2. Technology Stack
+
+* **Backend**: Laravel (PHP)
+* **Frontend**: Blade Templates
+* **Database**: MySQL
+* **Realtime & Chat**: Firebase Realtime Database
+* **Video Meetings**: Jitsi
+* **Maps & Location**: LocationIQ
+* **Authentication**:
+
+  * Email / Password
+  * Google Login
+  * Facebook Login
+* **Notifications**: Laravel Notifications
+* **Payments**: Custom payment module
+
+All third-party service keys and secrets are stored securely in the `.env` file.
+
+---
+
+## 3. High-Level Folder Structure
+
+```
+affirmspace/
+├── app/
+│   ├── Http/
+│   │   ├── Controllers/
+│   │   │   ├── ProfileController.php
+│   │   │   ├── CounselorController.php
+│   │   │   └── (Other controllers – functionality inferred by name)
+│   ├── Mail/
+│   │   └── (Email-related logic classes)
+│   ├── Notifications/
+│   │   └── (Login, system, and user notifications)
+│
+├── bootstrap/
+│   └── app.php   # Core application bootstrapping, middleware & API registration
+│
+├── resources/
+│   ├── views/
+│   │   ├── layouts/
+│   │   │   ├── app1.blade.php        # Main layout (User/Counselee)
+│   │   │   └── app_admin.blade.php   # Admin layout
+│   │   │
+│   │   ├── user/
+│   │   │   ├── feed.blade.php        # Main user feed
+│   │   │   └── (Other counselee views)
+│   │   │
+│   │   ├── counselor/
+│   │   │   └── (All counselor-related UI files)
+│   │   │
+│   │   ├── profile/
+│   │   │   └── edit.blade.php        # Counselee profile edit page
+│   │   │
+│   │   ├── payment/
+│   │   │   └── (Payment-related pages)
+│   │   │
+│   │   ├── auth/
+│   │   │   ├── login.blade.php
+│   │   │   ├── register.blade.php
+│   │   │   └── forgot-password.blade.php
+│   │   │
+│   │   ├── emails/
+│   │   │   └── (Email UI templates)
+│   │   │
+│   │   └── errors/
+│   │       └── (404, fallback, and error pages)
+│
+├── routes/
+│   └── web.php   # All web routes with inline comments for clarity
+│
+├── public/
+│   ├── clear_cache.php   # Clears application cache (direct URL access)
+│   ├── show.php          # Shows application/server details
+│   └── storage.php       # Storage-related utilities
+│
+└── .env                  # Environment configuration (keys, secrets)
+```
+
+---
+
+## 4. Layout & Blade Architecture
+
+### app1.blade.php (Main User Layout)
+
+This is the core layout file used by most user-facing pages.
+
+It contains:
+
+* Header and footer structure
+* Common navigation
+* Blade sections:
+
+  * `@section('css')` for page-specific styles
+  * `@section('content')` for main content
+  * `@section('script')` for page-specific JavaScript
+
+Pages extend this layout using:
+
+```
+@extends('layouts.app1')
+```
+
+### app_admin.blade.php
+
+A separate layout dedicated to admin pages to keep admin UI isolated from user UI.
+
+---
+
+## 5. Routing Strategy
+
+All routes are defined in `routes/web.php`.
+
+* Counselee routes are clearly commented and usually linked to controllers like `ProfileController`.
+* Counselor routes are grouped and linked to `CounselorController`.
+* Admin routes are separated logically for management features.
+
+Inline comments are added in `web.php` to help developers quickly understand route purpose and access level.
+
+---
+
+## 6. Controller Design Philosophy
+
+Controllers are named based on responsibility.
+
+Example:
+
+* `ProfileController` → User profile logic
+* `CounselorController` → Counselor-specific operations
+
+A developer can understand functionality simply by reading the controller name.
+
+---
+
+## 7. Email System
+
+* **Email UI Templates**: `resources/views/emails`
+* **Email Logic & Classes**: `app/Mail`
+
+This separation allows UI changes without touching backend logic.
+
+---
+
+## 8. Notifications
+
+All notification logic is located in:
+
+```
+app/Notifications
+```
+
+Examples:
+
+* Login notifications
+* System alerts
+* User activity notifications
+
+Notifications are triggered automatically based on user actions.
+
+---
+
+## 9. Firebase & Dating Feature
+
+* Firebase is used for real-time chat functionality.
+* The **Dating feature** is exclusive to counselees.
+* Firebase keys and configuration are stored in the `.env` file.
+
+This design ensures secure, scalable real-time communication.
+
+---
+
+## 10. Third-Party Integrations
+
+* **Firebase**: Real-time chat & dating
+* **Jitsi**: Video meetings
+* **LocationIQ**: Location and address services
+* **Google Login**: OAuth authentication
+* **Facebook Login**: OAuth authentication
+
+All credentials are environment-based and should never be hardcoded.
+
+---
+
+## 11. Public Utility Files (Direct URL Access)
+
+The following utility files are intentionally accessible via URL for server-level operations:
+
+* `clear_cache.php` → Clears Laravel cache
+* `show.php` → Displays system or application info
+* `storage.php` → Storage-related diagnostics
+
+These should be protected or removed in production if security policies require it.
+
+---
+
+## 12. Developer Notes & Best Practices
+
+* Always check `.env` before running the project.
+* Follow existing folder conventions when adding new features.
+* Extend the correct layout based on user role.
+* Keep role-based logic isolated (Admin / Counselor / Counselee).
+* Use descriptive controller and method names.
+
+---
+
+## 13. Conclusion
+
+AffirmSpace is designed with clarity, modularity, and scalability in mind. By following the existing structure and conventions, new developers can easily understand the flow of data, role separation, and system responsibilities.
+
+This README should be the first reference point before modifying or extending the project.
+
+
+
+                                        -------------------------------
+                                        | Developed By : Harman Singh |
+                                        -------------------------------
+
