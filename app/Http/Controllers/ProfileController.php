@@ -540,7 +540,7 @@ class ProfileController extends Controller
         //         return $p;
         //     });
 
-        $boostHours = 6; // how many hours a friend's post gets priority
+        $boostHours = 2; // how many hours a friend's post gets priority
         $all_posts  = Post::with([
             'user',
             'likes',
@@ -592,13 +592,14 @@ class ProfileController extends Controller
             })
         // Smart dynamic friend priority
             ->orderByRaw("
-        CASE
-            WHEN user_id IN (" . implode(',', $friends) . ")
-                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
-            THEN RAND()
-            ELSE 0
-        END DESC
-    ")
+    CASE
+        WHEN user_id IN (" . implode(',', $friends) . ")
+             AND created_at >= NOW() - INTERVAL $boostHours HOUR
+        THEN 1
+        ELSE 0
+    END DESC
+")
+            ->inRandomOrder() // randomize only within same priority
             ->orderBy('posts.created_at', 'desc')
             ->paginate(1)
             ->through(function ($p) {
