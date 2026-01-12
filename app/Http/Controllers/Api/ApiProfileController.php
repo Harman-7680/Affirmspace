@@ -873,11 +873,12 @@ class ApiProfileController extends Controller
             ->orderByRaw("
         CASE
             WHEN user_id IN (" . implode(',', $friends) . ")
-                 AND created_at >= NOW() - INTERVAL $boostHours HOUR THEN 1
+                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
+            THEN RAND()
             ELSE 0
         END DESC
     ")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('posts.created_at', 'desc')
             ->get()
             ->map(function ($p) use ($auth) {
                 // Total comments (including replies)

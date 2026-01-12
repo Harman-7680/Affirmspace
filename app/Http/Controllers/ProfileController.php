@@ -594,11 +594,12 @@ class ProfileController extends Controller
             ->orderByRaw("
         CASE
             WHEN user_id IN (" . implode(',', $friends) . ")
-                 AND created_at >= NOW() - INTERVAL $boostHours HOUR THEN 1
+                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
+            THEN RAND()
             ELSE 0
         END DESC
     ")
-            ->orderBy('created_at', 'desc')
+            ->orderBy('posts.created_at', 'desc')
             ->paginate(1)
             ->through(function ($p) {
                 $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
