@@ -31,6 +31,7 @@
                     'admin.specializations.index',
                     'admin.events',
                     'admin.area-price.index',
+                    'sendMessage',
                 )
                     ? 'open'
                     : '' }}">
@@ -112,6 +113,15 @@
                                 </a>
                             </li>
                         </ul>
+                    </li>
+
+                    {{-- CHAT --}}
+                    <li>
+                        <a class="menu-item {{ request()->routeIs('sendMessage') ? 'active' : '' }}"
+                            href="{{ route('sendMessage') }}">
+                            <i class="fa fa-envelope me-2"></i>
+                            Message
+                        </a>
                     </li>
                 </ul>
             </li>

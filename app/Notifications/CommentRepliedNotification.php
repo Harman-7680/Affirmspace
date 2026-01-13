@@ -26,14 +26,15 @@ class CommentRepliedNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type'       => 'comment_replied',
-            'post_id'    => $this->reply->post_id,
-            'reply_id'   => $this->reply->id,
-            'actor_id'   => $this->actor->id,
-            'actor_name' => $this->actor->first_name,
-            'parent_id'  => $this->reply->parent_id,
-            'reply_body' => $this->reply->body,
-            'message'    => $this->actor->first_name . ' replied to your comment',
+            'type'         => 'comment_replied',
+            'post_id'      => $this->reply->post_id,
+            'post_user_id' => (string) $this->reply->post->user_id,
+            'reply_id'     => $this->reply->id,
+            'actor_id'     => $this->actor->id,
+            'actor_name'   => $this->actor->first_name,
+            'parent_id'    => $this->reply->parent_id,
+            'reply_body'   => $this->reply->body,
+            'message'      => $this->actor->first_name . ' replied to your comment',
         ];
     }
 }

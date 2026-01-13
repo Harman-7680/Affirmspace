@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AdminAreaPriceController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminSpecializationController;
 use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
@@ -140,6 +141,9 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
     Route::get('/area-price', [AdminAreaPriceController::class, 'index'])->name('admin.area-price.index');
     Route::post('/area-price', [AdminAreaPriceController::class, 'store'])->name('admin.area-price.store');
     Route::post('/area-price/{id}', [AdminAreaPriceController::class, 'destroy'])->name('admin.area-price.destroy');
+
+    Route::get('/send-message', [AdminMessageController::class, 'showSendMessageForm'])->name('sendMessage');
+    Route::post('/admin/send-message', [AdminMessageController::class, 'sendMessage'])->name('admin.sendMessage');
 });
 
 // this is outside middleware because on login page we need to fetch specializations

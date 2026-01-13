@@ -40,7 +40,7 @@
                 <div class="flex-1 xl:space-y-6 space-y-3">
                     <!--  post image-->
                     @foreach ($all_posts as $post)
-                        <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1 dark:bg-dark2">
+                        <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1 dark:bg-dark2 ">
 
                             <!-- Post heading -->
                             <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -428,7 +428,7 @@
             {{-- POSTS GRID --}}
             <div class="grid sm:grid-cols-3 gap-4 mt-6">
                 @forelse($all_posts as $post)
-                    <div class="rounded-xl overflow-hidden shadow bg-white p-3">
+                    <div id="post-{{ $post->id }}" class="rounded-xl overflow-hidden shadow bg-white p-3 post-item">
 
                         {{-- POST MEDIA --}}
                         @php
@@ -568,6 +568,35 @@
     </main>
 @endsection
 
+@section('css')
+    <style>
+        @keyframes blinkHighlight {
+            0% {
+                background-color: #fff;
+            }
+
+            30% {
+                background-color: #fde68a;
+            }
+
+            /* yellow-200 */
+            60% {
+                background-color: #fde68a;
+            }
+
+            100% {
+                background-color: #fff;
+            }
+        }
+
+        .blink-post {
+            animation: blinkHighlight 1.5s ease-in-out 2;
+            border: 2px solid #facc15;
+            /* yellow-400 */
+        }
+    </style>
+@endsection
+
 @section('script')
     <script>
         function copyProfileLink(userId) {
@@ -581,5 +610,31 @@
                 console.error("Could not copy text: ", err);
             });
         }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+            if (window.location.hash) {
+                const postId = window.location.hash.substring(1); // post-45
+                const postEl = document.getElementById(postId);
+
+                if (postEl) {
+                    // Scroll smoothly
+                    postEl.scrollIntoView({
+                        behavior: "smooth",
+                        block: "center"
+                    });
+
+                    // Add blink class
+                    postEl.classList.add("blink-post");
+
+                    // Remove highlight after animation
+                    setTimeout(() => {
+                        postEl.classList.remove("blink-post");
+                    }, 3000);
+                }
+            }
+        });
     </script>
 @endsection

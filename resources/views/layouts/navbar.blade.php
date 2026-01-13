@@ -262,7 +262,7 @@
                         $authUser = auth()->user();
                     @endphp
 
-                    @if ($authUser && $authUser->role == 0 && $currentRoute != 'user.profile')
+                    @if ($authUser && $authUser->role == 0 && $currentRoute != 'user.profile' && $currentRoute != 'timeline')
                         <button type="button" style="color:black;"
                             class="sm:p-2 p-1 rounded-full relative sm:bg-secondery dark:text-white"
                             uk-tooltip="title: Notification; pos: bottom; offset:6">
@@ -441,6 +441,13 @@
                                                             </span>
                                                         </p>
 
+                                                        @if (isset($data['post_id']))
+                                                            <a href="{{ route('timeline') }}#post-{{ $data['post_id'] }}"
+                                                                class="text-xs text-blue-600 hover:underline ml-2 mr-2">
+                                                                Post
+                                                            </a>
+                                                        @endif
+
                                                         <button onclick="clearNotification('{{ $notification->id }}')"
                                                             class="text-xs text-red-600 hover:underline">
                                                             Clear
@@ -458,6 +465,15 @@
                                                             </span>
                                                         </p>
 
+                                                        @if (isset($data['post_id'], $data['post_user_id']))
+                                                            <a href="{{ $data['post_user_id'] == auth()->id()
+                                                                ? route('timeline') . '#post-' . $data['post_id']
+                                                                : url('/user/' . $data['post_user_id']) . '?post=' . $data['post_id'] }}"
+                                                                class="text-xs text-blue-600 hover:underline ml-2 mr-2">
+                                                                Post
+                                                            </a>
+                                                        @endif
+
                                                         <button onclick="clearNotification('{{ $notification->id }}')"
                                                             class="text-xs text-red-600 hover:underline">
                                                             Clear
@@ -466,25 +482,40 @@
                                                 @endif
 
                                                 {{-- POST LIKED NOTIFICATION --}}
-                                                {{-- @if (isset($data['type']) && $data['type'] === 'post_liked')
+                                                @if (isset($data['type']) && $data['type'] === 'post_liked')
                                                     <div class="flex justify-between items-center">
                                                         <p class="mr-2">
                                                             <b>{{ $data['liker_name'] }}</b> liked your post.
                                                         </p>
+
+                                                        @if (isset($data['post_id']))
+                                                            <a href="{{ route('timeline') }}#post-{{ $data['post_id'] }}"
+                                                                class="text-xs text-blue-600 hover:underline ml-2 mr-2">
+                                                                Post
+                                                            </a>
+                                                        @endif
 
                                                         <button onclick="clearNotification('{{ $notification->id }}')"
                                                             class="text-xs text-red-600 hover:underline">
                                                             Clear
                                                         </button>
                                                     </div>
-                                                @endif --}}
+                                                @endif
 
                                                 {{-- DEFAULT FOR ANYTHING ELSE --}}
-                                                @if (!isset($data['type']) || !in_array($data['type'], ['post_commented', 'comment_replied']))
+                                                @if (!isset($data['type']) || !in_array($data['type'], ['post_commented', 'comment_replied', 'post_liked']))
                                                     <div class="flex justify-between items-center">
+
                                                         <p class="mr-2">
-                                                            {{ $data['message'] ?? 'New notification' }}
+                                                            <b>{{ $data['username'] }}</b> uploaded a new post
                                                         </p>
+
+                                                        @if (isset($data['post_id'], $data['user_id']))
+                                                            <a href="{{ url('/user/' . $data['user_id']) }}?post={{ $data['post_id'] }}"
+                                                                class="text-xs text-blue-600 hover:underline ml-2 mr-2">
+                                                                Post
+                                                            </a>
+                                                        @endif
 
                                                         <button onclick="clearNotification('{{ $notification->id }}')"
                                                             class="text-xs text-red-600 hover:underline">

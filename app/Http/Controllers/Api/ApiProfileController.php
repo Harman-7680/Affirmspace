@@ -870,14 +870,18 @@ class ApiProfileController extends Controller
             )
         // ->inRandomOrder()
         // --- Smart dynamic friend priority
-            ->orderByRaw("
-    CASE
-        WHEN user_id IN (" . implode(',', $friends) . ")
-             AND created_at >= NOW() - INTERVAL $boostHours HOUR
-        THEN 1
-        ELSE 0
-    END DESC
-")
+            ->when(! empty($friends), function ($q) use ($friends, $boostHours) {
+                $friendIds = implode(',', array_map('intval', $friends));
+
+                $q->orderByRaw("
+        CASE
+            WHEN user_id IN ($friendIds)
+                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
+            THEN 1
+            ELSE 0
+        END DESC
+    ");
+            })
             ->inRandomOrder() // randomize only within same priority
             ->orderBy('posts.created_at', 'desc')
             ->get()

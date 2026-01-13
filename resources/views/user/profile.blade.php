@@ -114,7 +114,7 @@
             @else
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                     @forelse ($posts as $post)
-                        <div class="bg-white rounded shadow p-3">
+                        <div id="post-{{ $post->id }}" class="bg-white rounded shadow p-3 transition-all duration-500">
                             {{-- Post Image --}}
                             @if ($post->post_image)
                                 <img src="{{ asset('storage/' . $post->post_image) }}" alt="Post Image"
@@ -501,6 +501,31 @@
                     alert(xhr.responseJSON?.message || "Server error while blocking user.");
                 }
             });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const params = new URLSearchParams(window.location.search);
+            const postId = params.get('post');
+
+            if (postId) {
+                const postEl = document.getElementById('post-' + postId);
+
+                if (postEl) {
+                    postEl.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'center'
+                    });
+
+                    // Highlight effect
+                    postEl.classList.add('ring-4', 'ring-blue-400');
+
+                    setTimeout(() => {
+                        postEl.classList.remove('ring-4', 'ring-blue-400');
+                    }, 3000);
+                }
+            }
         });
     </script>
 @endsection

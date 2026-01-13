@@ -10,6 +10,7 @@ use App\Models\Rating;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 
 class CounselorController extends Controller
 {
@@ -163,6 +164,30 @@ class CounselorController extends Controller
             'message_body'    => $request->message,
             'availability_id' => $request->availability_id,
         ]);
+
+        // email logic
+        $messageModel = Message::create([
+            'sender_id'       => auth()->id(),
+            'receiver_id'     => $id,
+            'subject'         => $request->subject,
+            'email'           => $request->email,
+            'message_body'    => $request->message,
+            'availability_id' => $request->availability_id,
+        ]);
+
+        $counselor = User::findOrFail($id);
+        $sender    = auth()->user();
+
+        Mail::send('emails.new_appointment', [
+            'counselor'    => $counselor,
+            'sender'       => $sender,
+            'subject'      => $request->subject,
+            'messageBody'  => $request->message,
+            'availability' => $availability,
+        ], function ($mail) use ($counselor) {
+            $mail->to($counselor->email)
+                ->subject('You have a new appointment request');
+        });
 
         return back()->with('success', 'Message sent successfully!');
     }
