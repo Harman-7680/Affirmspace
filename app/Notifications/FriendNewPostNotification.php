@@ -24,13 +24,14 @@ class FriendNewPostNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type'     => 'new_post',
-            'post_id'  => $this->post->id,
-            'user_id'  => $this->post->user_id,
-            'username' => $this->post->user->first_name,
-            'caption'  => $this->post->caption,
-            'image'    => $this->post->post_image,
-            'message'  => $this->post->user->first_name . " uploaded a new post.",
+            'type'       => 'new_post',
+            'post_id'    => $this->post->id,
+            'user_id'    => $this->post->user_id,
+            'username'   => $this->post->user->first_name,
+            'user_image' => $this->post->user->image,
+            'caption'    => $this->post->caption,
+            'image'      => $this->post->post_image,
+            'message'    => $this->post->user->first_name . " uploaded a new post.",
         ];
     }
 }

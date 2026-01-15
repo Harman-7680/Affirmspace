@@ -27,37 +27,64 @@ class AdminMessageController extends Controller
         $message = $request->message;
         $role    = $request->user_type === 'counselor' ? 1 : 0;
 
-        // Get all users of selected type
+        // Get users by role
         $users = User::where('role', $role)->get();
 
         foreach ($users as $user) {
 
-            // Send Firebase notifications using your existing service
-            $tokens = UserDevice::where('user_id', $user->id)->pluck('device_token');
-
-            foreach ($tokens as $token) {
-                try {
-                    app(FirebaseNotificationService::class)->send(
-                        $token,
-                        'Message from Admin',
-                        $message,
-                        [
-                            'type' => 'admin_message',
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    Log::error("Firebase Admin Push Error for user {$user->id}: " . $e->getMessage());
-                }
-            }
-
-            Mail::to($user->email)->send(
-                new AdminBroadcastMail($message, $user->first_name ?? 'User')
+            // SAFE Firebase push (won't crash)
+            $this->sendFirebaseSafe(
+                $user->id,
+                'Message from Admin',
+                $message,
+                [
+                    'type' => 'admin_message',
+                ]
             );
+
+            // Email ALWAYS works
+            try {
+                Mail::to($user->email)->send(
+                    new AdminBroadcastMail($message, $user->first_name ?? 'User')
+                );
+            } catch (\Throwable $e) {
+                Log::error("Admin email failed for user {$user->id}: " . $e->getMessage());
+            }
         }
 
         return response()->json([
             'success' => true,
             'message' => 'Message sent successfully',
         ]);
+    }
+
+    /**
+     * SAFE Firebase sender (shared logic)
+     */
+    private function sendFirebaseSafe($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isEmpty()) {
+            return; // No device → silently skip
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning(
+                    "Firebase admin push skipped (user {$userId}): " . $e->getMessage()
+                );
+            }
+        }
     }
 }

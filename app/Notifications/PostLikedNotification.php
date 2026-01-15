@@ -26,11 +26,12 @@ class PostLikedNotification extends Notification
     public function toDatabase(object $notifiable): array
     {
         return [
-            'type'       => 'post_liked',
-            'post_id'    => $this->post->id,
-            'liker_id'   => $this->liker->id,
-            'liker_name' => $this->liker->first_name,
-            'message'    => $this->liker->first_name . ' liked your post',
+            'type'        => 'post_liked',
+            'post_id'     => $this->post->id,
+            'liker_id'    => $this->liker->id,
+            'liker_name'  => $this->liker->first_name,
+            'actor_image' => $this->liker->image,
+            'message'     => $this->liker->first_name . ' liked your post',
         ];
     }
 }

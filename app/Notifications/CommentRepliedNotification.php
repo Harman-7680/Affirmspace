@@ -32,6 +32,7 @@ class CommentRepliedNotification extends Notification
             'reply_id'     => $this->reply->id,
             'actor_id'     => $this->actor->id,
             'actor_name'   => $this->actor->first_name,
+            'actor_image'  => $this->actor->image ?? null,
             'parent_id'    => $this->reply->parent_id,
             'reply_body'   => $this->reply->body,
             'message'      => $this->actor->first_name . ' replied to your comment',

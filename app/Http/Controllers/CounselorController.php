@@ -8,8 +8,11 @@ use App\Models\Message;
 use App\Models\Post;
 use App\Models\Rating;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class CounselorController extends Controller
@@ -151,19 +154,10 @@ class CounselorController extends Controller
             }
 
             // If booking already approved
-            if ($booking->status === 'approved') {
+            if ($booking->status === 'accepted') {
                 return back()->with('success', 'You have already booked this appointment.');
             }
         }
-
-        Message::create([
-            'sender_id'       => auth()->id(),
-            'receiver_id'     => $id,
-            'subject'         => $request->subject,
-            'email'           => $request->email,
-            'message_body'    => $request->message,
-            'availability_id' => $request->availability_id,
-        ]);
 
         // email logic
         $messageModel = Message::create([
@@ -188,6 +182,31 @@ class CounselorController extends Controller
             $mail->to($counselor->email)
                 ->subject('You have a new appointment request');
         });
+
+        // FIREBASE PUSH
+        $tokens = UserDevice::where('user_id', $id)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isNotEmpty()) {
+            foreach ($tokens as $token) {
+                try {
+                    app(FirebaseNotificationService::class)->send(
+                        $token,
+                        'New Appointment 📅',
+                        $sender->first_name . ' sent you an appointment request',
+                        [
+                            'type'            => 'appointment_request',
+                            'sender_id'       => (string) $sender->id,
+                            'availability_id' => (string) $availability->id,
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('Firebase appointment push failed: ' . $e->getMessage());
+                }
+            }
+        }
 
         return back()->with('success', 'Message sent successfully!');
     }

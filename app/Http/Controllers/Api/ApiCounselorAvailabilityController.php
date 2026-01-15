@@ -5,9 +5,12 @@ use App\Http\Controllers\Controller;
 use App\Mail\AppointmentStatusMail;
 use App\Models\CounselorAvailability;
 use App\Models\Message;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class ApiCounselorAvailabilityController extends Controller
@@ -108,10 +111,48 @@ class ApiCounselorAvailabilityController extends Controller
         // Send email notification
         Mail::to($message->email)->send(new AppointmentStatusMail($message, $status));
 
+        $this->sendFirebaseSafe(
+            $message->sender_id,
+            'Appointment Update',
+            "Your appointment has been {$status}",
+            [
+                'type'       => 'appointment_status',
+                'status'     => $status,
+                'message_id' => (string) $message->id,
+            ]
+        );
+
         return response()->json([
             'success' => true,
             'message' => "Appointment {$status} successfully, and email sent.",
             'data' => $message,
         ], 200);
+    }
+
+    private function sendFirebaseSafe($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isEmpty()) {
+            return;
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning(
+                    "Firebase appointment push skipped (user {$userId}): " . $e->getMessage()
+                );
+            }
+        }
     }
 }

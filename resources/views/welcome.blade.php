@@ -2,133 +2,209 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Welcome | Affirmspace</title>
-    <style>
-        :root {
-            --bg-color: #f4f6f9;
-            --text-color: #222;
-            --subtext-color: #555;
-            --btn-bg: linear-gradient(90deg, #ff512f, #dd2476);
-            --btn-text: #fff;
-            --link-color: #333;
-        }
+    <meta charset="UTF-8" />
+    <title>AffirmSpace – LGBTQ+ Dating, Events & Gender-Affirming Healthcare</title>
 
-        body.dark {
-            --bg-color: #000000;
-            --text-color: #fff;
-            --subtext-color: #ccc;
-            --btn-bg: linear-gradient(90deg, #ff512f, #dd2476);
-            --btn-text: #fff;
-            --link-color: #fff;
+    <meta name="description"
+        content="AffirmSpace is a safe LGBTQ+ platform for dating, community, anonymous chats, local events, and discovering trusted gender-affirming healthcare providers." />
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Inter', sans-serif;
         }
 
         body {
-            margin: 0;
-            font-family: 'Poppins', sans-serif;
-            background: var(--bg-color);
+            background: #f9fafb;
+            color: #222;
+            line-height: 1.6;
+        }
+
+        /* NAVBAR */
+        header {
+            background: #ffffff;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-size: 1.6rem;
+            font-weight: 700;
+        }
+
+        .nav-btn {
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+        }
+
+        /* HERO */
+        .hero {
             display: flex;
             align-items: center;
-            justify-content: center;
-            min-height: 100vh;
-            color: var(--text-color);
-            transition: background 0.3s, color 0.3s;
+            justify-content: space-between;
+            gap: 50px;
+            padding: 90px 8%;
         }
 
-        /* Main content container */
-        #main-welcome {
-            text-align: center;
-            width: 90%;
-            max-width: 400px;
-            padding: 0 15px;
-            margin: auto;
-            animation: fadeIn 1s ease-in-out;
+        .hero-text {
+            max-width: 580px;
         }
 
-        #main-welcome .logo {
-            width: 150px;
-            height: 150px;
-            object-fit: contain;
+        .hero-text h1 {
+            font-size: 2.8rem;
             margin-bottom: 20px;
         }
 
-        #main-welcome h1 {
-            font-size: 2.5rem;
-            font-weight: 700;
-            margin-bottom: 10px;
-            color: var(--text-color);
+        .hero-text p {
+            font-size: 1.1rem;
+            color: #555;
+            margin-bottom: 35px;
         }
 
-        #main-welcome p {
-            font-size: 16px;
-            color: var(--subtext-color);
-            margin-bottom: 30px;
-            line-height: 1.5;
+        .hero-buttons {
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
-        .btn {
-            display: block;
-            width: 100%;
-            max-width: 320px;
-            /* keeps button nicely sized */
-            margin: 10px auto;
-            /* centers button */
-            padding: 12px 16px;
-            font-size: 1rem;
-            font-weight: bold;
-            border-radius: 10px;
+        .primary-btn {
+            padding: 14px 34px;
+            border-radius: 30px;
             text-decoration: none;
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+        }
+
+        .secondary-btn {
+            padding: 14px 34px;
+            border-radius: 30px;
+            text-decoration: none;
+            border: 2px solid #dd2476;
+            color: #dd2476;
+            font-weight: 600;
+        }
+
+        .hero-image img {
+            width: 430px;
+            max-width: 100%;
+        }
+
+        /* SECTION */
+        section {
+            padding: 80px 8%;
+        }
+
+        section h2 {
+            font-size: 2.1rem;
+            margin-bottom: 15px;
             text-align: center;
-            cursor: pointer;
-            transition: 0.3s;
-            box-sizing: border-box;
         }
 
-        /* Mobile-specific adjustment */
-        @media (max-width: 400px) {
-            .btn {
-                max-width: 100%;
-                /* allow full width only on very small screens */
-                font-size: 0.9rem;
-                padding: 10px 14px;
-            }
+        section p {
+            max-width: 850px;
+            margin: 0 auto;
+            text-align: center;
+            color: #555;
         }
 
-        .btn-primary {
-            background: var(--btn-bg);
-            color: var(--btn-text);
-            border: none;
+        /* FEATURES */
+        .features {
+            background: #ffffff;
         }
 
-        .btn-primary:hover {
-            opacity: 0.9;
+        .feature-grid {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 25px;
         }
 
-        .toggle-btn {
-            background: #444;
-            color: #fff;
+        .feature-card {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
-        .toggle-btn:hover {
-            background: #666;
+        .feature-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.1rem;
         }
 
-        .link a {
-            text-decoration: none;
-            font-weight: bold;
-            color: var(--link-color);
+        .disclaimer {
+            margin-top: 35px;
+            font-size: 0.85rem;
+            text-align: center;
+            color: #666;
         }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
+        /* IDENTITY */
+        .identity {
+            background: #ffffff;
+            text-align: center;
+        }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
+        .identity-points {
+            margin-top: 30px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 20px;
+            font-weight: 500;
+        }
+
+        /* TRUST */
+        .trust {
+            background: #f9fafb;
+            text-align: center;
+        }
+
+        .trust ul {
+            list-style: none;
+            margin-top: 25px;
+        }
+
+        .trust li {
+            margin: 10px 0;
+            font-weight: 500;
+        }
+
+        /* CTA */
+        .cta {
+            text-align: center;
+            background: #ffffff;
+        }
+
+        .cta p {
+            margin-bottom: 30px;
+        }
+
+        /* FOOTER */
+        footer {
+            padding: 25px;
+            text-align: center;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        /* RESPONSIVE */
+        @media(max-width: 900px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
             }
         }
 
@@ -140,8 +216,8 @@
             width: 100%;
             height: 100%;
             background-color: #dafaf8ff;
-            /* background matches logo theme */
-            display: flex;
+            display: none;
+            /* FIX */
             justify-content: center;
             align-items: center;
             flex-direction: column;
@@ -151,6 +227,7 @@
             opacity: 1;
             transition: opacity 0.5s ease;
         }
+
 
         /* Heart pulse animation */
         #splash-screen img {
@@ -184,43 +261,155 @@
 </head>
 
 <body>
-
     <!-- Splash screen -->
     <div id="splash-screen">
         <img src="images/welcomepage.png" alt="AffirmSpace">
     </div>
 
-    <div id="main-welcome">
-        <img src="images/welcomepage.png" alt="AffirmSpace" class="logo">
-        <h1>AffirmSpace</h1>
-        <p>A Safe Space to connect, share and heal</p>
-        <a href="/register" class="btn btn-primary">Create an Account</a>
-        <p class="link">Already have an account? <a href="/login">Log in</a></p>
-        <a href="#" class="btn toggle-btn" onclick="toggleTheme(event)">Switch Theme</a>
-    </div>
+    <header>
+        <div class="logo">AffirmSpace</div>
+        <a href="{{ 'register' }}" class="nav-btn">Get Started</a>
+    </header>
 
-    <script>
-        function toggleTheme(event) {
-            event.preventDefault();
-            document.body.classList.toggle("dark");
-        }
+    <section class="hero">
+        <div class="hero-text">
+            <h1>A Safe LGBTQ+ Platform for Dating, Events & Gender-Affirming Healthcare</h1>
+            <p>
+                AffirmSpace is your all-in-one LGBTQ+ space to connect, date, join anonymous
+                chat groups, explore local events, and discover trusted gender-affirming
+                healthcare providers — safely and respectfully.
+            </p>
 
-        // Splash screen logic
-        window.addEventListener('load', () => {
-            const splash = document.getElementById('splash-screen');
-            if (!sessionStorage.getItem('flashShown')) {
-                setTimeout(() => {
-                    splash.style.opacity = 0;
-                    setTimeout(() => {
-                        splash.style.display = 'none';
-                    }, 500);
-                }, 1000);
-                sessionStorage.setItem('flashShown', 'true');
-            } else {
-                splash.style.display = 'none';
-            }
-        });
-    </script>
+            <div class="hero-buttons">
+                <a href="{{ 'register' }}" class="primary-btn">Create an Account</a>
+                <a href="{{ 'login' }}" class="secondary-btn">Already have a Account</a>
+            </div>
+        </div>
+
+        <div class="hero-image">
+            <img src="images/background.png"
+                alt="Inclusive LGBTQ+ community, dating, events and healthcare illustration">
+        </div>
+    </section>
+
+    <section>
+        <h2>What is AffirmSpace?</h2>
+        <p>
+            AffirmSpace is an LGBTQ+ social, dating, and wellbeing platform designed to
+            support people through connection, self-expression, gender transition,
+            healthcare discovery, and real-world community experiences.
+        </p>
+    </section>
+
+    <section class="features">
+        <h2>Everything You Need, In One Safe Space</h2>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <h3>💖 LGBTQ+ Dating</h3>
+                <p>Build meaningful, respectful relationships without fear or judgment.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🌈 Community & Social Sharing</h3>
+                <p>Share your story and connect with people who truly understand you.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>👥 Anonymous Chat Groups</h3>
+                <p>Talk freely, ask questions, and find support while staying anonymous.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>📍 LGBTQ+ Events Near You</h3>
+                <p>Explore pride events, meetups, workshops, and safe queer spaces nearby.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🧠 Mental & Emotional Wellbeing</h3>
+                <p>Access LGBTQ+ friendly counselors and emotional support resources.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🧬 Hormone Therapy Discovery</h3>
+                <p>Find verified hormone therapy and endocrinology providers.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>🩺 Transition-Experienced Doctors</h3>
+                <p>Discover doctors experienced in gender-affirming care.</p>
+            </div>
+
+            <div class="feature-card">
+                <h3>✨ Gender-Affirming Surgeries</h3>
+                <p>Explore trusted surgeons for facial and gender-affirming procedures.</p>
+            </div>
+        </div>
+
+        <p class="disclaimer">
+            AffirmSpace does not provide medical advice. We help users discover verified
+            professionals and trusted resources.
+        </p>
+    </section>
+
+    <section class="identity">
+        <h2>Be Yourself — On Your Terms</h2>
+        <p>
+            Whether you choose to be visible or anonymous, AffirmSpace gives you complete
+            control over your identity and privacy.
+        </p>
+
+        <div class="identity-points">
+            <div>✔ Optional anonymity</div>
+            <div>✔ Pronoun & identity controls</div>
+            <div>✔ No forced labels</div>
+            <div>✔ Zero tolerance for harassment</div>
+        </div>
+    </section>
+
+    <section class="trust">
+        <h2>Built on Safety, Privacy & Trust</h2>
+        <ul>
+            <li>✔ Moderated LGBTQ+ inclusive community</li>
+            <li>✔ Privacy-first design</li>
+            <li>✔ Verified healthcare discovery</li>
+            <li>✔ Respect, consent & dignity</li>
+        </ul>
+    </section>
+
+    <section class="cta">
+        <h2>You Belong Here</h2>
+        <p>
+            Whether you want to date, connect, transition, attend events, or simply be
+            yourself — AffirmSpace is here for you.
+        </p>
+
+        <a href="{{ 'register' }}" class="primary-btn">Continue to AffirmSpace</a>
+    </section>
+
+    <footer>
+        © 2026 AffirmSpace. All rights reserved.
+    </footer>
+
 </body>
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const splash = document.getElementById('splash-screen');
+
+        if (!sessionStorage.getItem('flashShown')) {
+            splash.style.display = 'flex'; // show splash
+
+            setTimeout(() => {
+                splash.style.opacity = '0';
+
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                }, 500);
+            }, 1000); // splash duration
+
+            sessionStorage.setItem('flashShown', 'true');
+        }
+    });
+</script>
 
 </html>

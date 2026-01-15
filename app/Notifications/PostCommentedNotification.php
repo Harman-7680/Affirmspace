@@ -31,6 +31,7 @@ class PostCommentedNotification extends Notification
             'comment_id'   => $this->comment->id,
             'actor_id'     => $this->actor->id,
             'actor_name'   => $this->actor->first_name,
+            'actor_image'  => $this->actor->image ?? null,
             'comment_body' => $this->comment->body,
             'message'      => $this->actor->first_name . ' commented on your post',
         ];

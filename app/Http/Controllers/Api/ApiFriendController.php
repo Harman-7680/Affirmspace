@@ -53,25 +53,16 @@ class ApiFriendController extends Controller
         $receiver = User::findOrFail($receiverId);
         $receiver->notify(new FollowNotification($auth));
 
-        $tokens = UserDevice::where('user_id', $receiver->id)
-            ->pluck('device_token');
-
-        foreach ($tokens as $token) {
-            try {
-                app(FirebaseNotificationService::class)->send(
-                    $token,
-                    'New Friend Request 👋',
-                    $auth->first_name . ' sent you a friend request',
-                    [
-                        'type'        => 'follow', // or friend_request
-                        'sender_id'   => (string) $auth->id,
-                        'sender_name' => $auth->first_name,
-                    ]
-                );
-            } catch (\Throwable $e) {
-                Log::error('Firebase Follow Push Error: ' . $e->getMessage());
-            }
-        }
+        $this->sendFirebaseSafe(
+            $receiver->id,
+            'New Friend Request 👋',
+            $auth->first_name . ' sent you a friend request',
+            [
+                'type'        => 'follow',
+                'sender_id'   => (string) $auth->id,
+                'sender_name' => $auth->first_name,
+            ]
+        );
 
         return response()->json([
             'success' => true,
@@ -97,24 +88,16 @@ class ApiFriendController extends Controller
 
             $sender = $friendship->sender;
 
-            $tokens = UserDevice::where('user_id', $sender->id)
-                ->pluck('device_token');
+            $this->sendFirebaseSafe(
+                $sender->id,
+                'Friend Request Accepted',
+                Auth::user()->first_name . ' accepted your friend request',
+                [
+                    'type'        => 'friend_request_accepted',
+                    'receiver_id' => (string) Auth::id(),
+                ]
+            );
 
-            foreach ($tokens as $token) {
-                try {
-                    app(FirebaseNotificationService::class)->send(
-                        $token,
-                        'Friend Request Accepted',
-                        Auth::user()->first_name . ' accepted your friend request',
-                        [
-                            'type'        => 'friend_request_accepted',
-                            'receiver_id' => (string) Auth::id(),
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    Log::error('Firebase Request Accepted Error: ' . $e->getMessage());
-                }
-            }
         } else {
             $friendship->delete();
         }
@@ -146,5 +129,32 @@ class ApiFriendController extends Controller
             'success' => true,
             'message' => 'Unfriended successfully.',
         ]);
+    }
+
+    private function sendFirebaseSafe($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isEmpty()) {
+            return; // No device → silently skip
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning(
+                    "Firebase push skipped (user {$userId}): " . $e->getMessage()
+                );
+            }
+        }
     }
 }

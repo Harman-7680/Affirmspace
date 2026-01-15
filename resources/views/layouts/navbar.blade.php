@@ -353,20 +353,40 @@
                                         class="relative flex items-center gap-3 p-2 rounded-xl pr-10 mb-2 hover:bg-secondery bg-teal-500/5 dark:hover:bg-white/10">
 
                                         @php
-                                            $profileId =
-                                                $data['follower_id'] ??
-                                                ($data['actor_id'] ??
-                                                    ($data['liker_id'] ??
-                                                        ($data['user_id'] ?? ($data['receiver_id'] ?? null))));
+                                            if (($data['type'] ?? null) === 'appointment_status') {
+                                                $profileId = $data['counselor_id'] ?? null;
+                                            } else {
+                                                $profileId =
+                                                    $data['follower_id'] ??
+                                                    ($data['actor_id'] ??
+                                                        ($data['liker_id'] ??
+                                                            ($data['sender_id'] ??
+                                                                ($data['user_id'] ?? ($data['receiver_id'] ?? null)))));
+                                            }
+
+                                            $image =
+                                                $data['follower_image'] ??
+                                                ($data['actor_image'] ??
+                                                    ($data['liker_image'] ??
+                                                        ($data['user_image'] ??
+                                                            ($data['counselor_image'] ??
+                                                                ($data['receiver_image'] ?? null)))));
                                         @endphp
 
                                         @if ($profileId)
-                                            <a href="{{ route('user.profile', $profileId) }}"
-                                                class="relative w-12 h-12 shrink-0 block cursor-pointer">
-                                                <img src="{{ asset('storage/' . ($data['follower_image'] ?? ($reciever_image ?: 'images/avatars/avatar-1.jpg'))) }}"
-                                                    onerror="this.onerror=null; this.src='{{ asset('images/avatars/avatar-1.jpg') }}';"
-                                                    alt="User Image"
-                                                    class="object-cover w-full h-full rounded-full hover:opacity-90 transition">
+                                            {{-- APPOINTMENT → counselor profile --}}
+                                            @if (($data['type'] ?? null) === 'appointment_status')
+                                                <a href="{{ url('/counselor/' . $profileId) }}"
+                                                    class="relative w-12 h-12 shrink-0 block cursor-pointer">
+                                                @else
+                                                    {{-- ALL OTHER → user profile --}}
+                                                    <a href="{{ route('user.profile', $profileId) }}"
+                                                        class="relative w-12 h-12 shrink-0 block cursor-pointer">
+                                            @endif
+
+                                            <img src="{{ $image ? asset('storage/' . $image) : asset('images/avatars/avatar-1.jpg') }}"
+                                                onerror="this.onerror=null;this.src='{{ asset('images/avatars/avatar-1.jpg') }}';"
+                                                class="object-cover w-full h-full rounded-full">
                                             </a>
                                         @else
                                             <div class="relative w-12 h-12 shrink-0">
@@ -502,8 +522,30 @@
                                                     </div>
                                                 @endif
 
+                                                @if (isset($data['type']) && $data['type'] === 'appointment_status')
+                                                    <div class="flex justify-between items-center">
+                                                        <p class="mr-2">
+                                                            <span class="text-gray-700 dark:text-gray-300">
+                                                                <b>
+                                                                    {{ $data['counselor_name'] ?? '' }}</b>
+                                                                {{ $data['body'] ?? '' }}
+                                                            </span>
+                                                        </p>
+
+                                                        <a href="{{ route('blog') }}"
+                                                            class="text-xs text-blue-600 hover:underline ml-2 mr-2">
+                                                            Check
+                                                        </a>
+
+                                                        <button onclick="clearNotification('{{ $notification->id }}')"
+                                                            class="text-xs text-red-600 hover:underline">
+                                                            Clear
+                                                        </button>
+                                                    </div>
+                                                @endif
+
                                                 {{-- DEFAULT FOR ANYTHING ELSE --}}
-                                                @if (!isset($data['type']) || !in_array($data['type'], ['post_commented', 'comment_replied', 'post_liked']))
+                                                @if (isset($data['type']) && $data['type'] === 'new_post')
                                                     <div class="flex justify-between items-center">
 
                                                         <p class="mr-2">
@@ -810,7 +852,6 @@
                                             No Appointments found.
                                         </div>
                                     @endforelse
-
                                 </div>
                             </div>
 

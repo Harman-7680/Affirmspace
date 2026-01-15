@@ -41,23 +41,15 @@ class ApiPostController extends Controller
         foreach ($friends as $friend) {
             $friend->notify(new FriendNewPostNotification($post));
 
-            $tokens = UserDevice::where('user_id', $friend->id)->pluck('device_token');
-
-            foreach ($tokens as $token) {
-                try {
-                    app(FirebaseNotificationService::class)->send(
-                        $token,
-                        'New Post 👋',
-                        $auth->first_name . ' uploaded a new post',
-                        [
-                            'type'    => 'new_post',
-                            'post_id' => (string) $post->id,
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    Log::error('Firebase New Post Error: ' . $e->getMessage());
-                }
-            }
+            $this->sendFirebaseSafe(
+                $friend->id,
+                'New Post 📸',
+                $auth->first_name . ' shared a new post',
+                [
+                    'type'    => 'new_post',
+                    'post_id' => (string) $post->id,
+                ]
+            );
         }
 
         return response()->json([
@@ -192,23 +184,15 @@ class ApiPostController extends Controller
                     if (! $alreadyNotified) {
                         $post->user->notify(new PostLikedNotification($post, $user));
 
-                        $tokens = UserDevice::where('user_id', $post->user_id)->pluck('device_token');
-
-                        foreach ($tokens as $token) {
-                            try {
-                                app(FirebaseNotificationService::class)->send(
-                                    $token,
-                                    'Post Liked ❤️',
-                                    $user->first_name . ' liked your post',
-                                    [
-                                        'type'    => 'post_liked',
-                                        'post_id' => (string) $post->id,
-                                    ]
-                                );
-                            } catch (\Throwable $e) {
-                                Log::error('Firebase Like Error: ' . $e->getMessage());
-                            }
-                        }
+                        $this->sendFirebaseSafe(
+                            $post->user_id,
+                            'Post Liked ❤️',
+                            $user->first_name . ' liked your post',
+                            [
+                                'type'    => 'post_liked',
+                                'post_id' => (string) $post->id,
+                            ]
+                        );
                     }
                 }
             }
@@ -277,23 +261,16 @@ class ApiPostController extends Controller
                             new CommentRepliedNotification($comment, $user)
                         );
 
-                        $tokens = UserDevice::where('user_id', $parentComment->user_id)->pluck('device_token');
-
-                        foreach ($tokens as $token) {
-                            try {
-                                app(FirebaseNotificationService::class)->send(
-                                    $token,
-                                    'Reply 💬',
-                                    $user->first_name . ' replied to your comment',
-                                    [
-                                        'type'    => 'comment_replied',
-                                        'post_id' => (string) $comment->post_id,
-                                    ]
-                                );
-                            } catch (\Throwable $e) {
-                                Log::error('Firebase Reply Error: ' . $e->getMessage());
-                            }
-                        }
+                        $this->sendFirebaseSafe(
+                            $parentComment->user_id,
+                            'New Reply 💬',
+                            $user->first_name . ' replied to your comment',
+                            [
+                                'type'       => 'comment_reply',
+                                'comment_id' => (string) $comment->id,
+                                'post_id'    => (string) $post->id,
+                            ]
+                        );
                     }
                 }
             }
@@ -316,24 +293,16 @@ class ApiPostController extends Controller
                 if (! $alreadyNotified) {
                     $post->user->notify(new PostCommentedNotification($comment, $user));
 
-                    $tokens = UserDevice::where('user_id', $post->user_id)->pluck('device_token');
-
-                    foreach ($tokens as $token) {
-                        try {
-                            app(FirebaseNotificationService::class)->send(
-                                $token,
-                                'New Comment 💬',
-                                $user->first_name . ' commented on your post',
-                                [
-                                    'type'       => 'post_commented',
-                                    'post_id'    => (string) $post->id,
-                                    'comment_id' => (string) $comment->id,
-                                ]
-                            );
-                        } catch (\Throwable $e) {
-                            Log::error('Firebase Comment Error: ' . $e->getMessage());
-                        }
-                    }
+                    $this->sendFirebaseSafe(
+                        $post->user_id,
+                        'New Comment 💬',
+                        $user->first_name . ' commented on your post',
+                        [
+                            'type'       => 'post_comment',
+                            'comment_id' => (string) $comment->id,
+                            'post_id'    => (string) $post->id,
+                        ]
+                    );
                 }
             }
 
@@ -380,5 +349,30 @@ class ApiPostController extends Controller
             'success' => true,
             'message' => 'Comment deleted successfully',
         ]);
+    }
+
+    private function sendFirebaseSafe($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isEmpty()) {
+            return;
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning("Firebase push skipped (user {$userId}): " . $e->getMessage());
+            }
+        }
     }
 }

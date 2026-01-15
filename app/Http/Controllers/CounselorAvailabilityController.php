@@ -4,9 +4,14 @@ namespace App\Http\Controllers;
 use App\Mail\AppointmentStatusMail;
 use App\Models\CounselorAvailability;
 use App\Models\Message;
+use App\Models\User;
+use App\Models\UserDevice;
+use App\Notifications\AppointmentStatusNotification;
+use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class CounselorAvailabilityController extends Controller
@@ -76,6 +81,24 @@ class CounselorAvailabilityController extends Controller
 
         Mail::to($message->email)->send(new AppointmentStatusMail($message, $status));
 
+        $sender = User::find($message->sender_id);
+        if ($sender) {
+            $sender->notify(
+                new AppointmentStatusNotification($message, $status)
+            );
+        }
+
+        $this->sendFirebaseSafe(
+            $message->sender_id,
+            'Appointment Update',
+            "Your appointment has been {$status}",
+            [
+                'type'       => 'appointment_status',
+                'status'     => $status,
+                'message_id' => (string) $message->id,
+            ]
+        );
+
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
@@ -84,5 +107,32 @@ class CounselorAvailabilityController extends Controller
         }
 
         return back()->with('success', "Appointment {$status} successfully, and email sent.");
+    }
+
+    private function sendFirebaseSafe($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isEmpty()) {
+            return;
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning(
+                    "Firebase appointment push skipped (user {$userId}): " . $e->getMessage()
+                );
+            }
+        }
     }
 }

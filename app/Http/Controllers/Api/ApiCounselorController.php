@@ -7,8 +7,12 @@ use App\Models\CounselorAvailability;
 use App\Models\Message;
 use App\Models\Rating;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 
 class ApiCounselorController extends Controller
 {
@@ -80,7 +84,7 @@ class ApiCounselorController extends Controller
             }
 
             // Approved booking
-            if ($booking->status === 'approved') {
+            if ($booking->status === 'accepted') {
                 return response()->json([
                     'success' => false,
                     'message' => 'You have already booked this appointment for this time slot!',
@@ -89,7 +93,8 @@ class ApiCounselorController extends Controller
             }
         }
 
-        $message = Message::create([
+        // email logic
+        $messageModel = Message::create([
             'sender_id'       => auth()->id(),
             'receiver_id'     => $id,
             'subject'         => $request->subject,
@@ -98,10 +103,49 @@ class ApiCounselorController extends Controller
             'availability_id' => $request->availability_id,
         ]);
 
+        $counselor = User::findOrFail($id);
+        $sender    = auth()->user();
+
+        Mail::send('emails.new_appointment', [
+            'counselor'    => $counselor,
+            'sender'       => $sender,
+            'subject'      => $request->subject,
+            'messageBody'  => $request->message,
+            'availability' => $availability,
+        ], function ($mail) use ($counselor) {
+            $mail->to($counselor->email)
+                ->subject('You have a new appointment request');
+        });
+
+        // FIREBASE PUSH
+        $tokens = UserDevice::where('user_id', $id)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        if ($tokens->isNotEmpty()) {
+            foreach ($tokens as $token) {
+                try {
+                    app(FirebaseNotificationService::class)->send(
+                        $token,
+                        'New Appointment 📅',
+                        $sender->first_name . ' sent you an appointment request',
+                        [
+                            'type'            => 'appointment_request',
+                            'sender_id'       => (string) $sender->id,
+                            'availability_id' => (string) $availability->id,
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('Firebase appointment push failed: ' . $e->getMessage());
+                }
+            }
+        }
+
         return response()->json([
             'success'      => true,
             'message'      => 'Message sent successfully!',
-            'data'         => $message,
+            'data'         => $messageModel,
             'availability' => $availability,
         ], 201);
     }
@@ -191,7 +235,7 @@ class ApiCounselorController extends Controller
         ])
             ->where('receiver_id', auth()->id())
             ->orderBy('created_at', 'desc')
-            // ->take(4) // latest 4
+        // ->take(4) // latest 4
             ->get();
 
         return response()->json([
