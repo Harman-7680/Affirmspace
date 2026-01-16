@@ -318,7 +318,7 @@
                             </div> --}}
                         </div>
 
-                        <div class="text-sm h-[400px] w-full overflow-y-auto pr-2">
+                        <div class="text-sm h-[400px] w-full overflow-y-auto">
                             <div class="pl-2 p-1 text-sm font-normal dark:text-white">
                                 @forelse($notifications as $notification)
                                     @php
@@ -401,7 +401,7 @@
                                             @if ($isFollowRequest)
                                                 <p>
                                                     <b class="font-bold mr-1">{{ $data['follower_name'] }}</b>
-                                                    sent you a friend request.
+                                                    sent you a friend request
                                                 </p>
 
                                                 {{-- Show Accept/Reject only if friendship still exists --}}
@@ -441,7 +441,7 @@
                                                 <div class="flex justify-between items-center">
                                                     <p class="mr-2">
                                                         <b>{{ $data['receiver_name'] ?? '' }}</b>
-                                                        accepted your friend request.
+                                                        accepted your friend request
                                                     </p>
                                                     <button onclick="clearNotification('{{ $notification->id }}')"
                                                         class="text-xs text-red-600 hover:underline">
@@ -455,7 +455,7 @@
                                                 @if (isset($data['type']) && $data['type'] === 'post_commented')
                                                     <div class="flex justify-between items-center">
                                                         <p class="mr-2">
-                                                            <b>{{ $data['actor_name'] }}</b> commented on your post:
+                                                            <b>{{ $data['actor_name'] }}</b> commented on your post
                                                             <span class="text-gray-700 dark:text-gray-300">
                                                                 "{{ $data['comment_body'] ?? '' }}"
                                                             </span>
@@ -464,7 +464,7 @@
                                                         @if (isset($data['post_id']))
                                                             <a href="{{ route('timeline') }}#post-{{ $data['post_id'] }}"
                                                                 class="text-xs text-blue-600 hover:underline ml-2 mr-2">
-                                                                Post
+                                                                See
                                                             </a>
                                                         @endif
 
@@ -479,7 +479,7 @@
                                                 @if (isset($data['type']) && $data['type'] === 'comment_replied')
                                                     <div class="flex justify-between items-center">
                                                         <p class="mr-2">
-                                                            <b>{{ $data['actor_name'] }}</b> replied to your comment:
+                                                            <b>{{ $data['actor_name'] }}</b> replied to your comment
                                                             <span class="text-gray-700 dark:text-gray-300">
                                                                 "{{ $data['reply_body'] ?? '' }}"
                                                             </span>
@@ -490,7 +490,7 @@
                                                                 ? route('timeline') . '#post-' . $data['post_id']
                                                                 : url('/user/' . $data['post_user_id']) . '?post=' . $data['post_id'] }}"
                                                                 class="text-xs text-blue-600 hover:underline ml-2 mr-2">
-                                                                Post
+                                                                See
                                                             </a>
                                                         @endif
 
@@ -505,13 +505,13 @@
                                                 @if (isset($data['type']) && $data['type'] === 'post_liked')
                                                     <div class="flex justify-between items-center">
                                                         <p class="mr-2">
-                                                            <b>{{ $data['liker_name'] }}</b> liked your post.
+                                                            <b>{{ $data['liker_name'] }}</b> liked your post
                                                         </p>
 
                                                         @if (isset($data['post_id']))
                                                             <a href="{{ route('timeline') }}#post-{{ $data['post_id'] }}"
                                                                 class="text-xs text-blue-600 hover:underline ml-2 mr-2">
-                                                                Post
+                                                                See
                                                             </a>
                                                         @endif
 
@@ -526,15 +526,14 @@
                                                     <div class="flex justify-between items-center">
                                                         <p class="mr-2">
                                                             <span class="text-gray-700 dark:text-gray-300">
-                                                                <b>
-                                                                    {{ $data['counselor_name'] ?? '' }}</b>
+                                                                <b>{{ $data['counselor_name'] ?? '' }}</b>
                                                                 {{ $data['body'] ?? '' }}
                                                             </span>
                                                         </p>
 
                                                         <a href="{{ route('blog') }}"
                                                             class="text-xs text-blue-600 hover:underline ml-2 mr-2">
-                                                            Check
+                                                            See
                                                         </a>
 
                                                         <button onclick="clearNotification('{{ $notification->id }}')"
@@ -555,7 +554,7 @@
                                                         @if (isset($data['post_id'], $data['user_id']))
                                                             <a href="{{ url('/user/' . $data['user_id']) }}?post={{ $data['post_id'] }}"
                                                                 class="text-xs text-blue-600 hover:underline ml-2 mr-2">
-                                                                Post
+                                                                See
                                                             </a>
                                                         @endif
 
@@ -769,7 +768,7 @@
                             </div>
 
                             <!-- Scrollable List -->
-                            <div class="text-sm max-h-[400px] w-full overflow-y-auto pr-2">
+                            <div class="text-sm max-h-[400px] w-full overflow-y-auto">
                                 <div class="pl-2 p-1 text-sm font-normal dark:text-white">
 
                                     @forelse ($message as $value)
