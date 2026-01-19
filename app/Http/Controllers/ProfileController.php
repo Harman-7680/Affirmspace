@@ -642,26 +642,56 @@ class ProfileController extends Controller
         }
 
         // Statuses (last 24h)
-        $friendIds = Friendship::where(function ($query) use ($auth) {
-            $query->where('sender_id', $auth->id)
-                ->orWhere('receiver_id', $auth->id);
-        })
+        // $friendIds = Friendship::where(function ($query) use ($auth) {
+        //     $query->where('sender_id', $auth->id)
+        //         ->orWhere('receiver_id', $auth->id);
+        // })
+        //     ->where('status', 'accepted')
+        //     ->get()
+        //     ->map(function ($friendship) use ($auth) {
+        //         return $friendship->sender_id === $auth->id
+        //             ? $friendship->receiver_id
+        //             : $friendship->sender_id;
+        //     })
+        //     ->toArray();
+
+        // $friendIds[] = $auth->id;
+
+        // // Fetch statuses from friends + self, excluding hidden users
+        // $statuses = \App\Models\Status::with('user')
+        //     ->where('created_at', '>=', now()->subDay())
+        //     ->whereIn('user_id', $friendIds)
+        //     ->whereNotIn('user_id', $hidden_Users)
+        //     ->latest()
+        //     ->get()
+        //     ->groupBy('user_id')
+        //     ->map(fn($group) => collect($group));
+
+        // Statuses (last 24h)
+        $userId    = auth()->id();
+        $friendIds = \DB::table('friendships')
             ->where('status', 'accepted')
+            ->where(function ($query) use ($userId) {
+                $query->where('sender_id', $userId)
+                    ->orWhere('receiver_id', $userId);
+            })
             ->get()
-            ->map(function ($friendship) use ($auth) {
-                return $friendship->sender_id === $auth->id
+            ->map(function ($friendship) use ($userId) {
+                return $friendship->sender_id == $userId
                     ? $friendship->receiver_id
                     : $friendship->sender_id;
             })
+            ->unique()
+            ->values()
             ->toArray();
 
-        $friendIds[] = $auth->id;
+        $friendIds[] = $auth->id; // include myself
+                                  // dd($friendIds);
 
-        // Fetch statuses from friends + self, excluding hidden users
-        $statuses = \App\Models\Status::with('user')
+        $statuses = Status::with('user')
             ->where('created_at', '>=', now()->subDay())
             ->whereIn('user_id', $friendIds)
-            ->whereNotIn('user_id', $hidden_Users)
+            ->whereNotIn('user_id', $hiddenUsers)
             ->latest()
             ->get()
             ->groupBy('user_id')
