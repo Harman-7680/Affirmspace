@@ -191,13 +191,7 @@ Route::middleware(['auth', 'verified', 'profile.complete'])->group(function () {
     Route::post('/settings/privacy', [ProfileController::class, 'updatePrivacy'])->name('settings.privacy');
 });
 
-Route::middleware('auth')->get('/post/{id}/comment', function ($id) {
-    return \App\Models\Comment::where('post_id', $id)
-        ->whereNull('parent_id')
-        ->with(['user', 'replies.user'])
-        ->latest()
-        ->get();
-});
+Route::middleware('auth')->get('/post/{id}/comment', [ProfileController::class, 'getPostComments']);
 
 // Dating related routes
 Route::middleware('auth', 'profile.complete')->group(function () {
@@ -312,6 +306,12 @@ Route::get('/privacy', function () {
 Route::get('/refundPolicy', function () {
     return view('user.refundPolicy');
 })->name('refundPolicy');
+
+Route::get('/contactWithAdmin', function () {
+    return view('user.contactWithAdmin');
+})->name('contactWithAdmin');
+
+Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->name('AdminSend');
 
 Route::fallback(function () {
     return response()->view('errors.fallback', [], 404);

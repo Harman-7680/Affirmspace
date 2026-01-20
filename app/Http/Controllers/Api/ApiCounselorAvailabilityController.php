@@ -5,7 +5,9 @@ use App\Http\Controllers\Controller;
 use App\Mail\AppointmentStatusMail;
 use App\Models\CounselorAvailability;
 use App\Models\Message;
+use App\Models\User;
 use App\Models\UserDevice;
+use App\Notifications\AppointmentStatusNotification;
 use App\Services\FirebaseNotificationService;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -110,6 +112,13 @@ class ApiCounselorAvailabilityController extends Controller
 
         // Send email notification
         Mail::to($message->email)->send(new AppointmentStatusMail($message, $status));
+
+        $sender = User::find($message->sender_id);
+        if ($sender) {
+            $sender->notify(
+                new AppointmentStatusNotification($message, $status)
+            );
+        }
 
         $this->sendFirebaseSafe(
             $message->sender_id,

@@ -390,4 +390,29 @@ class AdminController extends Controller
         // If request comes from WEBSITE (Web form)
         return back()->with('success', 'Your message has been sent successfully.');
     }
+
+    public function contactWithAdmin(Request $request)
+    {
+        $validated = $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string',
+        ]);
+
+        $adminEmail = 'admin@gmail.com';
+
+        Mail::to($adminEmail)->send(new ContactAdminMail($validated));
+
+        // If request comes from MOBILE APP (API)
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => true,
+                'message' => 'Your message has been sent successfully.',
+            ], 200);
+        }
+
+        // If request comes from WEBSITE (Web form)
+        return back()->with('success', 'Your message has been sent successfully.');
+    }
 }

@@ -257,6 +257,42 @@
                 transform: scale(1);
             }
         }
+
+        .site-footer {
+            background: #ffffff;
+            padding: 35px 8%;
+            border-top: 1px solid #eee;
+        }
+
+        .footer-inner {
+            max-width: 1200px;
+            margin: auto;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #dd2476;
+        }
+
+        .footer-copy {
+            font-size: 0.85rem;
+            color: #777;
+        }
     </style>
 </head>
 
@@ -387,8 +423,20 @@
         <a href="{{ 'register' }}" class="primary-btn">Continue to AffirmSpace</a>
     </section>
 
-    <footer>
-        © 2026 AffirmSpace. All rights reserved.
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <div class="footer-links">
+                <a href="{{ '/aboutUs' }}">About Us</a>
+                <a href="{{ '/privacy' }}">Privacy Policy</a>
+                <a href="{{ '/refundPolicy' }}">Refund</a>
+                <a href="{{ '/terms' }}">Terms & Conditions</a>
+                <a href="{{ '/contactWithAdmin' }}">Contact</a>
+            </div>
+
+            <p class="footer-copy">
+                © 2026 AffirmSpace. All rights reserved.
+            </p>
+        </div>
     </footer>
 
 </body>

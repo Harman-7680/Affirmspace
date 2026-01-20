@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Block;
+use App\Models\Comment;
 use App\Models\DatingMessage;
 use App\Models\Event;
 use App\Models\Friendship;
@@ -1312,5 +1313,47 @@ class ProfileController extends Controller
             'success'    => true,
             'is_private' => $user->is_private,
         ]);
+    }
+
+    public function getPostComments($postId)
+    {
+        $auth = Auth::user();
+
+        // Users I blocked
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id');
+
+        // Users who blocked me
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->pluck('user_id');
+
+        // Merge both
+        $hiddenUserIds = $blockedUsers
+            ->merge($blockedByUsers)
+            ->unique()
+            ->toArray();
+
+        return Comment::where('post_id', $postId)
+            ->whereNull('parent_id')
+
+        // hide blocked users' comments
+            ->where(function ($q) use ($hiddenUserIds, $auth) {
+                $q->whereNotIn('user_id', $hiddenUserIds)
+                    ->orWhere('user_id', $auth->id); // always show own comments
+            })
+
+            ->with([
+                'user',
+                'replies' => function ($q) use ($hiddenUserIds, $auth) {
+                    $q->where(function ($q2) use ($hiddenUserIds, $auth) {
+                        $q2->whereNotIn('user_id', $hiddenUserIds)
+                            ->orWhere('user_id', $auth->id);
+                    })
+                        ->with('user');
+                },
+            ])
+            ->latest()
+            ->get();
     }
 }

@@ -64,6 +64,16 @@ class ApiProfileController extends Controller
             $friendship_status = 'not_friends';
         }
 
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
         // If blocked in either direction
         if ($hasBlockedUser || $isBlockedByUser) {
             $posts        = collect();
@@ -87,7 +97,23 @@ class ApiProfileController extends Controller
 
             // Load posts if allowed
             $posts = $canViewPosts
-                ? \App\Models\Post::with(['user', 'comments.user', 'likes'])
+                ? Post::with([
+                'user',
+                'likes',
+                'comments' => function ($q) use ($hiddenUsers) {
+                    $q->whereNull('parent_id')
+                        ->whereNotIn('user_id', $hiddenUsers)
+                        ->latest()
+                        ->with([
+                            'user',
+                            'replies' => function ($r) use ($hiddenUsers) {
+                                $r->whereNotIn('user_id', $hiddenUsers)
+                                    ->latest()
+                                    ->with('user');
+                            },
+                        ]);
+                },
+            ])
                 ->withCount(['likes', 'comments'])
                 ->where('user_id', $user->id)
                 ->orderBy('created_at', 'desc')
@@ -500,9 +526,6 @@ class ApiProfileController extends Controller
         $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
             ->pluck('user_id')
             ->toArray();
-
-        $blockedUsers   = array_filter($blockedUsers);
-        $blockedByUsers = array_filter($blockedByUsers);
 
         $blockedPosts = \App\Models\Block::where('user_id', $auth->id)
             ->whereNotNull('post_id')

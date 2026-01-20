@@ -151,7 +151,7 @@
 
 <body>
     <header class="top-header">
-        <a href="{{ route('login') }}" class="logo-link">
+        <a href="{{ route('/') }}" class="logo-link">
             <img src="images/welcomepage.png" alt="AffirmSpace Logo">
         </a>
     </header>
