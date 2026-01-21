@@ -24,7 +24,7 @@
 <!-- Firebase & Jitsi -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-database-compat.js"></script>
-<script src="https://meet.jit.si/external_api.js"></script>
+<script src='https://8x8.vc/vpaas-magic-cookie-3b7aa2c587234976b65a4c61a71fca76/external_api.js' async></script>
 
 <script>
     const senderId = "{{ $senderId }}";
@@ -61,7 +61,7 @@
         }
 
         jitsiApi = new JitsiMeetExternalAPI(
-            "{{ config('services.jitsi.domain') }}", {
+            "8x8.vc", {
                 roomName: "{{ $roomName }}",
                 parentNode: document.getElementById('jitsi-container'),
                 jwt: "{{ $jwt }}",
@@ -69,7 +69,10 @@
                     displayName: userName
                 },
                 configOverwrite: {
-                    prejoinPageEnabled: false
+                    prejoinPageEnabled: false,
+                    startWithAudioMuted: false,
+                    startWithVideoMuted: false,
+                    disableDeepLinking: true
                 }
             }
         );

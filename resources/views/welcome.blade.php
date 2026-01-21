@@ -36,9 +36,21 @@
         }
 
         .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #222;
             font-size: 1.6rem;
             font-weight: 700;
         }
+
+        .logo img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
+        }
+
 
         .nav-btn {
             padding: 10px 24px;
@@ -303,7 +315,11 @@
     </div>
 
     <header>
-        <div class="logo">AffirmSpace</div>
+        <a href="/" class="logo">
+            <img src="images/welcomepage.png" alt="AffirmSpace Logo">
+            <span>AffirmSpace</span>
+        </a>
+
         <a href="{{ 'register' }}" class="nav-btn">Get Started</a>
     </header>
 
