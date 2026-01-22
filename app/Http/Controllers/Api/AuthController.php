@@ -224,11 +224,11 @@ class AuthController extends Controller
         }
 
         // DELETE old mobile API tokens (Sanctum)
-        // $user->tokens()->delete();
+        $user->tokens()->delete();
         // DELETE old browser sessions (web logins)
-        // \DB::table('sessions')
-        //     ->where('user_id', $user->id)
-        //     ->delete();
+        \DB::table('sessions')
+            ->where('user_id', $user->id)
+            ->delete();
 
         // Create API token for the user
         $token = $user->createToken('API Token')->plainTextToken;
