@@ -8,6 +8,31 @@ use Illuminate\Support\Facades\Auth;
 
 class ApiCallController extends Controller
 {
+    // public function startCall(Request $request)
+    // {
+    //     $receiverId = $request->receiver_id;
+    //     $sender     = Auth::user();
+
+    //     $roomName = config('services.jitsi.app_id') .
+    //     '/AffirmSpaceCall_' .
+    //     min($sender->id, $receiverId) . '_' .
+    //     max($sender->id, $receiverId);
+
+    //     $callId = 'call_' . $sender->id . '_' . $receiverId . '_' . time();
+    //     $jwt    = JitsiService::generateToken($roomName, $sender);
+
+    //     return response()->json([
+    //         'call_id'     => $callId,
+    //         'room_name'   => $roomName,
+    //         'jwt'         => $jwt,
+    //         'sender'      => [
+    //             'id'   => $sender->id,
+    //             'name' => $sender->first_name,
+    //         ],
+    //         'receiver_id' => $receiverId,
+    //     ]);
+    // }
+
     public function startCall(Request $request)
     {
         $receiverId = $request->receiver_id;
@@ -25,6 +50,11 @@ class ApiCallController extends Controller
             'call_id'     => $callId,
             'room_name'   => $roomName,
             'jwt'         => $jwt,
+            'call_url'    => url('/video-call?call_id=' . $callId
+                . '&room_name=' . $roomName
+                . '&jwt=' . $jwt
+                . '&sender_id=' . $sender->id
+                . '&receiver_id=' . $receiverId),
             'sender'      => [
                 'id'   => $sender->id,
                 'name' => $sender->first_name,

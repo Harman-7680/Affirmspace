@@ -18,6 +18,7 @@ use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\StatusController;
 use App\Http\Middleware\UpdateLastSeen;
 use App\Models\User;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -289,6 +290,17 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::post('/event/store', [EventController::class, 'store'])->name('event.store');
     Route::get('/event/success/{id}', [EventController::class, 'success'])->name('event.success');
     Route::get('/event/cancel/{id}', [EventController::class, 'cancel'])->name('event.cancel');
+});
+
+// public route for mobile videocall
+Route::get('/video-call', function (Request $request) {
+    return view('user.chat.calling_mobile', [
+        'callId'     => $request->call_id,
+        'roomName'   => $request->room_name,
+        'jwt'        => $request->jwt,
+        'senderId'   => $request->sender_id,
+        'receiverId' => $request->receiver_id,
+    ]);
 });
 
 Route::get('/terms', function () {
