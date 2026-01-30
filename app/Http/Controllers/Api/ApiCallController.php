@@ -54,6 +54,7 @@ class ApiCallController extends Controller
                 . '&room_name=' . $roomName
                 . '&jwt=' . $jwt
                 . '&sender_id=' . $sender->id
+                . '&sender_name=' . $sender->first_name
                 . '&receiver_id=' . $receiverId),
             'sender'      => [
                 'id'   => $sender->id,

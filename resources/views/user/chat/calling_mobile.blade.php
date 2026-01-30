@@ -13,16 +13,129 @@
 
 <head>
     <title>Calling...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1" />
 </head>
 
 <body>
 
+    <style>
+        .ringing-screen {
+            position: fixed;
+            inset: 0;
+            background: linear-gradient(135deg, #ff416c, #ff4b2b);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .ring-circle {
+            position: relative;
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 25px;
+        }
+
+        .ring-circle::before,
+        .ring-circle::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            animation: ripple 1.6s infinite;
+        }
+
+        .ring-circle::after {
+            animation-delay: .8s;
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(0.7);
+                opacity: 1;
+            }
+
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        .ring-icon {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: #fff;
+            color: #ff416c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            animation: bounce 1.4s infinite;
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-10px);
+            }
+        }
+
+        .ringing-text {
+            font-size: 55px;
+            font-weight: 600;
+            letter-spacing: 1px;
+            animation: fade 1.2s infinite;
+        }
+
+        @keyframes fade {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.6;
+            }
+        }
+
+        .ring-sub {
+            margin-top: 6px;
+            font-size: 44px;
+            opacity: 0.85;
+        }
+    </style>
+
     {{-- CALL BUTTON (sirf sender ko dikhega) --}}
-    {{-- @if ($currentUserId == $senderId)
-        <button id="startCall" style="padding:12px 25px;font-size:18px;">
+    @if ($currentUserId == $senderId)
+        <div class="ringing-screen">
+            <div class="ring-circle">
+                <div class="ring-icon">
+                    📞
+                </div>
+            </div>
+
+            {{-- <div class="ringing-text">Ringing…</div>
+            <div class="ring-sub">Waiting for answer</div> --}}
+        </div>
+        {{-- <button id="startCall" style="padding:12px 25px;font-size:18px;">
             Call User
-        </button>
-    @endif --}}
+        </button> --}}
+    @endif
 
     {{-- INCOMING CALL POPUP (receiver ke liye) --}}
     <div id="call-popup"

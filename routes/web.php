@@ -299,6 +299,7 @@ Route::get('/video-call', function (Request $request) {
         'roomName'   => $request->room_name,
         'jwt'        => $request->jwt,
         'senderId'   => $request->sender_id,
+        'senderName' => $request->sender_name,
         'receiverId' => $request->receiver_id,
     ]);
 });
