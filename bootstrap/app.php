@@ -17,9 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
 
         $middleware->alias([
-            'verified'         => \App\Http\Middleware\EnsureEmailIsVerified::class,
-            'isAdmin'          => \App\Http\Middleware\IsAdmin::class,
-            'profile.complete' => \App\Http\Middleware\EnsureProfileComplete::class,
+            'verified'          => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'verified.both'     => \App\Http\Middleware\EnsureEmailIsVerified::class,
+            'isAdmin'           => \App\Http\Middleware\IsAdmin::class,
+            'profile.complete'  => \App\Http\Middleware\EnsureProfileComplete::class,
+            'registration.paid' => \App\Http\Middleware\EnsureRegistrationPaid::class,
         ]);
 
         $middleware->web([

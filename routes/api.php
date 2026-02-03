@@ -20,7 +20,7 @@ Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
 
 // Dating related routes
-Route::middleware('auth:sanctum', 'profile.complete')->group(function () {
+Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
     Route::get('/dating/status', [ApiDatingController::class, 'status']);
     Route::post('/dating/details/save', [ApiDatingController::class, 'saveDetails']);
     Route::post('/dating/details/update', [ApiDatingController::class, 'updateDetails']);
@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dating/conversation', [ApiDatingMessageController::class, 'conversations']);
 });
 
-Route::middleware('auth:sanctum')->group(function () {
+Route::middleware('auth:sanctum', 'registration.paid', 'verified.both')->group(function () {
     // profile related routes
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::post('/password/update', [AuthController::class, 'update']);
@@ -100,21 +100,23 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/contact', [AdminController::class, 'send']);
 });
 
-Route::middleware('auth:sanctum', 'profile.complete')->group(function () {
+Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
     Route::get('/feed', [ApiProfileController::class, 'feed']);
     Route::get('/video', [ApiProfileController::class, 'video']);
     Route::get('/event', [ApiProfileController::class, 'event']);
 });
 
-Route::middleware('auth:sanctum', 'profile.complete')->group(function () {
-    // events related routes
+Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
     Route::get('/events/feed', [ApiEventController::class, 'feed']);
-    Route::post('/events', [ApiEventController::class, 'store']);
-    Route::post('/verify-payment', [ApiEventController::class, 'verifyPayment']);
+    Route::post('/events', [ApiEventController::class, 'store']); // create event + razorpay order
 });
 
+Route::post('/verify-payment', [ApiEventController::class, 'verifyPayment']); // razorpay verify
 Route::get('/events/success/{id}', [ApiEventController::class, 'success'])->name('api.events.success');
 Route::get('/events/cancel/{id}', [ApiEventController::class, 'cancel'])->name('api.events.cancel');
+
+/** Razorpay WebView page (APP ONLY) */
+Route::get('/events/razorpay/{order_id}/{event_id}', [ApiEventController::class, 'razorpayWebview'])->name('api.events.razorpay.webview');
 
 // these routes for social login if needed
 Route::prefix('social')->group(function () {

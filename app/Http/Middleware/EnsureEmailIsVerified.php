@@ -8,33 +8,27 @@ use Symfony\Component\HttpFoundation\Response;
 
 class EnsureEmailIsVerified
 {
-    /**
-     * Handle an incoming request.
-     *
-     * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     */
-    // public function handle(Request $request, Closure $next): Response
-    // {
-    //     if (! $request->user() ||
-    //         ($request->user() instanceof MustVerifyEmail &&
-    //             ! $request->user()->hasVerifiedEmail())) {
-    //         return response()->json(['message' => 'Your email address is not verified.'], 409);
-    //     }
-
-    //     return $next($request);
-    // }
-
     public function handle(Request $request, Closure $next): Response
     {
-        if (! $request->user() ||
-            ($request->user() instanceof MustVerifyEmail &&
-                ! $request->user()->hasVerifiedEmail())) {
+        $user = $request->user();
 
-            return redirect()->route('verification.notice')
+        if (! $user ||
+            ($user instanceof MustVerifyEmail && ! $user->hasVerifiedEmail())) {
+
+            // API / App request
+            if ($request->expectsJson() || $request->is('api/*')) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'Please verify your email to continue.',
+                ], 403);
+            }
+
+            // Web request
+            return redirect()
+                ->route('verification.notice')
                 ->with('error', 'Please verify your email to continue.');
         }
 
         return $next($request);
     }
-
 }

@@ -130,6 +130,14 @@
         .logout-btn:hover {
             color: #111827;
         }
+
+        .feed-btn {
+            background: #10b981;
+        }
+
+        .feed-btn:hover {
+            background: #059669;
+        }
     </style>
 </head>
 
@@ -167,6 +175,24 @@
             <input type="hidden" name="email" value="{{ session('email') ?? request('email') }}">
             <button type="submit">Resend Verification Email</button>
         </form>
+
+        @php
+            $user = auth()->user();
+        @endphp
+
+        @if ($user && $user->role == 0)
+            <a href="{{ route('feed') }}">
+                <button type="button" class="feed-btn">
+                    Go to home page →
+                </button>
+            </a>
+        @elseif($user && $user->role == 1)
+            <a href="{{ route('profile') }}">
+                <button type="button" class="feed-btn">
+                    Go to profile →
+                </button>
+            </a>
+        @endif
 
         {{-- @if (!$isApp)
             <form method="POST" action="{{ route('logout') }}">

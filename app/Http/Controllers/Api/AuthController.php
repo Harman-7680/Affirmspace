@@ -186,12 +186,12 @@ class AuthController extends Controller
         }
 
         // Check email verification
-        if (! $user->hasVerifiedEmail()) {
-            Auth::logout();
-            return response()->json([
-                'message' => 'You need to verify your email before logging in.',
-            ], 403);
-        }
+        // if (! $user->hasVerifiedEmail()) {
+        //     Auth::logout();
+        //     return response()->json([
+        //         'message' => 'You need to verify your email before logging in.',
+        //     ], 403);
+        // }
 
         // Validate device token presence
         if (empty($request->device_token)) {

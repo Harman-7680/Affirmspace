@@ -59,4 +59,9 @@ return [
         'domain'      => env('JITSI_DOMAIN'),
         'private_key' => file_get_contents(storage_path('jitsi/private.key')),
     ],
+
+    'razorpay' => [
+        'key'    => env('RAZORPAY_KEY'),
+        'secret' => env('RAZORPAY_SECRET'),
+    ],
 ];

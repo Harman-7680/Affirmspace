@@ -25,6 +25,10 @@ class AuthenticatedSessionController extends Controller
 
             $user = auth()->user();
 
+            if ($user->is_paid == 0) {
+                return redirect()->route('registration.payment');
+            }
+
             if (! $user->hasVerifiedEmail()) {
                 return redirect()->route('verification.notice');
             }

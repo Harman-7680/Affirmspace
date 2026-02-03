@@ -7,8 +7,9 @@ use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
-use Stripe\Checkout\Session as CheckoutSession;
-use Stripe\Stripe;
+// use Stripe\Checkout\Session as CheckoutSession;
+// use Stripe\Stripe;
+use Razorpay\Api\Api;
 
 class ApiEventController extends Controller
 {
@@ -35,24 +36,22 @@ class ApiEventController extends Controller
         ]);
     }
 
-    // Store Event and Create Stripe Checkout Session
+    // Store Event and Create Razorpay Checkout Session
     public function store(Request $request)
     {
         $request->validate([
             'name'          => 'required|string|max:255',
             'city'          => 'required|string|max:255',
-            'event_date'    => 'required|date',   // Event Date
-            'timing_slot'   => 'required|string', // (morning, afternoon, evening, night)
+            'event_date'    => 'required|date',
+            'timing_slot'   => 'required|string',
             'image'         => 'nullable|image|max:2048',
             'area_price_id' => 'required|exists:area_prices,id',
         ]);
 
-        // Store image if provided
         $imagePath = $request->hasFile('image')
             ? $request->file('image')->store('events', 'public')
             : null;
 
-        // Map slots to start times
         $timingSlotMap = [
             'morning'   => '09:00:00',
             'afternoon' => '12:00:00',
@@ -60,10 +59,9 @@ class ApiEventController extends Controller
             'night'     => '20:00:00',
         ];
 
-        $time   = $timingSlotMap[strtolower($request->timing_slot)] ?? '09:00:00';
-        $timing = $request->event_date . ' ' . $time; // valid datetime
+        $timing = $request->event_date . ' ' .
+            ($timingSlotMap[strtolower($request->timing_slot)] ?? '09:00:00');
 
-        /** Fetch price from DB */
         $areaPrice = AreaPrice::findOrFail($request->area_price_id);
 
         $event = Event::create([
@@ -76,53 +74,52 @@ class ApiEventController extends Controller
             'amount'     => $areaPrice->amount,
         ]);
 
-        // Stripe Checkout
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        /** Razorpay Order */
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
 
-        $session = CheckoutSession::create([
-            'payment_method_types' => ['card'],
-            'line_items'           => [[
-                'price_data' => [
-                    'currency'     => 'inr',
-                    'product_data' => [
-                        'name' => "Event Creation ({$event->name})",
-                        'description'  => "Area: {$areaPrice->area_range}",
-                    ],
-                    'unit_amount' => $areaPrice->amount * 100,
-                ],
-                'quantity'             => 1,
-            ]],
-            'mode'        => 'payment',
-            'success_url' => route('api.events.success', ['id' => $event->id]),
-            'cancel_url'  => route('api.events.cancel', ['id' => $event->id]),
+        $order = $api->order->create([
+            'receipt'  => 'event_' . $event->id,
+            'amount'   => $areaPrice->amount * 100,
+            'currency' => 'INR',
+        ]);
+
+        /** SAME CONCEPT AS STRIPE */
+        $checkoutUrl = route('api.events.razorpay.webview', [
+            'order_id' => $order->id,
+            'event_id' => $event->id,
         ]);
 
         return response()->json([
-            'message'      => 'Event created successfully. Redirect to Stripe checkout.',
-            'checkout_url' => $session->url,
-            'session_id'   => $session->id,
+            'message'      => 'Event created. Proceed to payment.',
+            'checkout_url' => $checkoutUrl,
             'event_id'     => $event->id,
-            'event'        => [
-                'id'     => $event->id,
-                'name'   => $event->name,
-                'city'   => $event->city,
-                'timing' => \Carbon\Carbon::parse($event->timing)->format('d M Y h:i A'),
-                'slot'   => ucfirst($request->timing_slot), // also send slot separately
-                'image'  => $event->image ? asset('storage/' . $event->image) : asset('images/avatars/avatar-1.jpg'),
-            ],
+        ]);
+    }
+
+    public function razorpayWebview($order_id, $event_id)
+    {
+        $event = Event::findOrFail($event_id);
+
+        return view('payment.api.razorpay', [
+            'order_id' => $order_id,
+            'event'    => $event,
+            'amount'   => $event->amount,
         ]);
     }
 
     // Payment success
     public function success($id)
     {
-        $event          = Event::findOrFail($id);
-        $event->is_paid = true;
-        $event->save();
+        $event = Event::findOrFail($id);
+        // $event->is_paid = true;
+        // $event->save();
 
-        Mail::raw("New Event '{$event->name}' created in {$event->city}, pending approval.", function ($msg) {
-            $msg->to("admin@gmail.com")->subject("New Event Pending Approval");
-        });
+        // Mail::raw("New Event '{$event->name}' created in {$event->city}, pending approval.", function ($msg) {
+        //     $msg->to("admin@gmail.com")->subject("New Event Pending Approval");
+        // });
 
         // return response()->json(['success' => true, 'message' => 'Payment successful! Event submitted for approval.']);
         return view('payment.success');
@@ -140,41 +137,35 @@ class ApiEventController extends Controller
 
     public function verifyPayment(Request $request)
     {
-        $request->validate([
-            'session_id' => 'required|string',
-            'event_id'   => 'required|integer',
-        ]);
-
-        Stripe::setApiKey(env('STRIPE_SECRET'));
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
 
         try {
-            $session = CheckoutSession::retrieve($request->session_id);
+            $api->utility->verifyPaymentSignature([
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_order_id'   => $request->razorpay_order_id,
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
 
-            if ($session->payment_status === 'paid') {
-                $event          = \App\Models\Event::findOrFail($request->event_id);
-                $event->is_paid = true;
-                $event->save();
+            $event             = Event::findOrFail($request->event_id);
+            $event->is_paid    = true;
+            $event->payment_id = $request->razorpay_payment_id;
+            $event->save();
 
-                // Notify admin
-                Mail::raw("New Event '{$event->name}' created in {$event->city}, pending approval.", function ($msg) {
-                    $msg->to('admin@gmail.com')->subject('New Event Pending Approval');
-                });
+            Mail::send('emails.event_payment_success', ['event' => $event], function ($msg) use ($event) {
+                $msg->to("admin@gmail.com")
+                    ->subject("New Paid Event: {$event->name} Pending Approval");
+            });
 
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Payment verified successfully.',
-                ]);
-            } else {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Payment not completed yet.',
-                ]);
-            }
+            return response()->json(['success' => true]);
+
         } catch (\Exception $e) {
-            return response()->json([
-                'success' => false,
-                'message' => 'Error verifying payment: ' . $e->getMessage(),
-            ], 500);
+
+            Event::find($request->event_id)?->delete();
+
+            return response()->json(['success' => false], 400);
         }
     }
 }

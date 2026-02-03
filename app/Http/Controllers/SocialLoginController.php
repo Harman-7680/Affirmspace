@@ -57,6 +57,10 @@ class SocialLoginController extends Controller
 
             Auth::login($user);
 
+            if ($user->is_paid == 0) {
+                return redirect()->route('registration.payment');
+            }
+
             return $this->redirectByRole($user);
         }
 
@@ -181,6 +185,10 @@ class SocialLoginController extends Controller
             Auth::login($user);
 
             session()->forget('social_user');
+
+            if ($user->is_paid == 0) {
+                return redirect()->route('registration.payment');
+            }
             return redirect($user->role == 1 ? '/counselor/profile' : '/feed');
         }
 
@@ -201,6 +209,10 @@ class SocialLoginController extends Controller
             Auth::login($existingUser);
 
             session()->forget('social_user');
+
+            if ($existingUser->is_paid == 0) {
+                return redirect()->route('registration.payment');
+            }
             return redirect($existingUser->role == 1 ? '/counselor/profile' : '/feed');
         }
 
@@ -259,6 +271,9 @@ class SocialLoginController extends Controller
         Auth::login($user);
         session()->forget('social_user');
 
+        if ($user->is_paid == 0) {
+            return redirect()->route('registration.payment');
+        }
         return redirect($user->role == 1 ? '/counselor/profile' : '/feed');
     }
 

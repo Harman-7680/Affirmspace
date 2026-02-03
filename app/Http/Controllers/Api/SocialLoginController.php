@@ -53,6 +53,15 @@ class SocialLoginController extends Controller
                 $user->forceFill(['email_verified_at' => now()])->save();
             }
 
+            // PAYMENT CHECK FOR APP
+            if ($user->is_paid == 0) {
+                return response()->json([
+                    'success' => false,
+                    'code'    => 'PAYMENT_REQUIRED',
+                    'message' => 'Registration payment pending. Please complete payment from website.',
+                ], 402);
+            }
+
             Auth::login($user);
             $token = $user->createToken('API Token')->plainTextToken;
 
@@ -110,6 +119,14 @@ class SocialLoginController extends Controller
             $user->tokens()->delete();
             \DB::table('sessions')->where('user_id', $user->id)->delete();
 
+            if ($user->is_paid == 0) {
+                return response()->json([
+                    'success' => false,
+                    'code'    => 'PAYMENT_REQUIRED',
+                    'message' => 'Registration payment pending. Please complete payment from website.',
+                ], 402);
+            }
+
             Auth::login($user);
             $token = $user->createToken('API Token')->plainTextToken;
 
@@ -133,6 +150,14 @@ class SocialLoginController extends Controller
 
             $existingUser->tokens()->delete();
             \DB::table('sessions')->where('user_id', $existingUser->id)->delete();
+
+            if ($existingUser->is_paid == 0) {
+                return response()->json([
+                    'success' => false,
+                    'code'    => 'PAYMENT_REQUIRED',
+                    'message' => 'Registration payment pending. Please complete payment from website.',
+                ], 402);
+            }
 
             Auth::login($existingUser);
             $token = $existingUser->createToken('API Token')->plainTextToken;

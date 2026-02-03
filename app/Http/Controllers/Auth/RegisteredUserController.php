@@ -2,7 +2,6 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -72,13 +71,21 @@ class RegisteredUserController extends Controller
             'device_name'  => 'unknown',
         ]);
 
-        event(new Registered($user));
+        $user->is_paid = 0;
+        $user->save();
+
         Auth::login($user);
 
-        session(['email' => $user->email]);
+        // email verification ABHI NAHI
+        return redirect()->route('registration.payment');
 
-        return redirect()->route('verification.notice')
-            ->with('message', 'Registration successful! Please verify your email.');
+        // event(new Registered($user));
+        // Auth::login($user);
+
+        // session(['email' => $user->email]);
+
+        // return redirect()->route('verification.notice')
+        //     ->with('message', 'Registration successful! Please verify your email.');
 
         // if ($request->role === '0') {
         //     return redirect(route('feed', absolute: false));

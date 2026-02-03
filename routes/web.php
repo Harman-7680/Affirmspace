@@ -14,6 +14,7 @@ use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\RegistrationPaymentController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\StatusController;
 use App\Http\Middleware\UpdateLastSeen;
@@ -175,8 +176,18 @@ Route::middleware('auth')->group(function () {
     Route::get('/contactus', [CounselorController::class, 'contactus'])->name('contactus');
 });
 
+// registration payment related routes
+Route::middleware(['auth'])->group(function () {
+    Route::get('/registration/payment', [RegistrationPaymentController::class, 'show'])
+        ->name('registration.payment');
+    Route::post('/registration/order', [RegistrationPaymentController::class, 'createOrder'])
+        ->name('registration.order');
+    Route::post('/registration/payment-success', [RegistrationPaymentController::class, 'success'])
+        ->name('registration.success');
+});
+
 // left sidebar and navbar related routes verified to check email verified ?
-Route::middleware(['auth', 'verified', 'profile.complete'])->group(function () {
+Route::middleware(['auth', 'registration.paid', 'verified', 'profile.complete'])->group(function () {
     Route::get('/feed', [ProfileController::class, 'feed'])->name('feed');
     Route::get('/messages/{receiver_id?}', [ProfileController::class, 'messages'])->name('messages');
     Route::get('/video', [ProfileController::class, 'video'])->name('video');
@@ -255,7 +266,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // counselor related routes
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
     Route::get('/counselor/messages/{user_id?}', [CounselorController::class, 'messages'])->name('counselor.messages');
     Route::post('/counselor/availability', [CounselorAvailabilityController::class, 'store'])->name('counselor.availability.store');
     Route::delete('/counselor/availability/{id}', [CounselorAvailabilityController::class, 'destroy'])
@@ -290,6 +301,7 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::post('/event/store', [EventController::class, 'store'])->name('event.store');
     Route::get('/event/success/{id}', [EventController::class, 'success'])->name('event.success');
     Route::get('/event/cancel/{id}', [EventController::class, 'cancel'])->name('event.cancel');
+    Route::post('/event/verify', [EventController::class, 'verify'])->name('event.verify');
 });
 
 // public route for mobile videocall
