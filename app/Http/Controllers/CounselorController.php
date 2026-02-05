@@ -380,4 +380,41 @@ class CounselorController extends Controller
             'message'       => $messages,
         ]);
     }
+
+    public function bank()
+    {
+        abort_if(Auth::user()->role != 1, 403, 'Unauthorized access');
+        $auth = Auth::user();
+
+        $availabilities = $auth->availabilities()
+            ->where('available_date', '>=', now()->toDateString())
+            ->orderBy('available_date')
+            ->orderBy('start_time')
+            ->get();
+
+        $notifications = $auth->unreadNotifications;
+
+        $messages = Message::where('receiver_id', auth()->id())
+            ->orderBy('created_at', 'desc')
+            ->take(4) // only latest 4
+            ->get();
+
+        $appointments = Message::with('availability')
+            ->where(function ($query) use ($auth) {
+                $query->where('sender_id', $auth->id)
+                    ->orWhere('receiver_id', $auth->id);
+            })
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // dd($appointments,$messages,$availabilities);
+
+        return view('counselor.bank_form', [
+            'user'           => $auth,
+            'notifications'  => $notifications,
+            'message'        => $messages,
+            'availabilities' => $availabilities,
+            'appointments'   => $appointments,
+        ]);
+    }
 }

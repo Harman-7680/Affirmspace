@@ -13,6 +13,7 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationPaymentController;
 use App\Http\Controllers\SocialLoginController;
@@ -285,6 +286,9 @@ Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
     //     ->name('messages.updateStatus');
     Route::get('/counselor/user-profile/{id}', [CounselorController::class, 'showUserProfile'])
         ->name('counselor.user.profile');
+
+    Route::get('/counselor/bank/form', [CounselorController::class, 'bank'])->name('counselor.bank');
+    Route::post('/counselor/bank-details', [BankDetailsController::class, 'store'])->name('counselor.bank.store');
 });
 
 // rooms related routes

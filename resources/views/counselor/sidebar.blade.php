@@ -23,6 +23,15 @@
                         </a>
                     </li>
 
+                    <li class="{{ request()->routeIs('counselor.bank') ? 'active' : '' }}">
+                        <a href="{{ route('counselor.bank') }}"
+                            class="flex items-center gap-2 hover:text-blue-600 transition">
+                            <i data-lucide="landmark"
+                                class="w-6 h-6 {{ request()->routeIs('counselor.bank') ? 'icon-bg-remove' : '' }}"></i>
+                            <span>Bank Status</span>
+                        </a>
+                    </li>
+
                     <!-- Load Lucide and Initialize Icons -->
                     <script src="https://unpkg.com/lucide@latest"></script>
                     <script>

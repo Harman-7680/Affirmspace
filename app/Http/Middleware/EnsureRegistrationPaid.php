@@ -45,6 +45,7 @@ class EnsureRegistrationPaid
                     'success' => false,
                     'code'    => 'PAYMENT_REQUIRED',
                     'message' => 'Registration payment pending. Please complete payment from website.',
+                    'user'    => $user,
                 ], 402);
             }
 

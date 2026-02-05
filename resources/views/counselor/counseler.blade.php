@@ -592,9 +592,18 @@
                             @enderror
                         </div>
 
-                        <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
-                            Save Availability
-                        </button>
+                        @if (auth()->user()->bankDetails)
+                            {{-- Bank details exist --}}
+                            <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
+                                Save Availability
+                            </button>
+                        @else
+                            {{-- Bank details NOT added --}}
+                            <p class="text-red-600 text-sm font-medium">
+                                Please add your bank details first to set availability.
+                            </p>
+                        @endif
+
                     </form>
                 </div>
 
@@ -655,8 +664,8 @@
                             About Us
                         </a>
                         <span class="text-gray-400">•</span>
-                        <a href="{{ route('contactus') }}"
-                            class="text-pink-600 hover:text-pink-700 underline transition" style="text-decoration:none;">
+                        <a href="{{ route('contactus') }}" class="text-pink-600 hover:text-pink-700 underline transition"
+                            style="text-decoration:none;">
                             Contact Us
                         </a>
                         <span class="text-gray-400">•</span>
