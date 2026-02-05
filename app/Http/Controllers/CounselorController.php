@@ -12,8 +12,8 @@ use App\Models\UserDevice;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
+use Razorpay\Api\Api;
 
 class CounselorController extends Controller
 {
@@ -119,97 +119,231 @@ class CounselorController extends Controller
 
     public function contact(Request $request, $id)
     {
-        $request->validate(
-            [
-                'subject'         => 'required|string|max:255',
-                'message'         => 'required|string',
-                'email'           => 'required|email',
-                'availability_id' => 'required|exists:counselor_availabilities,id',
-            ],
-            [
-                'availability_id.required' => 'Please select counselor availability.',
-                'availability_id.exists'   => 'Selected availability is not valid or no longer available.',
-            ]
-        );
+        // Validate form
+        $request->validate([
+            'subject'         => 'required|string|max:255',
+            'message'         => 'required|string',
+            'email'           => 'required|email',
+            'availability_id' => 'required|exists:counselor_availabilities,id',
+        ]);
 
+        // Availability check
         $availability = CounselorAvailability::findOrFail($request->availability_id);
 
-        // $alreadyBooked = Message::where('sender_id', auth()->id())
-        //     ->where('availability_id', $request->availability_id)
-        //     ->exists();
+        // Counselor fetch
+        $counselor = User::where('id', $id)
+            ->where('role', 1) // counselor
+            ->firstOrFail();
 
-        // if ($alreadyBooked) {
-        //     return back()->with('success', 'You already booked this appointment!');
-        // }
+        // Counselor price check
+        if (! $counselor->price || $counselor->price < 1) {
+            return back()->with('error', 'Counselor fee not set.');
+        }
 
+        // Already booked check
         $booking = Message::where('sender_id', auth()->id())
             ->where('availability_id', $request->availability_id)
             ->first();
 
         if ($booking) {
-
-            // If booking is still pending
             if ($booking->status === 'pending') {
                 return back()->with('success', 'Your appointment request is pending approval.');
             }
 
-            // If booking already approved
             if ($booking->status === 'accepted') {
                 return back()->with('success', 'You have already booked this appointment.');
             }
         }
 
-        // email logic
-        $messageModel = Message::create([
-            'sender_id'       => auth()->id(),
-            'receiver_id'     => $id,
-            'subject'         => $request->subject,
-            'email'           => $request->email,
-            'message_body'    => $request->message,
-            'availability_id' => $request->availability_id,
+        // Store appointment data in session (TEMP)
+        session([
+            'appointment_data' => [
+                'sender_id'       => auth()->id(),
+                'receiver_id'     => $id,
+                'subject'         => $request->subject,
+                'email'           => $request->email,
+                'message_body'    => $request->message,
+                'availability_id' => $request->availability_id,
+            ],
         ]);
 
-        $counselor = User::findOrFail($id);
-        $sender    = auth()->user();
+        // Razorpay Order Create
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
 
-        Mail::send('emails.new_appointment', [
-            'counselor'    => $counselor,
-            'sender'       => $sender,
-            'subject'      => $request->subject,
-            'messageBody'  => $request->message,
-            'availability' => $availability,
-        ], function ($mail) use ($counselor) {
+        $amountInPaise = (int) ($counselor->price * 100); // IMPORTANT
+
+        $order = $api->order->create([
+            'receipt'  => 'apt_' . uniqid(),
+            'amount'   => $amountInPaise,
+            'currency' => 'INR',
+        ]);
+
+        // Redirect to Razorpay checkout page
+        return view('payment.counselor.razorpay', [
+            'order'     => $order,
+            'amount'    => $amountInPaise,
+            'counselor' => $counselor,
+            'user'      => auth()->user(),
+        ]);
+    }
+
+    public function paymentSuccess(Request $request)
+    {
+        $data = session('appointment_data');
+
+        if (! $data) {
+            return response()->json(['error' => 'Session expired'], 400);
+        }
+
+        // SAVE MESSAGE
+        $messageModel = Message::create([
+            'sender_id'           => $data['sender_id'],
+            'receiver_id'         => $data['receiver_id'],
+            'subject'             => $data['subject'],
+            'email'               => $data['email'],
+            'message_body'        => $data['message_body'],
+            'availability_id'     => $data['availability_id'],
+            'payment_status'      => 'paid',
+            'status'              => 'pending',
+            'razorpay_payment_id' => $request->razorpay_payment_id ?? null,
+        ]);
+
+        // MAIL
+        $counselor    = User::findOrFail($data['receiver_id']);
+        $sender       = User::findOrFail($data['sender_id']);
+        $availability = CounselorAvailability::find($data['availability_id']);
+
+        Mail::send('emails.new_appointment', compact(
+            'counselor', 'sender', 'availability'
+        ), function ($mail) use ($counselor) {
             $mail->to($counselor->email)
                 ->subject('You have a new appointment request');
         });
 
-        // FIREBASE PUSH
-        $tokens = UserDevice::where('user_id', $id)
+        // FIREBASE
+        $tokens = UserDevice::where('user_id', $counselor->id)
             ->whereNotNull('device_token')
-            ->where('device_token', '!=', '')
             ->pluck('device_token');
 
-        if ($tokens->isNotEmpty()) {
-            foreach ($tokens as $token) {
-                try {
-                    app(FirebaseNotificationService::class)->send(
-                        $token,
-                        'New Appointment 📅',
-                        $sender->first_name . ' sent you an appointment request',
-                        [
-                            'type'            => 'appointment_request',
-                            'sender_id'       => (string) $sender->id,
-                            'availability_id' => (string) $availability->id,
-                        ]
-                    );
-                } catch (\Throwable $e) {
-                    Log::warning('Firebase appointment push failed: ' . $e->getMessage());
-                }
-            }
+        foreach ($tokens as $token) {
+            app(FirebaseNotificationService::class)->send(
+                $token,
+                'New Appointment 📅',
+                $sender->first_name . ' sent you an appointment request',
+                [
+                    'type'            => 'appointment_request',
+                    'availability_id' => (string) $availability->id,
+                ]
+            );
         }
 
-        return back()->with('success', 'Message sent successfully!');
+        session()->forget('appointment_data');
+
+        return response()->json(['success' => true]);
     }
+
+    public function paymentCancel()
+    {
+        session()->forget('appointment_data');
+        return response()->json(['cancelled' => true]);
+    }
+
+    // public function contact(Request $request, $id)
+    // {
+    //     $request->validate(
+    //         [
+    //             'subject'         => 'required|string|max:255',
+    //             'message'         => 'required|string',
+    //             'email'           => 'required|email',
+    //             'availability_id' => 'required|exists:counselor_availabilities,id',
+    //         ],
+    //         [
+    //             'availability_id.required' => 'Please select counselor availability.',
+    //             'availability_id.exists'   => 'Selected availability is not valid or no longer available.',
+    //         ]
+    //     );
+
+    //     $availability = CounselorAvailability::findOrFail($request->availability_id);
+
+    //     // $alreadyBooked = Message::where('sender_id', auth()->id())
+    //     //     ->where('availability_id', $request->availability_id)
+    //     //     ->exists();
+
+    //     // if ($alreadyBooked) {
+    //     //     return back()->with('success', 'You already booked this appointment!');
+    //     // }
+
+    //     $booking = Message::where('sender_id', auth()->id())
+    //         ->where('availability_id', $request->availability_id)
+    //         ->first();
+
+    //     if ($booking) {
+
+    //         // If booking is still pending
+    //         if ($booking->status === 'pending') {
+    //             return back()->with('success', 'Your appointment request is pending approval.');
+    //         }
+
+    //         // If booking already approved
+    //         if ($booking->status === 'accepted') {
+    //             return back()->with('success', 'You have already booked this appointment.');
+    //         }
+    //     }
+
+    //     // email logic
+    //     $messageModel = Message::create([
+    //         'sender_id'       => auth()->id(),
+    //         'receiver_id'     => $id,
+    //         'subject'         => $request->subject,
+    //         'email'           => $request->email,
+    //         'message_body'    => $request->message,
+    //         'availability_id' => $request->availability_id,
+    //     ]);
+
+    //     $counselor = User::findOrFail($id);
+    //     $sender    = auth()->user();
+
+    //     Mail::send('emails.new_appointment', [
+    //         'counselor'    => $counselor,
+    //         'sender'       => $sender,
+    //         'subject'      => $request->subject,
+    //         'messageBody'  => $request->message,
+    //         'availability' => $availability,
+    //     ], function ($mail) use ($counselor) {
+    //         $mail->to($counselor->email)
+    //             ->subject('You have a new appointment request');
+    //     });
+
+    //     // FIREBASE PUSH
+    //     $tokens = UserDevice::where('user_id', $id)
+    //         ->whereNotNull('device_token')
+    //         ->where('device_token', '!=', '')
+    //         ->pluck('device_token');
+
+    //     if ($tokens->isNotEmpty()) {
+    //         foreach ($tokens as $token) {
+    //             try {
+    //                 app(FirebaseNotificationService::class)->send(
+    //                     $token,
+    //                     'New Appointment 📅',
+    //                     $sender->first_name . ' sent you an appointment request',
+    //                     [
+    //                         'type'            => 'appointment_request',
+    //                         'sender_id'       => (string) $sender->id,
+    //                         'availability_id' => (string) $availability->id,
+    //                     ]
+    //                 );
+    //             } catch (\Throwable $e) {
+    //                 Log::warning('Firebase appointment push failed: ' . $e->getMessage());
+    //             }
+    //         }
+    //     }
+
+    //     return back()->with('success', 'Message sent successfully!');
+    // }
 
     public function store(Request $request)
     {

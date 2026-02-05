@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAreaPriceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminSpecializationController;
+use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
 use App\Http\Controllers\DatingController;
@@ -13,7 +14,6 @@ use App\Http\Controllers\FriendController;
 use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
-use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationPaymentController;
 use App\Http\Controllers\SocialLoginController;
@@ -269,6 +269,11 @@ Route::middleware('auth')->group(function () {
 // counselor related routes
 Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
     Route::get('/counselor/messages/{user_id?}', [CounselorController::class, 'messages'])->name('counselor.messages');
+
+    Route::post('/contact/{id}', [CounselorController::class, 'contact'])->name('appointment.contact');
+    Route::post('/appointment/payment/success', [CounselorController::class, 'paymentSuccess'])->name('appointment.payment.success');
+    Route::post('/appointment/payment/cancel', [CounselorController::class, 'paymentCancel'])->name('appointment.payment.cancel');
+
     Route::post('/counselor/availability', [CounselorAvailabilityController::class, 'store'])->name('counselor.availability.store');
     Route::delete('/counselor/availability/{id}', [CounselorAvailabilityController::class, 'destroy'])
         ->name('counselor.availability.destroy')

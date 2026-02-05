@@ -592,15 +592,23 @@
                             @enderror
                         </div>
 
-                        @if (auth()->user()->bankDetails)
-                            {{-- Bank details exist --}}
+                        @if (auth()->user()->bank_status === 'verified' && auth()->user()->razorpay_account_id)
+                            {{-- Bank verified --}}
                             <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
                                 Save Availability
                             </button>
-                        @else
-                            {{-- Bank details NOT added --}}
+                        @elseif (auth()->user()->bank_status === 'pending')
+                            <p class="text-yellow-600 text-sm font-medium">
+                                Your bank details are under verification. Please wait for approval.
+                            </p>
+                        @elseif (auth()->user()->bank_status === 'rejected')
                             <p class="text-red-600 text-sm font-medium">
-                                Please add your bank details first to set availability.
+                                Bank verification rejected:
+                                {{ auth()->user()->bank_rejection_reason ?? 'Please update bank details.' }}
+                            </p>
+                        @else
+                            <p class="text-red-600 text-sm font-medium">
+                                Please add and verify your bank details to set availability.
                             </p>
                         @endif
 
