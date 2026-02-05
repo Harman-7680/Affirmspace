@@ -18,7 +18,7 @@ class BankDetailsController extends Controller
 
         $user = auth()->user();
 
-        if (auth()->user()->bank_status === 'pending') {
+        if (in_array($user->bank_status, ['pending', 'verified'])) {
             return back()->with('error', 'Bank details already submitted.');
         }
 
@@ -32,5 +32,22 @@ class BankDetailsController extends Controller
         $user->save();
 
         return back()->with('success', 'Bank details submitted. Verification in progress.');
+    }
+
+    public function requestChange()
+    {
+        $user = auth()->user();
+
+        if ($user->bank_status !== 'verified') {
+            return back()->with('error', 'You cannot change bank right now.');
+        }
+
+        // Reset old bank
+        $user->bank_status           = 'change_requested';
+        $user->bank_rejection_reason = null;
+        $user->razorpay_account_id   = null; // IMPORTANT
+        $user->save();
+
+        return back()->with('success', 'Now you can update your bank details.');
     }
 }

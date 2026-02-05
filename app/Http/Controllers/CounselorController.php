@@ -207,7 +207,7 @@ class CounselorController extends Controller
             'message_body'        => $data['message_body'],
             'availability_id'     => $data['availability_id'],
             'payment_status'      => 'paid',
-            'status'              => 'pending',
+            // 'status'              => 'pending',
             'razorpay_payment_id' => $request->razorpay_payment_id ?? null,
         ]);
 

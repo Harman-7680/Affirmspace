@@ -2,7 +2,8 @@
 
 @section('content')
     <br><br>
-    {{-- SUCCESS ALERT --}}
+
+    {{-- SUCCESS --}}
     @if (session('success'))
         <div id="flash-success"
             style="position:fixed;top:20px;left:50%;transform:translateX(-50%);
@@ -11,11 +12,11 @@
             {{ session('success') }}
         </div>
         <script>
-            setTimeout(() => document.getElementById('flash-success')?.remove(), 5000)
+            setTimeout(() => document.getElementById('flash-success')?.remove(), 5000);
         </script>
     @endif
 
-    {{-- ERROR ALERT --}}
+    {{-- ERROR --}}
     @if (session('error'))
         <div id="flash-error"
             style="position:fixed;top:70px;left:50%;transform:translateX(-50%);
@@ -24,7 +25,7 @@
             {{ session('error') }}
         </div>
         <script>
-            setTimeout(() => document.getElementById('flash-error')?.remove(), 5000)
+            setTimeout(() => document.getElementById('flash-error')?.remove(), 5000);
         </script>
     @endif
 
@@ -39,22 +40,43 @@
         </div>
 
         {{-- STATUS --}}
-        <div class="bg-white p-4 rounded-xl shadow text-center">
-            @if (auth()->user()->bank_status === 'not_added')
-                <span class="text-yellow-600 font-semibold">⚠️ Bank details not added</span>
-            @elseif(auth()->user()->bank_status === 'pending')
-                <span class="text-blue-600 font-semibold">🕒 Verification Pending</span>
-            @elseif(auth()->user()->bank_status === 'verified')
-                <span class="text-green-600 font-semibold">✅ Bank Verified</span>
-            @elseif(auth()->user()->bank_status === 'rejected')
-                <span class="text-red-600 font-semibold">
+        <div class="bg-white p-4 rounded-xl shadow text-center space-y-2">
+
+            @php $status = auth()->user()->bank_status; @endphp
+
+            @if ($status === 'not_added')
+                <span class="text-yellow-600 font-semibold">
+                    ⚠️ Bank details not added
+                </span>
+            @elseif ($status === 'pending')
+                <span class="text-blue-600 font-semibold">
+                    🕒 Verification Pending
+                </span>
+            @elseif ($status === 'verified')
+                <span class="text-green-600 font-semibold block">
+                    ✅ Bank Verified
+                </span>
+
+                {{-- CHANGE BANK BUTTON --}}
+                <form method="POST" action="{{ route('counselor.bank.change') }}">
+                    @csrf
+                    <button class="text-sm text-orange-600 underline mt-2" style="text-decoration:none;">
+                        Change Bank Details
+                    </button>
+                </form>
+            @elseif ($status === 'rejected')
+                <span class="text-red-600 font-semibold block">
                     ❌ Rejected: {{ auth()->user()->bank_rejection_reason }}
+                </span>
+            @elseif ($status === 'change_requested')
+                <span class="text-orange-600 font-semibold">
+                    🔄 Bank change requested — please submit new details
                 </span>
             @endif
         </div>
 
         {{-- FORM --}}
-        @if (in_array(auth()->user()->bank_status, ['not_added', 'rejected']))
+        @if (in_array($status, ['not_added', 'rejected', 'change_requested']))
             <div class="bg-white p-6 rounded-2xl shadow-lg max-w-3xl mx-auto">
 
                 <form id="bankForm" method="POST" action="{{ route('counselor.bank.store') }}"
@@ -65,7 +87,7 @@
                     <div>
                         <label>Account Holder Name</label>
                         <input type="text" name="account_holder_name" value="{{ old('account_holder_name') }}"
-                            pattern="[A-Za-z ]+" class="w-full border rounded-lg p-3">
+                            class="w-full border rounded-lg p-3">
                         @error('account_holder_name')
                             <p class="text-red-500 text-sm">{{ $message }}</p>
                         @enderror
@@ -127,7 +149,6 @@
                         </button>
                     </div>
                 </form>
-
             </div>
         @endif
     </div>
@@ -148,36 +169,39 @@
 
 @section('script')
     <script>
-        document.getElementById('bankForm').addEventListener('submit', function(e) {
+        const form = document.getElementById('bankForm');
+        if (form) {
+            form.addEventListener('submit', function(e) {
 
-            const pan = this.pan.value.trim();
-            const ifsc = this.ifsc.value.trim();
-            const phone = this.phone.value.trim();
-            const acc = this.account_number.value.trim();
+                const pan = this.pan.value.trim();
+                const ifsc = this.ifsc.value.trim();
+                const phone = this.phone.value.trim();
+                const acc = this.account_number.value.trim();
 
-            if (!/^[0-9]{9,18}$/.test(acc)) {
-                alert('Account number must be 9–18 digits');
-                e.preventDefault();
-                return;
-            }
+                if (!/^[0-9]{9,18}$/.test(acc)) {
+                    alert('Account number must be 9–18 digits');
+                    e.preventDefault();
+                    return;
+                }
 
-            if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
-                alert('Invalid IFSC code');
-                e.preventDefault();
-                return;
-            }
+                if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifsc)) {
+                    alert('Invalid IFSC code');
+                    e.preventDefault();
+                    return;
+                }
 
-            if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) {
-                alert('Invalid PAN format');
-                e.preventDefault();
-                return;
-            }
+                if (!/^[A-Z]{5}[0-9]{4}[A-Z]$/.test(pan)) {
+                    alert('Invalid PAN format');
+                    e.preventDefault();
+                    return;
+                }
 
-            if (!/^[6-9][0-9]{9}$/.test(phone)) {
-                alert('Invalid phone number');
-                e.preventDefault();
-                return;
-            }
-        });
+                if (!/^[6-9][0-9]{9}$/.test(phone)) {
+                    alert('Invalid phone number');
+                    e.preventDefault();
+                    return;
+                }
+            });
+        }
     </script>
 @endsection

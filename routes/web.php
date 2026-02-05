@@ -294,6 +294,8 @@ Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
 
     Route::get('/counselor/bank/form', [CounselorController::class, 'bank'])->name('counselor.bank');
     Route::post('/counselor/bank-details', [BankDetailsController::class, 'store'])->name('counselor.bank.store');
+    Route::post('/counselor/bank/change', [BankDetailsController::class, 'requestChange'])
+        ->name('counselor.bank.change');
 });
 
 // rooms related routes
