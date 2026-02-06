@@ -14,7 +14,7 @@
             "amount": "{{ $order->amount }}",
             "currency": "INR",
             "name": "Event Payment",
-            "description": "Event: {{ $event->name }}",
+            "description": "Event: {{ $event->name }} | 18% GST applicable",
             "order_id": "{{ $order->id }}",
 
             "handler": function(response) {

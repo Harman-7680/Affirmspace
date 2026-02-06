@@ -20,18 +20,36 @@ class RegistrationPaymentController extends Controller
             config('services.razorpay.secret')
         );
 
+        $user = auth()->user();
+
         $amount = \DB::table('registration_settings')->value('registration_fee');
 
+        // GST
+        $gstRate     = 18;
+        $gstAmount   = round(($amount * $gstRate) / 100, 2);
+        $totalAmount = $amount + $gstAmount;
+
         $order = $api->order->create([
-            'amount'   => $amount * 100,
+            'amount'   => $totalAmount * 100,
             'currency' => 'INR',
-            'receipt'  => 'reg_' . auth()->id(),
+            'receipt'  => 'reg_' . $user->id,
+            'notes'    => [
+                'first_name'   => $user->first_name,
+                'last_name'    => $user->last_name,
+                'email'        => $user->email,
+                'role'         => $user->role,
+                'base_amount'  => $amount,
+                'gst_18%'      => $gstAmount,
+                'total_amount' => $totalAmount,
+            ],
         ]);
 
         return response()->json([
-            'order_id' => $order->id,
-            'amount'   => $amount,
-            'key'      => config('services.razorpay.key'),
+            'order_id'     => $order->id,
+            'amount'       => $amount,
+            'gst_amount'   => $gstAmount,
+            'total_amount' => $totalAmount,
+            'key'          => config('services.razorpay.key'),
         ]);
     }
 

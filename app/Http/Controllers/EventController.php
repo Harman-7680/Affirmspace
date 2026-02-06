@@ -82,17 +82,44 @@ class EventController extends Controller
             config('services.razorpay.secret')
         );
 
+        $user = auth()->user();
+
+// Base amount (event / area price)
+        $baseAmount = $areaPrice->amount;
+
+// GST calculation
+        $gstRate     = 18;
+        $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
+        $totalAmount = $baseAmount + $gstAmount;
+
         $order = $api->order->create([
             'receipt'         => 'event_' . $event->id,
-            'amount'          => $areaPrice->amount * 100, // paise
+            'amount'          => $totalAmount * 100, // paise
             'currency'        => 'INR',
             'payment_capture' => 1,
+            'notes'           => [
+                'event_id'     => $event->id,
+                'event_name'   => $event->title ?? $event->name,
+                'area_id'      => $areaPrice->area_id ?? null,
+                'base_amount'  => $baseAmount,
+                'gst_rate'     => '18%',
+                'gst_amount'   => $gstAmount,
+                'total_amount' => $totalAmount,
+                'user_id'      => $user->id,
+                'first_name'   => $user->first_name,
+                'last_name'    => $user->last_name,
+                'email'        => $user->email,
+                'role'         => $user->role,
+            ],
         ]);
 
         return view('payment.razorpay', [
-            'order'     => $order,
-            'event'     => $event,
-            'areaPrice' => $areaPrice,
+            'order'       => $order,
+            'event'       => $event,
+            'areaPrice'   => $areaPrice,
+            'baseAmount'  => $baseAmount,
+            'gstAmount'   => $gstAmount,
+            'totalAmount' => $totalAmount,
         ]);
     }
 

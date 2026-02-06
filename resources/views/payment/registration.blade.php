@@ -76,6 +76,12 @@
         .back-btn:hover {
             background: #f1f5f9;
         }
+
+        .gst-note {
+            font-size: 16px;
+            color: #3f434a;
+            margin-top: 2px;
+        }
     </style>
 </head>
 
@@ -86,6 +92,9 @@
         <p>Please complete the payment to activate your account</p>
 
         <div class="amount">₹ {{ $amount }}</div>
+        <div class="gst-note">
+            + GST @18% (₹ {{ number_format($amount * 0.18, 2) }})
+        </div>
 
         <button id="payBtn">Pay Now</button>
 

@@ -173,20 +173,42 @@ class CounselorController extends Controller
             config('services.razorpay.secret')
         );
 
-        $amountInPaise = (int) ($counselor->price * 100); // IMPORTANT
+// Base price (without GST)
+        $baseAmount = $counselor->price;
+
+// GST calculation
+        $gstRate     = 18;
+        $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
+        $totalAmount = $baseAmount + $gstAmount;
+
+// Convert to paise
+        $amountInPaise = (int) ($totalAmount * 100);
 
         $order = $api->order->create([
             'receipt'  => 'apt_' . uniqid(),
             'amount'   => $amountInPaise,
             'currency' => 'INR',
+            'notes'    => [
+                'counselor_id' => $counselor->id,
+                'counselor'    => $counselor->name ?? null,
+                'user_id'      => auth()->id(),
+                'base_amount'  => $baseAmount,
+                'gst_rate'     => '18%',
+                'gst_amount'   => $gstAmount,
+                'total_amount' => $totalAmount,
+                'type'         => 'appointment',
+            ],
         ]);
 
-        // Redirect to Razorpay checkout page
+// Redirect to Razorpay checkout page
         return view('payment.counselor.razorpay', [
-            'order'     => $order,
-            'amount'    => $amountInPaise,
-            'counselor' => $counselor,
-            'user'      => auth()->user(),
+            'order'       => $order,
+            'amount'      => $amountInPaise,
+            'baseAmount'  => $baseAmount,
+            'gstAmount'   => $gstAmount,
+            'totalAmount' => $totalAmount,
+            'counselor'   => $counselor,
+            'user'        => auth()->user(),
         ]);
     }
 

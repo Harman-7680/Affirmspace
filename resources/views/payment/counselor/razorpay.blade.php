@@ -7,6 +7,7 @@
         currency: "INR",
         order_id: "{{ $order['id'] }}",
         name: "Appointment Booking",
+        description: "18% GST applicable",
 
         handler: function(response) {
             fetch("{{ route('appointment.payment.success') }}", {

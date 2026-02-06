@@ -80,13 +80,29 @@ class ApiEventController extends Controller
             config('services.razorpay.secret')
         );
 
+// Base amount
+        $baseAmount = $areaPrice->amount;
+
+// GST calculation
+        $gstRate     = 18;
+        $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
+        $totalAmount = $baseAmount + $gstAmount;
+
         $order = $api->order->create([
             'receipt'  => 'event_' . $event->id,
-            'amount'   => $areaPrice->amount * 100,
+            'amount'   => $totalAmount * 100, // paise
             'currency' => 'INR',
+            'notes'    => [
+                'event_id'     => $event->id,
+                'event_name'   => $event->name,
+                'base_amount'  => $baseAmount,
+                'gst_rate'     => '18%',
+                'gst_amount'   => $gstAmount,
+                'total_amount' => $totalAmount,
+                'source'       => 'app',
+            ],
         ]);
 
-        /** SAME CONCEPT AS STRIPE */
         $checkoutUrl = route('api.events.razorpay.webview', [
             'order_id' => $order->id,
             'event_id' => $event->id,
@@ -96,6 +112,9 @@ class ApiEventController extends Controller
             'message'      => 'Event created. Proceed to payment.',
             'checkout_url' => $checkoutUrl,
             'event_id'     => $event->id,
+            'amount'       => $baseAmount,
+            'gst_amount'   => $gstAmount,
+            'total_amount' => $totalAmount,
         ]);
     }
 
