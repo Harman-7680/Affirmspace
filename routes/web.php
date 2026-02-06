@@ -4,6 +4,7 @@ use App\Http\Controllers\AdminAreaPriceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminSpecializationController;
+use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
@@ -326,6 +327,11 @@ Route::get('/video-call', function (Request $request) {
         'receiverId' => $request->receiver_id,
     ]);
 });
+
+// payment route for counselor
+Route::get('/app/contact/payment/{order_id}', [ApiCounselorController::class, 'paymentPage']);
+Route::get('/app/contact/success', [ApiCounselorController::class, 'contactSuccess']);
+Route::get('/app/contact/cancel', [ApiCounselorController::class, 'contactCancel']);
 
 Route::get('/terms', function () {
     return view('user.terms');
