@@ -13,8 +13,8 @@
             "key": "{{ config('services.razorpay.key') }}",
             "amount": "{{ $order->amount }}",
             "currency": "INR",
-            "name": "Event Payment",
-            "description": "Event: {{ $event->name }} | 18% GST applicable",
+            "name": "18% GST applicable",
+            "description": "Event: {{ $event->name }}",
             "order_id": "{{ $order->id }}",
 
             "handler": function(response) {

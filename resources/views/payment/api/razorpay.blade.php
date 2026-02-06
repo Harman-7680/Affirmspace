@@ -15,8 +15,8 @@
             amount: "{{ $amount * 100 }}",
             currency: "INR",
             order_id: "{{ $order_id }}",
-            name: "Event Payment",
-            description: "Event: {{ $event->name }} | 18% GST applicable",
+            name: "18% GST applicable",
+            description: "Event: {{ $event->name }}",
 
             handler: function(response) {
                 fetch("{{ url('/api/verify-payment') }}", {
