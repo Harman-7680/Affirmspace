@@ -34,8 +34,9 @@
     </script>
     <!-- End Google Tag Manager -->
 
+    <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
     <meta charset="UTF-8" />
-    <title>AffirmSpace – LGBTQ+ Dating, Events & Gender-Affirming Healthcare</title>
+    <title>AffirmSpace</title>
 
     <meta name="description"
         content="AffirmSpace is a safe LGBTQ+ platform for dating, community, anonymous chats, local events, and discovering trusted gender-affirming healthcare providers." />
