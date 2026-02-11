@@ -5,6 +5,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminSpecializationController;
 use App\Http\Controllers\Api\ApiCounselorController;
+use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
@@ -332,6 +333,11 @@ Route::get('/video-call', function (Request $request) {
 Route::get('/app/contact/payment/{order_id}', [ApiCounselorController::class, 'paymentPage']);
 Route::get('/app/contact/success', [ApiCounselorController::class, 'contactSuccess']);
 Route::get('/app/contact/cancel', [ApiCounselorController::class, 'contactCancel']);
+
+// payment route app side registration
+Route::get('/app/payment/{order_id}', [AppRegistrationPaymentController::class, 'paymentPage'])->name('app.payment.page');
+Route::post('/app/payment/success', [AppRegistrationPaymentController::class, 'success'])->name('app.payment.success');
+Route::get('/payment/cancel', [AppRegistrationPaymentController::class, 'cancel'])->name('app.payment.cancel');
 
 Route::get('/terms', function () {
     return view('user.terms');

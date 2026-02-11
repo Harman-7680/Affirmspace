@@ -11,6 +11,7 @@ use App\Http\Controllers\Api\ApiFriendController;
 use App\Http\Controllers\Api\ApiPostController;
 use App\Http\Controllers\Api\ApiProfileController;
 use App\Http\Controllers\Api\ApiStatusController;
+use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\PostActionController;
@@ -18,6 +19,11 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
 Route::post('/register', [AuthController::class, 'register']);
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/app/payment/amount', [AppRegistrationPaymentController::class, 'amount']);
+    Route::post('/app/payment/order', [AppRegistrationPaymentController::class, 'createOrder']);
+});
 
 // Dating related routes
 Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {

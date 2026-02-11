@@ -18,6 +18,7 @@ class Event extends Model
         'status',
         'area_range',
         'amount',
+        'payment_id',
     ];
 
     public function user()

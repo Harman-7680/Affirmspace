@@ -481,11 +481,11 @@ class AuthController extends Controller
         }
 
         // Fire Registered event
-        event(new Registered($user));
+        // event(new Registered($user));
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'Registration successful! Please verify your email.',
+            'message' => 'Registration successful',
             'user'    => $user,
         ], 201);
     }

@@ -47,6 +47,10 @@ class User extends Authenticatable implements MustVerifyEmail
         'is_private',
         'social_id',
         'specialization_id',
+        'is_paid',
+        'razorpay_account_id',
+        'bank_status',
+        'bank_rejection_reason',
     ];
 
     /**

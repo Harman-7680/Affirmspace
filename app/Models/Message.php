@@ -15,6 +15,8 @@ class Message extends Model
         'email',
         'status',
         'availability_id',
+        'payment_status',
+        'razorpay_payment_id',
     ];
 
     public function sender()
