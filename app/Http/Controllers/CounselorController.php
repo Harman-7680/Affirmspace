@@ -214,11 +214,44 @@ class CounselorController extends Controller
 
     public function paymentSuccess(Request $request)
     {
+        $request->validate([
+            'razorpay_order_id'   => 'required|string',
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_signature'  => 'required|string',
+        ]);
+
         $data = session('appointment_data');
 
         if (! $data) {
             return response()->json(['error' => 'Session expired'], 400);
         }
+
+        if (session('razorpay_order_id') !== $request->razorpay_order_id) {
+            return response()->json(['error' => 'Invalid order'], 400);
+        }
+
+        try {
+            $api = new Api(
+                config('services.razorpay.key'),
+                config('services.razorpay.secret')
+            );
+
+            // Verify signature
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
+        } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+
+            session()->forget(['appointment_data', 'razorpay_order_id']);
+
+            return response()->json([
+                'error' => 'Payment verification failed',
+            ], 400);
+        }
+
+        $availability = CounselorAvailability::findOrFail($data['availability_id']);
 
         // SAVE MESSAGE
         $messageModel = Message::create([
@@ -234,13 +267,16 @@ class CounselorController extends Controller
         ]);
 
         // MAIL
-        $counselor    = User::findOrFail($data['receiver_id']);
-        $sender       = User::findOrFail($data['sender_id']);
-        $availability = CounselorAvailability::find($data['availability_id']);
+        $counselor = User::findOrFail($data['receiver_id']);
+        $sender    = User::findOrFail($data['sender_id']);
 
-        Mail::send('emails.new_appointment', compact(
-            'counselor', 'sender', 'availability'
-        ), function ($mail) use ($counselor) {
+        Mail::send('emails.new_appointment', [
+            'counselor'    => $counselor,
+            'sender'       => $sender,
+            'subject'      => $data['subject'],
+            'messageBody'  => $data['message_body'],
+            'availability' => $availability,
+        ], function ($mail) use ($counselor) {
             $mail->to($counselor->email)
                 ->subject('You have a new appointment request');
         });

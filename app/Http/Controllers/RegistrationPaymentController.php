@@ -56,16 +56,56 @@ class RegistrationPaymentController extends Controller
     public function success(Request $request)
     {
         $request->validate([
-            'razorpay_order_id' => 'nullable',
+            'razorpay_order_id'   => 'required|string',
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_signature'  => 'required|string',
         ]);
+
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
+
+        try {
+            // Verify Razorpay Signature
+            $api->utility->verifyPaymentSignature([
+                'razorpay_order_id'   => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature'  => $request->razorpay_signature,
+            ]);
+        } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
+
+            return redirect()->route('feed')
+                ->with('error', 'Payment verification failed.');
+        }
 
         $user = auth()->user();
 
+        if (! $user) {
+            abort(403);
+        }
+
+        // Prevent duplicate update
         if ($user->is_paid == 1) {
             return redirect()->route('feed');
         }
 
-        $user->update(['is_paid' => 1]);
+        // Optional: Extra safety – check order receipt belongs to user
+        $order = $api->order->fetch($request->razorpay_order_id);
+
+        if ($order->status !== 'paid') {
+            abort(403, 'Payment not completed.');
+        }
+
+        if ($order->receipt !== 'reg_' . $user->id) {
+            abort(403, 'Order mismatch.');
+        }
+
+        // Store payment id securely
+        $user->update([
+            'is_paid'    => 1,
+            'payment_id' => $request->razorpay_payment_id,
+        ]);
 
         if (! $user->email_verified_at) {
             event(new \Illuminate\Auth\Events\Registered($user));

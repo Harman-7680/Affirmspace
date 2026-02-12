@@ -13,7 +13,7 @@ class AppRegistrationPaymentController extends Controller
 {
     /**
      * STEP 1 — Fetch Amount
-     */ 
+     */
     public function amount(Request $request)
     {
         $base = DB::table('registration_settings')->value('registration_fee');
@@ -91,34 +91,74 @@ class AppRegistrationPaymentController extends Controller
      */
     public function success(Request $request)
     {
+        $request->validate([
+            'razorpay_order_id'   => 'required',
+            'razorpay_payment_id' => 'required',
+            'razorpay_signature'  => 'required',
+        ]);
+
         $api = new Api(
             config('services.razorpay.key'),
             config('services.razorpay.secret')
         );
 
         try {
+            // Verify Signature
             $api->utility->verifyPaymentSignature([
                 'razorpay_order_id'   => $request->razorpay_order_id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
                 'razorpay_signature'  => $request->razorpay_signature,
             ]);
         } catch (SignatureVerificationError $e) {
-            return view('payment.appCancel', ['error' => 'Payment verification failed']);
+            return view('payment.appCancel', [
+                'error' => 'Payment verification failed',
+            ]);
         }
 
-        $order  = $api->order->fetch($request->razorpay_order_id);
+        // Fetch Order
+        $order = $api->order->fetch($request->razorpay_order_id);
+
+        if ($order->status !== 'paid') {
+            return view('payment.appCancel', [
+                'error' => 'Payment not completed',
+            ]);
+        }
+
         $userId = $order->notes->user_id ?? null;
 
-        if ($userId) {
-            $user = User::find($userId);
+        if (! $userId) {
+            return view('payment.appCancel', [
+                'error' => 'Invalid user',
+            ]);
+        }
 
-            if ($user && $user->is_paid == 0) {
-                $user->update(['is_paid' => 1]);
+        $user = User::find($userId);
 
-                if (! $user->email_verified_at) {
-                    event(new Registered($user));
-                }
-            }
+        if (! $user) {
+            return view('payment.appCancel', [
+                'error' => 'User not found',
+            ]);
+        }
+
+        if ($order->receipt !== 'app_reg_' . $user->id) {
+            return view('payment.appCancel', [
+                'error' => 'Order mismatch',
+            ]);
+        }
+
+        // Prevent duplicate update
+        if ($user->is_paid == 1) {
+            return view('payment.appSuccess');
+        }
+
+        // Store payment_id + mark paid
+        $user->update([
+            'is_paid'    => 1,
+            'payment_id' => $request->razorpay_payment_id,
+        ]);
+
+        if (! $user->email_verified_at) {
+            event(new Registered($user));
         }
 
         return view('payment.appSuccess');

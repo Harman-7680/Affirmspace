@@ -129,21 +129,27 @@
 
                 const options = {
                     key: data.key,
-                    amount: data.amount * 100,
-                    currency: "INR",
                     order_id: data.order_id,
                     name: "Registration Fee",
                     description: "One-time registration payment",
-                    handler: function() {
+                    handler: function(response) {
+
                         fetch("{{ route('registration.success') }}", {
                             method: "POST",
                             headers: {
                                 "X-CSRF-TOKEN": "{{ csrf_token() }}",
+                                "Content-Type": "application/json",
                                 "Accept": "application/json"
-                            }
+                            },
+                            body: JSON.stringify({
+                                razorpay_payment_id: response.razorpay_payment_id,
+                                razorpay_order_id: response.razorpay_order_id,
+                                razorpay_signature: response.razorpay_signature
+                            })
                         }).then(() => {
                             window.location.href = "{{ route('verification.notice') }}";
                         });
+
                     }
                 };
 
