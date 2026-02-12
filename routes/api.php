@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Api\ApiBankDetailsController;
 use App\Http\Controllers\Api\ApiCallController;
 use App\Http\Controllers\Api\ApiCounselorAvailabilityController;
 use App\Http\Controllers\Api\ApiCounselorController;
@@ -23,6 +24,12 @@ Route::post('/register', [AuthController::class, 'register']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/app/payment/amount', [AppRegistrationPaymentController::class, 'amount']);
     Route::post('/app/payment/order', [AppRegistrationPaymentController::class, 'createOrder']);
+});
+
+// routes for bank details store of counselor
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/bank/store', [ApiBankDetailsController::class, 'store']);
+    Route::post('/bank/request-change', [ApiBankDetailsController::class, 'requestChange']);
 });
 
 // Dating related routes
