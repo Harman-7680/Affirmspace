@@ -7,6 +7,7 @@ use App\Models\Friendship;
 use App\Models\Message;
 use App\Models\Post;
 use App\Models\Rating;
+use App\Models\TempAppointment;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Services\FirebaseNotificationService;
@@ -155,18 +156,6 @@ class CounselorController extends Controller
             }
         }
 
-        // Store appointment data in session (TEMP)
-        session([
-            'appointment_data' => [
-                'sender_id'       => auth()->id(),
-                'receiver_id'     => $id,
-                'subject'         => $request->subject,
-                'email'           => $request->email,
-                'message_body'    => $request->message,
-                'availability_id' => $request->availability_id,
-            ],
-        ]);
-
         // Razorpay Order Create
         $api = new Api(
             config('services.razorpay.key'),
@@ -200,6 +189,17 @@ class CounselorController extends Controller
             ],
         ]);
 
+        // STORE TEMP DATA IN DATABASE (instead of session)
+        TempAppointment::create([
+            'sender_id'         => auth()->id(),
+            'receiver_id'       => $id,
+            'subject'           => $request->subject,
+            'email'             => $request->email,
+            'message_body'      => $request->message,
+            'availability_id'   => $request->availability_id,
+            'razorpay_order_id' => $order['id'],
+        ]);
+
 // Redirect to Razorpay checkout page
         return view('payment.counselor.razorpay', [
             'order'       => $order,
@@ -220,61 +220,65 @@ class CounselorController extends Controller
             'razorpay_signature'  => 'required|string',
         ]);
 
-        $data = session('appointment_data');
-
-        if (! $data) {
-            return response()->json(['error' => 'Session expired'], 400);
-        }
-
-        if (session('razorpay_order_id') !== $request->razorpay_order_id) {
-            return response()->json(['error' => 'Invalid order'], 400);
-        }
-
         try {
             $api = new Api(
                 config('services.razorpay.key'),
                 config('services.razorpay.secret')
             );
 
-            // Verify signature
             $api->utility->verifyPaymentSignature([
                 'razorpay_order_id'   => $request->razorpay_order_id,
                 'razorpay_payment_id' => $request->razorpay_payment_id,
                 'razorpay_signature'  => $request->razorpay_signature,
             ]);
         } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
-
-            session()->forget(['appointment_data', 'razorpay_order_id']);
-
-            return response()->json([
-                'error' => 'Payment verification failed',
-            ], 400);
+            return response()->json(['error' => 'Payment verification failed'], 400);
         }
 
-        $availability = CounselorAvailability::findOrFail($data['availability_id']);
+        if (Message::where('razorpay_payment_id', $request->razorpay_payment_id)->exists()) {
+            return response()->json(['success' => true]);
+        }
 
-        // SAVE MESSAGE
+        // FETCH TEMP DATA
+        $temp = TempAppointment::where(
+            'razorpay_order_id',
+            $request->razorpay_order_id
+        )->firstOrFail();
+
+        $alreadyBooked = Message::where('availability_id', $temp->availability_id)
+            ->where('payment_status', 'paid')
+            ->exists();
+
+        if ($alreadyBooked) {
+            $temp->delete();
+
+            return response()->json([
+                'error' => 'This slot has already been booked.',
+            ], 409);
+        }
+
+        $availability = CounselorAvailability::findOrFail($temp->availability_id);
+
         $messageModel = Message::create([
-            'sender_id'           => $data['sender_id'],
-            'receiver_id'         => $data['receiver_id'],
-            'subject'             => $data['subject'],
-            'email'               => $data['email'],
-            'message_body'        => $data['message_body'],
-            'availability_id'     => $data['availability_id'],
+            'sender_id'           => $temp->sender_id,
+            'receiver_id'         => $temp->receiver_id,
+            'subject'             => $temp->subject,
+            'email'               => $temp->email,
+            'message_body'        => $temp->message_body,
+            'availability_id'     => $temp->availability_id,
             'payment_status'      => 'paid',
-            // 'status'              => 'pending',
-            'razorpay_payment_id' => $request->razorpay_payment_id ?? null,
+            'razorpay_payment_id' => $request->razorpay_payment_id,
         ]);
 
         // MAIL
-        $counselor = User::findOrFail($data['receiver_id']);
-        $sender    = User::findOrFail($data['sender_id']);
+        $counselor = User::findOrFail($temp->receiver_id);
+        $sender    = User::findOrFail($temp->sender_id);
 
         Mail::send('emails.new_appointment', [
             'counselor'    => $counselor,
             'sender'       => $sender,
-            'subject'      => $data['subject'],
-            'messageBody'  => $data['message_body'],
+            'subject'      => $temp->subject,
+            'messageBody'  => $temp->message_body,
             'availability' => $availability,
         ], function ($mail) use ($counselor) {
             $mail->to($counselor->email)
@@ -298,14 +302,13 @@ class CounselorController extends Controller
             );
         }
 
-        session()->forget('appointment_data');
+        $temp->delete();
 
         return response()->json(['success' => true]);
     }
 
     public function paymentCancel()
     {
-        session()->forget('appointment_data');
         return response()->json(['cancelled' => true]);
     }
 
