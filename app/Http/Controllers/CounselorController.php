@@ -189,6 +189,10 @@ class CounselorController extends Controller
             ],
         ]);
 
+        TempAppointment::where('sender_id', auth()->id())
+            ->where('availability_id', $request->availability_id)
+            ->delete();
+
         // STORE TEMP DATA IN DATABASE (instead of session)
         TempAppointment::create([
             'sender_id'         => auth()->id(),

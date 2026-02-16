@@ -100,6 +100,10 @@ class ApiCounselorController extends Controller
             'currency' => 'INR',
         ]);
 
+        TempAppointment::where('sender_id', auth()->id())
+            ->where('availability_id', $request->availability_id)
+            ->delete();
+
         TempAppointment::create([
             'sender_id'         => auth()->id(),
             'receiver_id'       => $id,
