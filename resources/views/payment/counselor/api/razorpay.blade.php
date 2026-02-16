@@ -50,12 +50,17 @@
             "order_id": "{{ $order['id'] }}",
 
             "handler": function(response) {
-                window.location.href = "{{ url('/app/contact/success') }}";
+                var url = "{{ url('/app/contact/success') }}" +
+                    "?razorpay_order_id=" + response.razorpay_order_id +
+                    "&razorpay_payment_id=" + response.razorpay_payment_id +
+                    "&razorpay_signature=" + response.razorpay_signature;
+                window.location.href = url;
             },
 
             "modal": {
                 "ondismiss": function() {
-                    window.location.href = "{{ url('/app/contact/cancel') }}";
+                    window.location.href =
+                        "{{ url('/app/contact/cancel') }}?razorpay_order_id={{ $order['id'] }}";
                 }
             },
 
