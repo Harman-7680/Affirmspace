@@ -25,8 +25,11 @@ class ApiCounselorController extends Controller
 
         $user = User::where('role', 1)
             ->with([
-                'availabilities' => function ($query) {
-                    $query->where('available_date', '>=', now()->toDateString())
+                'availabilities' => function ($query) use ($id) {
+                    $query->whereHas('counselor', function ($q) {
+                        $q->where('bank_status', 'verified');
+                    })
+                        ->where('available_date', '>=', now()->toDateString())
                         ->orderBy('available_date')
                         ->orderBy('start_time');
                 },

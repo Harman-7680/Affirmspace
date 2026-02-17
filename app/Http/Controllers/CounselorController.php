@@ -97,8 +97,11 @@ class CounselorController extends Controller
         $notifications = Auth::user()->unreadNotifications;
 
         $user = User::where('role', 1)
-            ->with(['availabilities' => function ($query) {
-                $query->where('available_date', '>=', now()->toDateString())
+            ->with(['availabilities' => function ($query) use ($id) {
+                $query->whereHas('counselor', function ($q) {
+                    $q->where('bank_status', 'verified');
+                })
+                    ->where('available_date', '>=', now()->toDateString())
                     ->orderBy('available_date')
                     ->orderBy('start_time');
             }])
