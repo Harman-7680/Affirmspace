@@ -180,7 +180,7 @@ class CounselorController extends Controller
             'currency' => 'INR',
             'notes'    => [
                 'counselor_id' => $counselor->id,
-                'counselor'    => $counselor->name ?? null,
+                'counselor'    => $counselor->first_name ?? null,
                 'user_id'      => auth()->id(),
                 'base_amount'  => $baseAmount,
                 'gst_rate'     => '18%',

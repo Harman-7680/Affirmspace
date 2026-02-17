@@ -99,6 +99,16 @@ class ApiCounselorController extends Controller
             'receipt'  => 'apt_' . uniqid(),
             'amount'   => $amountInPaise,
             'currency' => 'INR',
+            'notes'    => [
+                'counselor_id' => $counselor->id,
+                'counselor'    => $counselor->first_name ?? null,
+                'user_id'      => auth()->id(),
+                'base_amount'  => $baseAmount,
+                'gst_rate'     => '18%',
+                'gst_amount'   => $gstAmount,
+                'total_amount' => $totalAmount,
+                'type'         => 'appointment',
+            ],
         ]);
 
         TempAppointment::where('sender_id', auth()->id())
