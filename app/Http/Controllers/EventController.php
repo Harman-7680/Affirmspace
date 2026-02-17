@@ -94,7 +94,7 @@ class EventController extends Controller
 
         $order = $api->order->create([
             'receipt'         => 'event_' . $event->id,
-            'amount'          => $totalAmount * 100, // paise
+            'amount'          => (int) round($totalAmount * 100),
             'currency'        => 'INR',
             'payment_capture' => 1,
             'notes'           => [

@@ -9,39 +9,25 @@
         name: "18% GST applicable",
 
         handler: function(response) {
-            // Get values from form inputs
-            let subject = document.querySelector('input[name="subject"]').value;
-            let message = document.querySelector('textarea[name="message"]').value;
-            let email = document.querySelector('input[name="email"]').value;
-            let availabilityId = document.querySelector('select[name="availability_id"]').value;
 
-            fetch("{{ route('appointment.payment.success') }}", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    },
-                    body: JSON.stringify(response)
-                }).then(res => res.json())
-                .then(data => {
-                    if (data.success) {
-                        window.location.href = "{{ url()->previous() }}?payment=success";
-                    } else {
-                        alert(data.error || "Payment processed but booking failed.");
-                    }
-                });
+            var form = document.createElement("form");
+            form.method = "POST";
+            form.action = "{{ route('appointment.payment.success') }}";
+
+            form.innerHTML = `
+                @csrf
+                <input type="hidden" name="razorpay_payment_id" value="${response.razorpay_payment_id}">
+                <input type="hidden" name="razorpay_order_id" value="${response.razorpay_order_id}">
+                <input type="hidden" name="razorpay_signature" value="${response.razorpay_signature}">
+            `;
+
+            document.body.appendChild(form);
+            form.submit();
         },
 
         modal: {
             ondismiss: function() {
-                fetch("{{ route('appointment.payment.cancel') }}", {
-                    method: "POST",
-                    headers: {
-                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                    }
-                }).then(() => {
-                    window.location.href = "{{ url()->previous() }}?payment=cancel";
-                });
+                window.location.href = "{{ url()->previous() }}?payment=cancel";
             }
         }
     };

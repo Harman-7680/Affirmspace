@@ -18,6 +18,12 @@
                 form.method = 'POST';
                 form.action = "{{ route('app.payment.success') }}";
 
+                var csrf = document.createElement('input');
+                csrf.type = 'hidden';
+                csrf.name = '_token';
+                csrf.value = "{{ csrf_token() }}";
+                form.appendChild(csrf);
+
                 ['razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature']
                 .forEach(function(key) {
                     var input = document.createElement('input');

@@ -12,6 +12,7 @@ use App\Models\UserDevice;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Razorpay\Api\Api;
 
@@ -133,15 +134,13 @@ class ApiCounselorController extends Controller
         return view('payment.counselor.api.razorpay', compact('order'));
     }
 
-    public function contactSuccess(Request $request)
+    public function paymentSuccess(Request $request)
     {
-        $orderId   = $request->query('razorpay_order_id');
-        $paymentId = $request->query('razorpay_payment_id');
-        $signature = $request->query('razorpay_signature');
-
-        if (! $orderId || ! $paymentId || ! $signature) {
-            return view('payment.counselor.api.cancel');
-        }
+        $request->validate([
+            'razorpay_order_id'   => 'required|string',
+            'razorpay_payment_id' => 'required|string',
+            'razorpay_signature'  => 'required|string',
+        ]);
 
         try {
             $api = new Api(
@@ -150,63 +149,56 @@ class ApiCounselorController extends Controller
             );
 
             $api->utility->verifyPaymentSignature([
-                'razorpay_order_id'   => $orderId,
-                'razorpay_payment_id' => $paymentId,
-                'razorpay_signature'  => $signature,
+                'razorpay_order_id'   => $request->razorpay_order_id,
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+                'razorpay_signature'  => $request->razorpay_signature,
             ]);
-        } catch (\Exception $e) {
+        } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
             return view('payment.counselor.api.cancel');
         }
 
-        $payment = $api->payment->fetch($paymentId);
-
-        if ($payment->order_id !== $orderId) {
-            return view('payment.counselor.api.cancel');
-        }
-
-        if ($payment->status !== 'captured') {
-            return view('payment.counselor.api.cancel');
-        }
-
-        // duplicate protection
-        if (Message::where('razorpay_payment_id', $paymentId)->exists()) {
+        // Duplicate payment protection
+        if (Message::where('razorpay_payment_id', $request->razorpay_payment_id)->exists()) {
             return view('payment.counselor.api.success');
         }
 
-        // fetch temp
+        // Fetch temp
         $temp = TempAppointment::where(
             'razorpay_order_id',
-            $orderId
-        )->first();
+            $request->razorpay_order_id
+        )->firstOrFail();
 
-        if (! $temp) {
-            return view('payment.counselor.api.cancel');
-        }
+        $receiverId = $temp->receiver_id; // store before delete
 
-        // slot protection
-        $alreadyBooked = Message::where('availability_id', $temp->availability_id)
-            ->where('payment_status', 'paid')
-            ->exists();
+        DB::beginTransaction();
 
-        if ($alreadyBooked) {
+        try {
+
+            $availability = CounselorAvailability::findOrFail($temp->availability_id);
+
+            Message::create([
+                'sender_id'           => $temp->sender_id,
+                'receiver_id'         => $temp->receiver_id,
+                'subject'             => $temp->subject,
+                'email'               => $temp->email,
+                'message_body'        => $temp->message_body,
+                'availability_id'     => $temp->availability_id,
+                'payment_status'      => 'paid',
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+            ]);
+
             $temp->delete();
+
+            DB::commit();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
             return view('payment.counselor.api.cancel');
         }
 
-        $availability = CounselorAvailability::findOrFail($temp->availability_id);
-
-        Message::create([
-            'sender_id'           => $temp->sender_id,
-            'receiver_id'         => $temp->receiver_id,
-            'subject'             => $temp->subject,
-            'email'               => $temp->email,
-            'message_body'        => $temp->message_body,
-            'availability_id'     => $temp->availability_id,
-            'payment_status'      => 'paid',
-            'razorpay_payment_id' => $paymentId,
-        ]);
-
-        $counselor = User::findOrFail($temp->receiver_id);
+        // MAIL + FIREBASE after commit
+        $counselor = User::findOrFail($receiverId);
         $sender    = User::findOrFail($temp->sender_id);
 
         Mail::send('emails.new_appointment', [
@@ -220,7 +212,6 @@ class ApiCounselorController extends Controller
                 ->subject('You have a new appointment request');
         });
 
-        // FIREBASE
         $tokens = UserDevice::where('user_id', $counselor->id)
             ->whereNotNull('device_token')
             ->pluck('device_token');
@@ -237,18 +228,11 @@ class ApiCounselorController extends Controller
             );
         }
 
-        $temp->delete();
-
         return view('payment.counselor.api.success');
     }
 
-    public function contactCancel(Request $request)
+    public function paymentCancel()
     {
-        TempAppointment::where(
-            'razorpay_order_id',
-            $request->razorpay_order_id
-        )->delete();
-
         return view('payment.counselor.api.cancel');
     }
 

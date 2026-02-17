@@ -13,6 +13,7 @@ use App\Models\UserDevice;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Mail;
 use Razorpay\Api\Api;
 
@@ -236,46 +237,54 @@ class CounselorController extends Controller
                 'razorpay_signature'  => $request->razorpay_signature,
             ]);
         } catch (\Razorpay\Api\Errors\SignatureVerificationError $e) {
-            return response()->json(['error' => 'Payment verification failed'], 400);
+            return redirect()->back()
+                ->with('error', 'Payment verification failed');
         }
 
+        // Duplicate payment protection
         if (Message::where('razorpay_payment_id', $request->razorpay_payment_id)->exists()) {
-            return response()->json(['success' => true]);
+            return redirect()->route('counselor.profile', TempAppointment::where('razorpay_order_id', $request->razorpay_order_id)->value('receiver_id'))
+                ->with('success', 'Appointment already processed.');
         }
 
-        // FETCH TEMP DATA
+        // Fetch temp
         $temp = TempAppointment::where(
             'razorpay_order_id',
             $request->razorpay_order_id
         )->firstOrFail();
 
-        $alreadyBooked = Message::where('availability_id', $temp->availability_id)
-            ->where('payment_status', 'paid')
-            ->exists();
+        $receiverId = $temp->receiver_id; // store before delete
 
-        if ($alreadyBooked) {
+        DB::beginTransaction();
+
+        try {
+
+            $availability = CounselorAvailability::findOrFail($temp->availability_id);
+
+            Message::create([
+                'sender_id'           => $temp->sender_id,
+                'receiver_id'         => $temp->receiver_id,
+                'subject'             => $temp->subject,
+                'email'               => $temp->email,
+                'message_body'        => $temp->message_body,
+                'availability_id'     => $temp->availability_id,
+                'payment_status'      => 'paid',
+                'razorpay_payment_id' => $request->razorpay_payment_id,
+            ]);
+
             $temp->delete();
 
-            return response()->json([
-                'error' => 'This slot has already been booked.',
-            ], 409);
+            DB::commit();
+
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            return redirect()->route('counselor.profile', $receiverId)
+                ->with('error', 'Something went wrong. Please contact support.');
         }
 
-        $availability = CounselorAvailability::findOrFail($temp->availability_id);
-
-        $messageModel = Message::create([
-            'sender_id'           => $temp->sender_id,
-            'receiver_id'         => $temp->receiver_id,
-            'subject'             => $temp->subject,
-            'email'               => $temp->email,
-            'message_body'        => $temp->message_body,
-            'availability_id'     => $temp->availability_id,
-            'payment_status'      => 'paid',
-            'razorpay_payment_id' => $request->razorpay_payment_id,
-        ]);
-
-        // MAIL
-        $counselor = User::findOrFail($temp->receiver_id);
+        // MAIL + FIREBASE after commit
+        $counselor = User::findOrFail($receiverId);
         $sender    = User::findOrFail($temp->sender_id);
 
         Mail::send('emails.new_appointment', [
@@ -289,7 +298,6 @@ class CounselorController extends Controller
                 ->subject('You have a new appointment request');
         });
 
-        // FIREBASE
         $tokens = UserDevice::where('user_id', $counselor->id)
             ->whereNotNull('device_token')
             ->pluck('device_token');
@@ -306,9 +314,8 @@ class CounselorController extends Controller
             );
         }
 
-        $temp->delete();
-
-        return response()->json(['success' => true]);
+        return redirect()->route('counselor.profile', $receiverId)
+            ->with('success', 'Appointment booked successfully!');
     }
 
     public function paymentCancel()

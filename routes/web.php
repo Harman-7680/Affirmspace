@@ -331,8 +331,8 @@ Route::get('/video-call', function (Request $request) {
 
 // payment route for counselor
 Route::get('/app/contact/payment/{order_id}', [ApiCounselorController::class, 'paymentPage']);
-Route::get('/app/contact/success', [ApiCounselorController::class, 'contactSuccess']);
-Route::get('/app/contact/cancel', [ApiCounselorController::class, 'contactCancel']);
+Route::post('/app/contact/success', [ApiCounselorController::class, 'paymentSuccess'])->name('razorpay.payment.success');
+Route::get('/app/contact/cancel', [ApiCounselorController::class, 'paymentCancel']);
 
 // payment route app side registration
 Route::get('/app/payment/{order_id}', [AppRegistrationPaymentController::class, 'paymentPage'])->name('app.payment.page');

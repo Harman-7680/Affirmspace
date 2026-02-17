@@ -11,11 +11,11 @@
     <script>
         var options = {
             "key": "{{ config('services.razorpay.key') }}",
-            "amount": "{{ $order->amount }}",
+            "amount": "{{ $order['amount'] }}",
+            "order_id": "{{ $order['id'] }}",
             "currency": "INR",
             "name": "18% GST applicable",
             "description": "Event: {{ $event->name }}",
-            "order_id": "{{ $order->id }}",
 
             "handler": function(response) {
 
@@ -24,7 +24,7 @@
                 form.action = "{{ route('event.verify') }}";
 
                 form.innerHTML = `
-            @csrf
+            <input type="hidden" name="_token" value="{{ csrf_token() }}">
             <input type="hidden" name="razorpay_payment_id" value="${response.razorpay_payment_id}">
             <input type="hidden" name="razorpay_order_id" value="${response.razorpay_order_id}">
             <input type="hidden" name="razorpay_signature" value="${response.razorpay_signature}">
