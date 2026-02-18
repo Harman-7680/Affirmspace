@@ -184,9 +184,29 @@
                     <tr>
                         <td>{{ optional($appointment->availability)->available_date ?? 'N/A' }}</td>
                         <td>
-                            {{ optional($appointment->availability)->start_time ?? '' }} -
-                            {{ optional($appointment->availability)->end_time ?? '' }}
+                            @php
+                                $availability = optional($appointment->availability);
+                                $date = $availability->available_date;
+                                $start = $availability->start_time;
+                                $end = $availability->end_time;
+                            @endphp
+
+                            @if ($date && $start && $end)
+                                <div>
+                                    <strong>
+                                        {{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                    </strong>
+                                </div>
+                                <div class="text-muted">
+                                    {{ \Carbon\Carbon::parse($start)->format('h:i A') }}
+                                    -
+                                    {{ \Carbon\Carbon::parse($end)->format('h:i A') }}
+                                </div>
+                            @else
+                                N/A
+                            @endif
                         </td>
+
                         <td>{{ $appointment->email }}</td>
                         <td>{{ $appointment->subject }}</td>
                         <td>{{ $appointment->message_body }}</td>
