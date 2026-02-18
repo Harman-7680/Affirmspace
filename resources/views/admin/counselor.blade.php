@@ -27,7 +27,7 @@
             </div>
 
             <!-- Users Table -->
-            <table class="table table-sm table-bordered table-hover table-striped">
+            <table class="table table-sm table-hover align-middle text-nowrap small">
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
@@ -38,6 +38,8 @@
                         <th>Bio</th>
                         <th>Joined</th>
                         <th>Status</th>
+                        <th>Payment Status</th>
+                        <th>Bank</th>
                         <th>Action</th>
                         <th>View Profile</th>
                     </tr>
@@ -66,6 +68,70 @@
                                     <span x-text="user.is_online ? 'Online' : 'Last seen ' + user.last_seen_human"></span>
                                 </span>
                             </td>
+
+                            <td>
+                                <template x-if="user.is_paid">
+                                    <div>
+                                        <span class="text-green-600 font-semibold">Paid</span>
+                                        <div class="text-xs text-gray-500" x-text="user.payment_id"></div>
+                                    </div>
+                                </template>
+
+                                <template x-if="!user.is_paid">
+                                    <span class="text-red-500 font-semibold">Unpaid</span>
+                                </template>
+                            </td>
+
+                            <td>
+
+                                <!-- VERIFIED -->
+                                <template x-if="user.bank_status === 'verified'">
+                                    <div>
+                                        <span
+                                            class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                            Verified
+                                        </span>
+                                        <div class="text-xs text-gray-500 mt-1"
+                                            x-text="'Razorpay ID: ' + user.razorpay_account_id">
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- PENDING -->
+                                <template x-if="user.bank_status === 'pending'">
+                                    <span
+                                        class="px-2 py-1 text-xs font-semibold bg-yellow-100 text-yellow-700 rounded-full">
+                                        Pending
+                                    </span>
+                                </template>
+
+                                <!-- CHANGE REQUESTED -->
+                                <template x-if="user.bank_status === 'change_requested'">
+                                    <span
+                                        class="px-2 py-1 text-xs font-semibold bg-orange-100 text-orange-700 rounded-full">
+                                        Change Requested
+                                    </span>
+                                </template>
+
+                                <!-- NOT ADDED -->
+                                <template x-if="user.bank_status === 'not_added'">
+                                    <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                                        Not Added
+                                    </span>
+                                </template>
+
+                                <!-- REJECTED -->
+                                <template x-if="user.bank_status === 'rejected'">
+                                    <div>
+                                        <span class="px-2 py-1 text-xs font-semibold bg-red-200 text-red-800 rounded-full">
+                                            Rejected
+                                        </span>
+                                        <div class="text-xs text-red-600 mt-1" x-text="user.bank_rejection_reason">
+                                        </div>
+                                    </div>
+                                </template>
+                            </td>
+
                             <td>
                                 <button @click="toggleStatus(user)" type="button" class="btn"
                                     :class="user.status == 1 ? 'btn-inactive' : 'btn-active'">
@@ -138,4 +204,15 @@
             }
         }
     </script>
+@endsection
+
+@section('css')
+    <style>
+        .table td,
+        .table th {
+            padding: 6px 8px !important;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+    </style>
 @endsection

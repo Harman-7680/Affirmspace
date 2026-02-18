@@ -43,7 +43,7 @@
                     </div>
                 @endif
 
-                <table class="table table-sm table-bordered table-hover table-striped text-center mb-0">
+                <table class="table table-sm table-hover align-middle text-nowrap small">
                     <thead class="thead-dark">
                         <tr>
                             <th>#</th>
@@ -57,6 +57,7 @@
                             <th>Price</th>
                             <th>Profile</th>
                             <th>Status</th>
+                            <th>Payment Status</th>
                             <th>Actions</th>
                         </tr>
                     </thead>
@@ -111,6 +112,28 @@
                                 <td> <span x-show="event.status === 'pending'" class="badge badge-warning">Pending</span>
                                     <span x-show="event.status === 'approved'" class="badge badge-success">Approved</span>
                                     <span x-show="event.status === 'rejected'" class="badge badge-danger">Rejected</span>
+                                </td>
+
+                                <td>
+                                    <!-- PAID -->
+                                    <template x-if="event.is_paid">
+                                        <div>
+                                            <span
+                                                class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                                Paid
+                                            </span>
+                                            <div class="text-xs text-gray-500 mt-1"
+                                                x-text="'Payment ID: ' + event.payment_id">
+                                            </div>
+                                        </div>
+                                    </template>
+
+                                    <!-- UNPAID -->
+                                    <template x-if="!event.is_paid">
+                                        <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                                            Unpaid
+                                        </span>
+                                    </template>
                                 </td>
 
                                 <td>
@@ -190,4 +213,15 @@
             }
         }, 5000);
     </script>
+@endsection
+
+@section('css')
+    <style>
+        .table td,
+        .table th {
+            padding: 6px 8px !important;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+    </style>
 @endsection

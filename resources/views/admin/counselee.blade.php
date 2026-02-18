@@ -27,7 +27,7 @@
             </div>
 
             <!-- Users Table -->
-            <table class="table table-sm table-bordered table-hover table-striped">
+            <table class="table table-sm table-hover align-middle text-nowrap small">
                 <thead class="thead-dark">
                     <tr>
                         <th>#</th>
@@ -37,6 +37,7 @@
                         <th>Gender</th>
                         <th>Joined</th>
                         <th>Status</th>
+                        <th>Payment Status</th>
                         <th>Report's</th>
                         <th>Follower's</th>
                         <th>Referral's</th>
@@ -66,6 +67,20 @@
                                     <span x-text="user.is_online ? 'Online' : 'Last seen ' + user.last_seen_human"></span>
                                 </span>
                             </td>
+
+                            <td>
+                                <template x-if="user.is_paid">
+                                    <div>
+                                        <span class="text-green-600 font-semibold">Paid</span>
+                                        <div class="text-xs text-gray-500" x-text="user.payment_id"></div>
+                                    </div>
+                                </template>
+
+                                <template x-if="!user.is_paid">
+                                    <span class="text-red-500 font-semibold">Unpaid</span>
+                                </template>
+                            </td>
+
                             <td x-html="
         (user.report_count > 0 ? 'User: ' + user.report_count : '') +
         (user.post_report_count > 0 
@@ -185,4 +200,15 @@
             }
         }
     </script>
+@endsection
+
+@section('css')
+    <style>
+        .table td,
+        .table th {
+            padding: 6px 8px !important;
+            vertical-align: middle;
+            font-size: 13px;
+        }
+    </style>
 @endsection

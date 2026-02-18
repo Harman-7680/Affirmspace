@@ -81,6 +81,8 @@ class AdminController extends Controller
                 'last_name'         => $u->last_name,
                 'email'             => $u->email,
                 'gender'            => $u->gender,
+                'is_paid'           => $u->is_paid,
+                'payment_id'        => $u->payment_id,
                 'created_at'        => $u->created_at->format('d M Y'),
                 'image'             => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
                 'last_seen_human'   => $u->last_seen ? $u->last_seen->diffForHumans() : 'Never',
@@ -121,17 +123,22 @@ class AdminController extends Controller
 
         $users = User::where('role', 1)->get()->map(function ($u) {
             return [
-                'id'              => $u->id,
-                'first_name'      => $u->first_name,
-                'last_name'       => $u->last_name,
-                'bio'             => $u->bio,
-                'email'           => $u->email,
-                'gender'          => $u->gender,
-                'created_at'      => $u->created_at->format('d M Y'),
-                'image'           => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
-                'last_seen_human' => $u->last_seen ? $u->last_seen->diffForHumans() : 'Never',
-                'is_online'       => $u->isOnline(),
-                'status'          => $u->status,
+                'id'                    => $u->id,
+                'first_name'            => $u->first_name,
+                'last_name'             => $u->last_name,
+                'bio'                   => $u->bio,
+                'email'                 => $u->email,
+                'gender'                => $u->gender,
+                'is_paid'               => $u->is_paid,
+                'payment_id'            => $u->payment_id,
+                'razorpay_account_id'   => $u->razorpay_account_id,
+                'bank_status'           => $u->bank_status,
+                'bank_rejection_reason' => $u->bank_rejection_reason,
+                'created_at'            => $u->created_at->format('d M Y'),
+                'image'                 => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
+                'last_seen_human'       => $u->last_seen ? $u->last_seen->diffForHumans() : 'Never',
+                'is_online'             => $u->isOnline(),
+                'status'                => $u->status,
             ];
         });
 
