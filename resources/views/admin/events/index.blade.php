@@ -123,7 +123,7 @@
                                                 Paid
                                             </span>
                                             <div class="text-xs text-gray-500 mt-1"
-                                                x-text="'Payment ID: ' + event.payment_id">
+                                                x-text="'Payment ID: ' + (event.payment_id ?? 'N/A')">
                                             </div>
                                         </div>
                                     </template>

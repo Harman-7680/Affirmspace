@@ -81,7 +81,7 @@ class AdminController extends Controller
                 'last_name'         => $u->last_name,
                 'email'             => $u->email,
                 'gender'            => $u->gender,
-                'is_paid'           => $u->is_paid,
+                'is_paid'           => (bool) $u->is_paid,
                 'payment_id'        => $u->payment_id,
                 'created_at'        => $u->created_at->format('d M Y'),
                 'image'             => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
@@ -129,7 +129,7 @@ class AdminController extends Controller
                 'bio'                   => $u->bio,
                 'email'                 => $u->email,
                 'gender'                => $u->gender,
-                'is_paid'               => $u->is_paid,
+                'is_paid'               => (bool) $u->is_paid,
                 'payment_id'            => $u->payment_id,
                 'razorpay_account_id'   => $u->razorpay_account_id,
                 'bank_status'           => $u->bank_status,
@@ -286,13 +286,13 @@ class AdminController extends Controller
 
         // Load paid events and include the user who created each event
         $events = Event::with('user')
-            ->where('is_paid', true)
             ->latest()
             ->get()
             ->map(function ($event) {
+                $event->is_paid   = (bool) $event->is_paid;
                 $event->image_url = $event->image
                     ? asset('storage/' . $event->image)
-                    : asset();
+                    : null;
                 return $event;
             });
 

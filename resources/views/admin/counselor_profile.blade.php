@@ -176,6 +176,7 @@
                     <th>Subject</th>
                     <th>Message</th>
                     <th>Status</th>
+                    <th>Payment Status</th>
                 </tr>
             </thead>
             <tbody>
@@ -198,10 +199,26 @@
                                 : 'status-pending') }}">
                             {{ ucfirst($appointment->status) }}
                         </td>
+
+                        <td>
+                            @if ($appointment->payment_status === 'paid')
+                                <span class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                    Paid
+                                </span>
+
+                                <div class="text-xs text-gray-500 mt-1">
+                                    Payment ID: {{ $appointment->razorpay_payment_id ?? 'N/A' }}
+                                </div>
+                            @else
+                                <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                                    Unpaid
+                                </span>
+                            @endif
+                        </td>
                     </tr>
                 @empty
                     <tr>
-                        <td colspan="6" class="no-appointments">No appointments found.</td>
+                        <td colspan="7" class="no-appointments">No appointments found.</td>
                     </tr>
                 @endforelse
             </tbody>
