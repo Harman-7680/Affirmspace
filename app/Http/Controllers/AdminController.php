@@ -422,4 +422,29 @@ class AdminController extends Controller
         // If request comes from WEBSITE (Web form)
         return back()->with('success', 'Your message has been sent successfully.');
     }
+
+    public function releasePayment($id)
+    {
+        abort_if(Auth::user()->role != 2, 403);
+
+        $appointment = Message::findOrFail($id);
+
+        if ($appointment->payment_status !== 'paid') {
+            return back()->with('error', 'Payment not completed.');
+        }
+
+        if ($appointment->release_status) {
+            return back()->with('error', 'Already released.');
+        }
+
+        // Future me yaha Razorpay transfer API call lagegi
+
+        $appointment->update([
+            'release_status'       => true,
+            'released_at'          => now(),
+            'razorpay_transfer_id' => 'temp_transfer_id_' . rand(10000, 99999),
+        ]);
+
+        return back()->with('success', 'Payment released successfully!');
+    }
 }

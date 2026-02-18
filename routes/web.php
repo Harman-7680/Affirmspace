@@ -149,6 +149,8 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
 
     Route::get('/send-message', [AdminMessageController::class, 'showSendMessageForm'])->name('sendMessage');
     Route::post('/admin/send-message', [AdminMessageController::class, 'sendMessage'])->name('admin.sendMessage');
+
+    Route::post('/admin/release-payment/{id}', [AdminController::class, 'releasePayment'])->name('admin.release.payment');
 });
 
 // this is outside middleware because on login page we need to fetch specializations

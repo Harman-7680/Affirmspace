@@ -170,8 +170,7 @@
         <table>
             <thead>
                 <tr>
-                    <th>Date</th>
-                    <th>Time</th>
+                    <th>Date & Time</th>
                     <th>Client Email</th>
                     <th>Subject</th>
                     <th>Message</th>
@@ -182,7 +181,6 @@
             <tbody>
                 @forelse($appointments as $appointment)
                     <tr>
-                        <td>{{ optional($appointment->availability)->available_date ?? 'N/A' }}</td>
                         <td>
                             @php
                                 $availability = optional($appointment->availability);
@@ -221,20 +219,62 @@
                         </td>
 
                         <td>
+
+                            @php
+                                $availability = optional($appointment->availability);
+
+                                $appointmentEnd = null;
+
+                                if ($availability->available_date && $availability->end_time) {
+                                    $appointmentEnd = \Carbon\Carbon::parse(
+                                        $availability->available_date . ' ' . $availability->end_time,
+                                    );
+                                }
+
+                                $isPastAppointment = $appointmentEnd && $appointmentEnd->isPast();
+                            @endphp
+
+                            {{-- PAID --}}
                             @if ($appointment->payment_status === 'paid')
-                                <span class="px-2 py-1 text-xs font-semibold bg-green-100 text-green-700 rounded-full">
+                                <span class="badge bg-success">
                                     Paid
                                 </span>
 
-                                <div class="text-xs text-gray-500 mt-1">
-                                    Payment ID: {{ $appointment->razorpay_payment_id ?? 'N/A' }}
+                                <div style="font-size:12px; margin-top:4px;">
+                                    Payment ID: {{ $appointment->razorpay_payment_id }}
                                 </div>
+
+                                {{-- SHOW RELEASE BUTTON ONLY AFTER APPOINTMENT --}}
+                                @if (!$appointment->release_status && $isPastAppointment)
+                                    <form action="{{ route('admin.release.payment', $appointment->id) }}" method="POST"
+                                        class="mt-1 text-center">
+                                        @csrf
+                                        <button type="submit" class="btn btn-sm btn-primary">
+                                            Release Payment
+                                        </button>
+                                    </form>
+
+                                    {{-- IF ALREADY RELEASED --}}
+                                @elseif ($appointment->release_status)
+                                    <div class="text-success" style="margin-top:6px; font-size:13px;">
+                                        Payment Released ✔
+                                    </div>
+
+                                    @if ($appointment->razorpay_transfer_id)
+                                        <div style="font-size:11px;">
+                                            Transfer ID: {{ $appointment->razorpay_transfer_id }}
+                                        </div>
+                                    @endif
+                                @endif
+
+                                {{-- UNPAID --}}
                             @else
-                                <span class="px-2 py-1 text-xs font-semibold bg-red-100 text-red-700 rounded-full">
+                                <span class="badge bg-danger">
                                     Unpaid
                                 </span>
                             @endif
                         </td>
+
                     </tr>
                 @empty
                     <tr>
