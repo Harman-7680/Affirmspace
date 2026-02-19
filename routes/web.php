@@ -26,7 +26,18 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
+// Route::get('/email/verify', function () {
+//     return view('auth.verify-email');
+// })->middleware('auth')->name('verification.notice');
+
 Route::get('/email/verify', function () {
+    $user = auth()->user();
+    if ($user->hasVerifiedEmail()) {
+        if ($user->role == 0) {
+            return redirect()->route('feed');
+        }
+        return redirect()->route('profile');
+    }
     return view('auth.verify-email');
 })->middleware('auth')->name('verification.notice');
 

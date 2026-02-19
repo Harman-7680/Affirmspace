@@ -25,6 +25,13 @@ class EnsureRegistrationPaid
             return redirect()->route('login');
         }
 
+        $registrationFee = optional(\App\Models\RegistrationSetting::first())->registration_fee ?? 0;
+
+        // If fee is 0 → Payment system disabled → allow access
+        if ($registrationFee == 0) {
+            return $next($request);
+        }
+
         /**
          * IMPORTANT:
          * - Payment check AFTER auth

@@ -2,6 +2,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use App\Models\RegistrationSetting;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -74,10 +76,20 @@ class RegisteredUserController extends Controller
         $user->is_paid = 0;
         $user->save();
 
+        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
         Auth::login($user);
 
-        // email verification ABHI NAHI
-        return redirect()->route('registration.payment');
+        if ($registrationFee > 0) {
+            // Payment required
+            return redirect()->route('registration.payment');
+        }
+
+        // Payment not required
+        event(new Registered($user));
+
+        return redirect()->route('verification.notice')
+            ->with('success', 'Registration successful! Please verify your email.');
 
         // event(new Registered($user));
         // Auth::login($user);
