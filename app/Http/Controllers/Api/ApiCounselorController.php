@@ -126,6 +126,7 @@ class ApiCounselorController extends Controller
             'message_body'      => $request->message,
             'availability_id'   => $request->availability_id,
             'razorpay_order_id' => $order['id'],
+            'base_amount'       => $baseAmount,
         ]);
 
         return response()->json([
@@ -198,6 +199,7 @@ class ApiCounselorController extends Controller
                 'availability_id'     => $temp->availability_id,
                 'payment_status'      => 'paid',
                 'razorpay_payment_id' => $request->razorpay_payment_id,
+                'base_amount'         => $temp->base_amount,
             ]);
 
             $temp->delete();

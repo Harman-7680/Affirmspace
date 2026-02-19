@@ -20,6 +20,7 @@ class Message extends Model
         'release_status',
         'released_at',
         'razorpay_transfer_id',
+        'base_amount',
     ];
 
     public function sender()

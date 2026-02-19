@@ -14,5 +14,6 @@ class TempAppointment extends Model
         'availability_id',
         'razorpay_order_id',
         'razorpay_payment_id',
+        'base_amount',
     ];
 }
