@@ -79,7 +79,19 @@ class CounselorController extends Controller
                     ->orWhere('receiver_id', $auth->id);
             })
             ->orderBy('created_at', 'desc')
-            ->get();
+            ->get()
+            ->map(function ($appointment) {
+
+                $base = ($appointment->payment_status === 'paid')
+                    ? ($appointment->base_amount ?? 0)
+                    : 0;
+
+                $appointment->base_paid      = $base;
+                $appointment->payable_amount = $base * 0.80;
+                $appointment->platform_fee   = $base * 0.20;
+
+                return $appointment;
+            });
 
         // dd($appointments,$messages,$availabilities);
 

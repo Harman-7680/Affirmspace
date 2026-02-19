@@ -430,57 +430,86 @@
                     <div id="appointments-container">
                         @forelse ($appointments as $index => $appointment)
                             <div class="appointment-card"
-                                style="border:1px solid #ccc; border-radius:6px; padding:8px 12px; margin-bottom:8px; background:#fafafa; {{ $index >= 2 ? 'display:none;' : '' }}">
-                                <p style="margin:2px 0; font-size:13px;">
-                                    <strong>Name:</strong>
-                                    {{ $appointment->sender_id == auth()->id()
-                                        ? $appointment->receiver->first_name . ' ' . $appointment->receiver->last_name
-                                        : $appointment->sender->first_name . ' ' . $appointment->sender->last_name }}
-                                </p>
-                                <p style="margin:2px 0; font-size:13px;">
-                                    <strong>Subject:</strong> {{ $appointment->subject }}
-                                </p>
-                                <p style="margin:2px 0; font-size:13px; color:#444;">
-                                    <strong>Message:</strong> {{ $appointment->message_body }}
-                                </p>
-                                <p style="margin:2px 0; font-size:13px;">
-                                    <strong>Status:</strong>
-                                    <span
-                                        style="font-weight:600; 
-                                    color:{{ $appointment->status === 'accepted' ? '#16a34a' : ($appointment->status === 'rejected' ? '#dc2626' : '#ca8a04') }}">
-                                        {{ ucfirst($appointment->status) }}
-                                    </span>
-                                </p>
-                                @if ($appointment->status == 'pending')
-                                    <div class="m-2 flex gap-2">
-                                        <form
-                                            action="{{ route('messages.updateStatus', [$appointment->id, 'accepted']) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">
-                                                Accept
-                                            </button>
-                                        </form>
+                                style="border:1px solid #ccc; border-radius:6px; padding:12px; margin-bottom:8px; background:#fafafa; display:flex; justify-content:space-between; align-items:flex-start; {{ $index >= 2 ? 'display:none;' : '' }}">
+                                <div style="width:70%;">
 
-                                        <form
-                                            action="{{ route('messages.updateStatus', [$appointment->id, 'rejected']) }}"
-                                            method="POST">
-                                            @csrf
-                                            @method('PATCH')
-                                            <button type="submit"
-                                                class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"
-                                                style="background:red; color:white; padding:4px 8px;">
-                                                Reject
-                                            </button>
-                                        </form>
+                                    <p style="margin:2px 0; font-size:13px;">
+                                        <strong>Name:</strong>
+                                        {{ $appointment->sender_id == auth()->id()
+                                            ? $appointment->receiver->first_name . ' ' . $appointment->receiver->last_name
+                                            : $appointment->sender->first_name . ' ' . $appointment->sender->last_name }}
+                                    </p>
+                                    <p style="margin:2px 0; font-size:13px;">
+                                        <strong>Subject:</strong> {{ $appointment->subject }}
+                                    </p>
+                                    <p style="margin:2px 0; font-size:13px; color:#444;">
+                                        <strong>Message:</strong> {{ $appointment->message_body }}
+                                    </p>
+                                    <p style="margin:2px 0; font-size:13px;">
+                                        <strong>Status:</strong>
+                                        <span
+                                            style="font-weight:600; 
+                                    color:{{ $appointment->status === 'accepted' ? '#16a34a' : ($appointment->status === 'rejected' ? '#dc2626' : '#ca8a04') }}">
+                                            {{ ucfirst($appointment->status) }}
+                                        </span>
+                                    </p>
+                                    @if ($appointment->status == 'pending')
+                                        <div class="m-2 flex gap-2">
+                                            <form
+                                                action="{{ route('messages.updateStatus', [$appointment->id, 'accepted']) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="bg-blue-500 hover:bg-blue-600 text-white text-xs px-3 py-1 rounded">
+                                                    Accept
+                                                </button>
+                                            </form>
+
+                                            <form
+                                                action="{{ route('messages.updateStatus', [$appointment->id, 'rejected']) }}"
+                                                method="POST">
+                                                @csrf
+                                                @method('PATCH')
+                                                <button type="submit"
+                                                    class="bg-red-500 hover:bg-red-600 text-white text-xs px-3 py-1 rounded"
+                                                    style="background:red; color:white; padding:4px 8px;">
+                                                    Reject
+                                                </button>
+                                            </form>
+                                        </div>
+                                    @endif
+
+                                    <p style="margin:0; font-size:11px; color:#777;">
+                                        {{ $appointment->created_at->format('M d, Y h:i A') }}
+                                    </p>
+                                </div>
+                                @if ($appointment->status === 'accepted' && $appointment->base_paid > 0)
+                                    <div
+                                        style="width:28%; background:#fff; padding:8px; border-radius:6px; border:1px solid #e5e5e5;">
+
+                                        <p style="margin:2px 0; font-size:13px;">
+                                            <strong>Paid:</strong> ₹{{ number_format($appointment->base_paid, 2) }}
+                                        </p>
+
+                                        <p style="margin:2px 0; font-size:13px; color:#16a34a;">
+                                            <strong>You Get (80%):</strong>
+                                            ₹{{ number_format($appointment->payable_amount, 2) }}
+                                        </p>
+
+                                        <p style="margin:2px 0; font-size:12px; color:#dc2626;">
+                                            Platform Fee (20%): ₹{{ number_format($appointment->platform_fee, 2) }}
+                                        </p>
+
+                                        <p style="margin-top:6px; font-size:12px;">
+                                            <strong>Release:</strong>
+                                            <span
+                                                style="font-weight:600; color:{{ $appointment->release_status == 1 ? '#16a34a' : '#ca8a04' }}">
+                                                {{ $appointment->release_status == 1 ? 'Payment Released' : 'Not Released' }}
+                                            </span>
+                                        </p>
                                     </div>
                                 @endif
-
-                                <p style="margin:0; font-size:11px; color:#777;">
-                                    {{ $appointment->created_at->format('M d, Y h:i A') }}
-                                </p>
                             </div>
                         @empty
                             <p style="color:#666; font-size:13px;">No appointments found.</p>
