@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Mail\OtpMail;
+use App\Models\RegistrationSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -42,6 +43,14 @@ class SocialLoginController extends Controller
 
         // User exists → attach social_id if missing
         if ($user) {
+
+            if ($user->status == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account is deactivated.',
+                ], 403);
+            }
+
             if (empty($user->social_id)) {
                 $user->update(['social_id' => $socialId]);
             }
@@ -54,7 +63,9 @@ class SocialLoginController extends Controller
             }
 
             // PAYMENT CHECK FOR APP
-            if ($user->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $user->is_paid == 0) {
                 return response()->json([
                     'success' => false,
                     'code'    => 'PAYMENT_REQUIRED',
@@ -119,7 +130,9 @@ class SocialLoginController extends Controller
             $user->tokens()->delete();
             \DB::table('sessions')->where('user_id', $user->id)->delete();
 
-            if ($user->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $user->is_paid == 0) {
                 return response()->json([
                     'success' => false,
                     'code'    => 'PAYMENT_REQUIRED',
@@ -151,7 +164,9 @@ class SocialLoginController extends Controller
             $existingUser->tokens()->delete();
             \DB::table('sessions')->where('user_id', $existingUser->id)->delete();
 
-            if ($existingUser->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $existingUser->is_paid == 0) {
                 return response()->json([
                     'success' => false,
                     'code'    => 'PAYMENT_REQUIRED',
@@ -219,6 +234,18 @@ class SocialLoginController extends Controller
 
         $user->tokens()->delete();
         \DB::table('sessions')->where('user_id', $user->id)->delete();
+
+        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+        if ($registrationFee > 0) {
+            return response()->json([
+                'success'          => false,
+                'code'             => 'PAYMENT_REQUIRED',
+                'message'          => 'Registration fee required.',
+                'user_id'          => $user->id,
+                'registration_fee' => $registrationFee,
+            ], 402);
+        }
 
         Auth::login($user);
         $token = $user->createToken('API Token')->plainTextToken;

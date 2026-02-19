@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\OtpMail;
+use App\Models\RegistrationSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -57,7 +58,9 @@ class SocialLoginController extends Controller
 
             Auth::login($user);
 
-            if ($user->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $user->is_paid == 0) {
                 return redirect()->route('registration.payment');
             }
 
@@ -186,9 +189,12 @@ class SocialLoginController extends Controller
 
             session()->forget('social_user');
 
-            if ($user->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $user->is_paid == 0) {
                 return redirect()->route('registration.payment');
             }
+
             return redirect($user->role == 1 ? '/counselor/profile' : '/feed');
         }
 
@@ -210,9 +216,12 @@ class SocialLoginController extends Controller
 
             session()->forget('social_user');
 
-            if ($existingUser->is_paid == 0) {
+            $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+            if ($registrationFee > 0 && $existingUser->is_paid == 0) {
                 return redirect()->route('registration.payment');
             }
+
             return redirect($existingUser->role == 1 ? '/counselor/profile' : '/feed');
         }
 
@@ -271,9 +280,12 @@ class SocialLoginController extends Controller
         Auth::login($user);
         session()->forget('social_user');
 
-        if ($user->is_paid == 0) {
+        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+        if ($registrationFee > 0 && $user->is_paid == 0) {
             return redirect()->route('registration.payment');
         }
+
         return redirect($user->role == 1 ? '/counselor/profile' : '/feed');
     }
 

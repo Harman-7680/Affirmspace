@@ -5,6 +5,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
 use App\Models\Message;
 use App\Models\Post;
+use App\Models\RegistrationSetting;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
@@ -480,12 +481,25 @@ class AuthController extends Controller
             ]);
         }
 
-        // Fire Registered event
-        // event(new Registered($user));
+        // Get registration fee
+        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
+        // If fee required
+        if ($registrationFee > 0) {
+            return response()->json([
+                'status'           => 'payment_required',
+                'message'          => 'Registration fee required',
+                'registration_fee' => $registrationFee,
+                'user_id'          => $user->id,
+            ], 200);
+        }
+
+        // If fee NOT required → send verification email
+        event(new Registered($user));
 
         return response()->json([
             'status'  => 'success',
-            'message' => 'Registration successful',
+            'message' => 'Registration successful! Please verify your email.',
             'user'    => $user,
         ], 201);
     }
