@@ -3,6 +3,7 @@
 use App\Http\Controllers\AdminAreaPriceController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMessageController;
+use App\Http\Controllers\AdminRegistrationSettingController;
 use App\Http\Controllers\AdminSpecializationController;
 use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
@@ -162,6 +163,9 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
     Route::post('/admin/send-message', [AdminMessageController::class, 'sendMessage'])->name('admin.sendMessage');
 
     Route::post('/admin/release-payment/{id}', [AdminController::class, 'releasePayment'])->name('admin.release.payment');
+
+    Route::get('/registration-settings', [AdminRegistrationSettingController::class, 'edit'])->name('admin.registration.settings');
+    Route::post('/registration-settings', [AdminRegistrationSettingController::class, 'update'])->name('admin.registration.settings.update');
 });
 
 // this is outside middleware because on login page we need to fetch specializations

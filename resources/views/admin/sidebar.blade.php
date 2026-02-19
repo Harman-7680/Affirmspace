@@ -32,6 +32,7 @@
                     'admin.events',
                     'admin.area-price.index',
                     'sendMessage',
+                    'admin.registration.settings*',
                 )
                     ? 'open'
                     : '' }}">
@@ -121,6 +122,13 @@
                             href="{{ route('sendMessage') }}">
                             <i class="fa fa-envelope me-2"></i>
                             Message
+                        </a>
+                    </li>
+                    <li>
+                        <a class="menu-item {{ request()->routeIs('admin.registration.settings*') ? 'active' : '' }}"
+                            href="{{ route('admin.registration.settings') }}">
+                            <i class="fa fa-cogs"></i>
+                            Registration Settings
                         </a>
                     </li>
                 </ul>
