@@ -289,6 +289,7 @@ class CounselorController extends Controller
                 'base_amount'         => $temp->base_amount,
             ]);
 
+            $senderId = $temp->sender_id;
             $temp->delete();
 
             DB::commit();
@@ -302,7 +303,7 @@ class CounselorController extends Controller
 
         // MAIL + FIREBASE after commit
         $counselor = User::findOrFail($receiverId);
-        $sender    = User::findOrFail($temp->sender_id);
+        $sender    = User::findOrFail($senderId);
 
         Mail::send('emails.new_appointment', [
             'counselor'    => $counselor,

@@ -501,6 +501,20 @@
                                             Platform Fee (20%): ₹{{ number_format($appointment->platform_fee, 2) }}
                                         </p>
 
+                                        @if ($appointment->availability)
+                                            <p style="margin:2px 0; font-size:13px;">
+                                                <strong>Session Date:</strong>
+                                                {{ \Carbon\Carbon::parse($appointment->availability->available_date)->format('M d, Y') }}
+                                            </p>
+
+                                            <p style="margin:2px 0; font-size:13px;">
+                                                <strong>Time:</strong>
+                                                {{ \Carbon\Carbon::parse($appointment->availability->start_time)->format('h:i A') }}
+                                                -
+                                                {{ \Carbon\Carbon::parse($appointment->availability->end_time)->format('h:i A') }}
+                                            </p>
+                                        @endif
+
                                         <p style="margin-top:6px; font-size:12px;">
                                             <strong>Release:</strong>
                                             <span
