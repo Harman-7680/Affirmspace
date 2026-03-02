@@ -221,6 +221,7 @@ Route::middleware(['auth', 'registration.paid', 'verified', 'profile.complete'])
     Route::get('/notifications/clear-all', [App\Http\Controllers\ProfileController::class, 'clearAllNotifications'])->name('notifications.clearAll');
     Route::post('/notifications/clear/{id}', [App\Http\Controllers\ProfileController::class, 'clear'])->name('notifications.clear');
     Route::post('/settings/privacy', [ProfileController::class, 'updatePrivacy'])->name('settings.privacy');
+    Route::get('/user/post/{id}', [PostController::class, 'show'])->name('post.show');
 });
 
 Route::middleware('auth')->get('/post/{id}/comment', [ProfileController::class, 'getPostComments']);

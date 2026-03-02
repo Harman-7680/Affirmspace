@@ -344,6 +344,14 @@
                                     </button>
                                     <span id="commentCount_{{ $post->id }}">{{ $post->total_comments }}</span>
                                 </div>
+
+                                <!-- Share Button -->
+                                <div class="flex items-center gap-3">
+                                    <button type="button" onclick="copyPostLink({{ $post->id }})"
+                                        class="button-icon bg-slate-200/70 dark:bg-slate-700">
+                                        <ion-icon class="text-lg" name="share-social"></ion-icon>
+                                    </button>
+                                </div>
                             </div>
 
                             <!-- comments -->
@@ -1537,6 +1545,18 @@
             }
         });
     </script> --}}
+
+    <script>
+        function copyPostLink(postId) {
+            let url = "{{ url('/user/post') }}/" + postId;
+
+            navigator.clipboard.writeText(url).then(function() {
+                alert("Post link copied successfully!");
+            }).catch(function(err) {
+                alert("Failed to copy link");
+            });
+        }
+    </script>
 @endsection
 
 @section('css')

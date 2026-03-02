@@ -1,8 +1,10 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Comment;
 use App\Models\Post;
+use App\Models\User;
 use App\Models\UserDevice;
 use App\Notifications\CommentRepliedNotification;
 use App\Notifications\FriendNewPostNotification;
@@ -281,6 +283,63 @@ class PostController extends Controller
             'success'        => true,
             'total_comments' => $totalComments,
             'message'        => 'Comment deleted successfully',
+        ]);
+    }
+
+    public function show($id)
+    {
+        $auth = Auth::user();
+        abort_if($auth->role != 0, 403);
+        $notifications = $auth->unreadNotifications;
+
+        $friends = $auth->friendsList()->pluck('id')->toArray();
+
+        // Hidden users
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+        // Fetch post with relations
+        $post = Post::with(['user', 'likes', 'comments.user', 'comments.replies.user'])
+            ->where('id', $id)
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->firstOrFail();
+
+        // Privacy check
+        if ($post->user->is_private) {
+
+            $isFriend = in_array($post->user->id, $friends);
+
+            if ($post->user_id !== $auth->id && ! $isFriend) {
+                abort(403, 'This account is private.');
+            }
+        }
+
+        // If user blocked you
+        if (
+            Block::where('user_id', $post->user_id)
+            ->where('blocked_id', $auth->id)
+            ->exists()
+        ) {
+            abort(403, 'You cannot view this post.');
+        }
+
+        // Calculate comments count
+        $post->total_comments =
+        $post->comments->count() +
+        $post->comments->sum(fn($c) => $c->replies->count());
+
+        return view('user.post', [
+            'user'          => $auth,
+            'notifications' => $notifications,
+            'post'          => $post,
         ]);
     }
 
