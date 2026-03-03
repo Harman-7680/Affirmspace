@@ -290,11 +290,19 @@ class PostController extends Controller
     {
         $auth = Auth::user();
         abort_if($auth->role != 0, 403);
+
         $notifications = $auth->unreadNotifications;
+        $friends       = $auth->friendsList()->pluck('id')->toArray();
 
-        $friends = $auth->friendsList()->pluck('id')->toArray();
+        // Individually blocked post
+        if (Block::where('user_id', $auth->id)
+            ->where('post_id', $id)
+            ->exists()) {
 
-        // Hidden users
+            return redirect()->route('feed')
+                ->with('error', 'You have blocked this post.');
+        }
+
         $blockedUsers = Block::where('user_id', $auth->id)
             ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
@@ -306,32 +314,39 @@ class PostController extends Controller
 
         $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
 
-        // Fetch post with relations
         $post = Post::with(['user', 'likes', 'comments.user', 'comments.replies.user'])
             ->where('id', $id)
-            ->whereNotIn('user_id', $hiddenUsers)
-            ->firstOrFail();
+            ->first();
 
-        // Privacy check
+        if (! $post) {
+            return redirect()->route('feed')
+                ->with('error', 'Post not found.');
+        }
+
+        if (in_array($post->user_id, $hiddenUsers)) {
+            return redirect()->route('feed')
+                ->with('error', 'You cannot view this post.');
+        }
+
         if ($post->user->is_private) {
 
             $isFriend = in_array($post->user->id, $friends);
 
             if ($post->user_id !== $auth->id && ! $isFriend) {
-                abort(403, 'This account is private.');
+                return redirect()->route('feed')
+                    ->with('error', 'This account is private.');
             }
         }
 
-        // If user blocked you
         if (
             Block::where('user_id', $post->user_id)
             ->where('blocked_id', $auth->id)
             ->exists()
         ) {
-            abort(403, 'You cannot view this post.');
+            return redirect()->route('feed')
+                ->with('error', 'This user has blocked you.');
         }
 
-        // Calculate comments count
         $post->total_comments =
         $post->comments->count() +
         $post->comments->sum(fn($c) => $c->replies->count());

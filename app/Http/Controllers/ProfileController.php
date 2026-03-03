@@ -606,7 +606,7 @@ class ProfileController extends Controller
             })
             ->inRandomOrder() // randomize only within same priority
             ->orderBy('posts.created_at', 'desc')
-            ->paginate(1)
+            ->paginate(15)
             ->through(function ($p) {
                 $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
                 return $p;

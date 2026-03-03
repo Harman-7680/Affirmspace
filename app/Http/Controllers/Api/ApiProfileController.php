@@ -519,7 +519,8 @@ class ApiProfileController extends Controller
         //     });
 
         // --- Blocked Users ---
-        $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
             ->toArray();
 

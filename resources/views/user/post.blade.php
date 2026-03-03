@@ -1,5 +1,36 @@
 @extends('layouts.app1')
 
+{{-- ERROR ALERT --}}
+@if (session('error'))
+    <div id="flash-error"
+        style="
+            position: fixed;
+            top: 70px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #fee2e2;
+            border: 1px solid #ef4444;
+            color: #7f1d1d;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,.15);
+            text-align: center;
+            min-width: 260px;
+        ">
+        {{ session('error') }}
+    </div>
+
+    <script>
+        setTimeout(() => {
+            const el = document.getElementById('flash-error');
+            if (el) el.style.display = 'none';
+        }, 5000);
+    </script>
+@endif
+
 @section('content')
     <br><br><br><br>
 
@@ -30,12 +61,29 @@
                 </div>
             @endif
 
-            <!-- IMAGE -->
+            {{-- MEDIA SECTION --}}
             @if ($post->post_image)
-                <div class="relative w-full sm:px-4 media-preview" data-src="{{ asset('storage/' . $post->post_image) }}"
-                    data-type="image">
-                    <img src="{{ asset('storage/' . $post->post_image) }}" class="w-full rounded-lg object-cover">
-                </div>
+                @php
+                    $file = $post->post_image;
+                    $extension = strtolower(pathinfo($file, PATHINFO_EXTENSION));
+                    $videoExtensions = ['mp4', 'mov', 'avi', 'webm'];
+                @endphp
+
+                @if (in_array($extension, $videoExtensions))
+                    {{-- VIDEO --}}
+                    <div class="relative w-full sm:px-4">
+                        <video controls class="w-full rounded-lg">
+                            <source src="{{ asset('storage/' . $file) }}" type="video/{{ $extension }}">
+                            Your browser does not support the video tag.
+                        </video>
+                    </div>
+                @else
+                    {{-- IMAGE --}}
+                    <div class="relative w-full sm:px-4 media-preview" data-src="{{ asset('storage/' . $file) }}"
+                        data-type="image">
+                        <img src="{{ asset('storage/' . $file) }}" class="w-full rounded-lg object-cover">
+                    </div>
+                @endif
             @endif
 
             <!-- LIKE + COMMENT ICONS -->
