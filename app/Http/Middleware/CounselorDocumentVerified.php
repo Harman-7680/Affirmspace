@@ -34,6 +34,7 @@ class CounselorDocumentVerified
                         'success' => false,
                         'status'  => 'documents_required',
                         'message' => 'Please upload your verification documents first.',
+                        'user'    => $user,
                     ], 403);
                 }
 
@@ -50,6 +51,7 @@ class CounselorDocumentVerified
                         'success' => false,
                         'status'  => 'documents_pending',
                         'message' => 'Your documents are under verification.',
+                        'user'    => $user,
                     ], 403);
                 }
 
@@ -67,6 +69,7 @@ class CounselorDocumentVerified
                         'success' => false,
                         'status'  => 'documents_rejected',
                         'message' => 'Your documents were rejected. Please upload again.',
+                        'user'    => $user,
                     ], 403);
                 }
 
