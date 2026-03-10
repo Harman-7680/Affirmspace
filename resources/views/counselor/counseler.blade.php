@@ -669,9 +669,17 @@
                                 <input id="current_password" name="current_password" type="password"
                                     placeholder="******" class="w-full border rounded px-3 py-2"
                                     autocomplete="current-password">
+
                                 @error('current_password', 'updatePassword')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
+
+                                @if (auth()->user()->social_id)
+                                    <p class="text-sm text-blue-500 mt-1">
+                                        Logged in with Google/Facebook? Setting a password for the first time — use <span
+                                            class="font-semibold">Forgot Password</span>.
+                                    </p>
+                                @endif
                             </div>
                         </div>
 
@@ -742,6 +750,7 @@
                     <div class="space-y-6">
                         <div class="flex justify-center">
                             <button type="submit"
+                                onclick="return confirm('Are you Sure you Want to Delete Your Account ?');"
                                 class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded">
                                 Delete Account
                             </button>

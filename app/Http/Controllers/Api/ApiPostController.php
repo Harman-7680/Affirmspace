@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\Block;
 use App\Models\Comment;
 use App\Models\Post;
 use App\Models\UserDevice;
@@ -348,6 +349,94 @@ class ApiPostController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Comment deleted successfully',
+        ]);
+    }
+
+    public function showApi($id)
+    {
+        $auth = Auth::user();
+
+        if ($auth->role != 0) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Unauthorized',
+            ], 403);
+        }
+
+        // Blocked post
+        if (Block::where('user_id', $auth->id)
+            ->where('post_id', $id)
+            ->exists()) {
+
+            return response()->json([
+                'status'  => false,
+                'message' => 'You have blocked this post.',
+            ]);
+        }
+
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+        $post = Post::with([
+            'user',
+            'likes',
+            'comments.user',
+            'comments.replies.user',
+        ])->where('id', $id)->first();
+
+        if (! $post) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Post not found.',
+            ]);
+        }
+
+        if (in_array($post->user_id, $hiddenUsers)) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'You cannot view this post.',
+            ]);
+        }
+
+        if ($post->user->is_private) {
+
+            $friends  = $auth->friendsList()->pluck('id')->toArray();
+            $isFriend = in_array($post->user->id, $friends);
+
+            if ($post->user_id !== $auth->id && ! $isFriend) {
+                return response()->json([
+                    'status'  => false,
+                    'message' => 'This account is private.',
+                ]);
+            }
+        }
+
+        if (
+            Block::where('user_id', $post->user_id)
+            ->where('blocked_id', $auth->id)
+            ->exists()
+        ) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'This user has blocked you.',
+            ]);
+        }
+
+        $post->total_comments =
+        $post->comments->count() +
+        $post->comments->sum(fn($c) => $c->replies->count());
+
+        return response()->json([
+            'status' => true,
+            'post'   => $post,
         ]);
     }
 

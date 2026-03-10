@@ -228,18 +228,29 @@
                             }
                         </script>
 
-                        <div>
-                            <label for="role" class="block">Select User Type</label>
+                        <input type="hidden" id="role" name="role"
+                            value="{{ request('role', old('role')) }}">
+                        <x-input-error :messages="$errors->get('role')" class="mt-2" />
+
+                        <div class="col-span-2">
+                            <label for="address">Address</label>
                             <div class="mt-2.5">
-                                <select id="role" name="role"
-                                    class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5">
-                                    <option value="">Select User Type</option>
-                                    <option value="0" {{ old('role') == '0' ? 'selected' : '' }}>Counselee
-                                    </option>
-                                    <option value="1" {{ old('role') == '1' ? 'selected' : '' }}>Counselor
-                                    </option>
-                                </select>
-                                <x-input-error :messages="$errors->get('role')" class="mt-2" />
+                                <input id="address" name="address" type="text" placeholder="Enter Address"
+                                    value="{{ old('address') }}"
+                                    class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
+                                    style="cursor: pointer;">
+                                <x-input-error :messages="$errors->get('address')" class="mt-2" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="refer_code">Referral Code (optional)</label>
+                            <div class="mt-2.5">
+                                <input id="refer_code" name="refer_code" type="text"
+                                    placeholder="Enter referral code" value="{{ old('refer_code', request('ref')) }}"
+                                    class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
+                                    style="cursor: pointer;">
+                                <x-input-error :messages="$errors->get('refer_code')" class="mt-2" />
                             </div>
                         </div>
 
@@ -280,28 +291,6 @@
                                     </option>
                                 </select>
                                 <x-input-error :messages="$errors->get('gender')" class="mt-2" />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="address">Address</label>
-                            <div class="mt-2.5">
-                                <input id="address" name="address" type="text" placeholder="Enter Address"
-                                    value="{{ old('address') }}"
-                                    class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                                    style="cursor: pointer;">
-                                <x-input-error :messages="$errors->get('address')" class="mt-2" />
-                            </div>
-                        </div>
-
-                        <div>
-                            <label for="refer_code">Referral Code (optional)</label>
-                            <div class="mt-2.5">
-                                <input id="refer_code" name="refer_code" type="text"
-                                    placeholder="Enter referral code" value="{{ old('refer_code', request('ref')) }}"
-                                    class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5"
-                                    style="cursor: pointer;">
-                                <x-input-error :messages="$errors->get('refer_code')" class="mt-2" />
                             </div>
                         </div>
 
@@ -351,7 +340,7 @@
 
                                 // Show/Hide dropdown dynamically
                                 function toggleSpecialization() {
-                                    if (roleSelect.value === '1') { // Counselor
+                                    if (roleSelect.value == '1') { // Counselor
                                         specializationContainer.style.display = 'block';
                                         loadSpecializations();
                                     } else {

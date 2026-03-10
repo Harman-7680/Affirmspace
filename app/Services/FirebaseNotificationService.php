@@ -1,6 +1,7 @@
 <?php
 namespace App\Services;
 
+use App\Models\UserDevice;
 use Illuminate\Support\Facades\Log;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification;
@@ -41,6 +42,21 @@ class FirebaseNotificationService
                 'error' => $e->getMessage(),
                 'token' => $deviceToken,
             ]);
+
+            $errorMessage = strtolower($e->getMessage());
+
+            if (
+                str_contains($errorMessage, 'requested entity was not found') ||
+                str_contains($errorMessage, 'registration-token-not-registered') ||
+                str_contains($errorMessage, 'invalid-argument')
+            ) {
+
+                UserDevice::where('device_token', $deviceToken)->delete();
+
+                Log::info('Invalid FCM token row deleted from database', [
+                    'token' => $deviceToken,
+                ]);
+            }
 
             return; // silently skip
         }

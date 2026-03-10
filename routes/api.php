@@ -33,7 +33,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 
 // Dating related routes
-Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
+Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registration.paid', 'profile.complete')->group(function () {
     Route::get('/dating/status', [ApiDatingController::class, 'status']);
     Route::post('/dating/details/save', [ApiDatingController::class, 'saveDetails']);
     Route::post('/dating/details/update', [ApiDatingController::class, 'updateDetails']);
@@ -50,7 +50,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/dating/conversation', [ApiDatingMessageController::class, 'conversations']);
 });
 
-Route::middleware('auth:sanctum', 'registration.paid', 'verified.both')->group(function () {
+Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registration.paid')->group(function () {
     // profile related routes
     Route::post('/profile/update', [AuthController::class, 'updateProfile']);
     Route::post('/password/update', [AuthController::class, 'update']);
@@ -89,6 +89,7 @@ Route::middleware('auth:sanctum', 'registration.paid', 'verified.both')->group(f
     Route::post('/posts/like-toggle', [ApiPostController::class, 'toggleLike']);
     Route::post('/comments', [ApiPostController::class, 'comment_store']);
     Route::delete('/comments/{id}', [ApiPostController::class, 'comment_destroy']);
+    Route::get('/post/{id}', [ApiPostController::class, 'showApi']);
 
     // post action related routes
     Route::post('/block-user', [PostActionController::class, 'blockUser']);
@@ -113,13 +114,17 @@ Route::middleware('auth:sanctum', 'registration.paid', 'verified.both')->group(f
     Route::post('/contact', [AdminController::class, 'send']);
 });
 
-Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('/counselor/documents/upload', [ApiCounselorController::class, 'upload']);
+});
+
+Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registration.paid', 'profile.complete')->group(function () {
     Route::get('/feed', [ApiProfileController::class, 'feed']);
     Route::get('/video', [ApiProfileController::class, 'video']);
     Route::get('/event', [ApiProfileController::class, 'event']);
 });
 
-Route::middleware('auth:sanctum', 'registration.paid', 'verified.both', 'profile.complete')->group(function () {
+Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registration.paid', 'profile.complete')->group(function () {
     Route::get('/events/feed', [ApiEventController::class, 'feed']);
     Route::post('/events', [ApiEventController::class, 'store']); // create event + razorpay order
 });
@@ -146,3 +151,4 @@ Route::prefix('social')->group(function () {
 Route::middleware('auth:sanctum')->get('/user', function ($request) {
     return $request->user();
 });
+

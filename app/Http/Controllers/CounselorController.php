@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Block;
 use App\Models\CounselorAvailability;
+use App\Models\CounselorDocument;
 use App\Models\Friendship;
 use App\Models\Message;
 use App\Models\Post;
@@ -640,5 +641,46 @@ class CounselorController extends Controller
             'availabilities' => $availabilities,
             'appointments'   => $appointments,
         ]);
+    }
+
+    public function documents()
+    {
+        abort_if(Auth::user()->role != 1, 403, 'Unauthorized access');
+        $user = auth()->user();
+
+        return view('counselor.documents', compact('user'));
+    }
+
+    public function storeDocuments(Request $request)
+    {
+        $request->validate([
+            'document1' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'document2' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+            'document3' => 'required|file|mimes:jpg,jpeg,png,pdf|max:2048',
+        ]);
+
+        $user = auth()->user();
+
+        // Upload documents
+        $doc1 = $request->file('document1')->store('counselor_documents', 'public');
+        $doc2 = $request->file('document2')->store('counselor_documents', 'public');
+        $doc3 = $request->file('document3')->store('counselor_documents', 'public');
+
+        // Save to database
+        CounselorDocument::updateOrCreate(
+            ['user_id' => $user->id],
+            [
+                'document1' => $doc1,
+                'document2' => $doc2,
+                'document3' => $doc3,
+            ]
+        );
+
+        // Update user status → pending verification
+        $user->update([
+            'documents_status' => 1,
+        ]);
+
+        return redirect()->back()->with('success', 'Documents submitted successfully. Waiting for admin verification.');
     }
 }

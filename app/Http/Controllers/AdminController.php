@@ -121,7 +121,7 @@ class AdminController extends Controller
         $totalFriendships = Friendship::count();
         $totalRatings     = Rating::count();
 
-        $users = User::where('role', 1)->get()->map(function ($u) {
+        $users = User::with('documents')->where('role', 1)->get()->map(function ($u) {
             return [
                 'id'                    => $u->id,
                 'first_name'            => $u->first_name,
@@ -139,6 +139,11 @@ class AdminController extends Controller
                 'last_seen_human'       => $u->last_seen ? $u->last_seen->diffForHumans() : 'Never',
                 'is_online'             => $u->isOnline(),
                 'status'                => $u->status,
+                // documents
+                'document1'             => $u->documents->document1 ?? null,
+                'document2'             => $u->documents->document2 ?? null,
+                'document3'             => $u->documents->document3 ?? null,
+                'documents_status'      => (int) ($u->documents_status ?? 0),
             ];
         });
 
@@ -286,6 +291,7 @@ class AdminController extends Controller
 
         // Load paid events and include the user who created each event
         $events = Event::with('user')
+            ->where('is_paid', 1)
             ->latest()
             ->get()
             ->map(function ($event) {
@@ -446,5 +452,20 @@ class AdminController extends Controller
         ]);
 
         return back()->with('success', 'Payment released successfully!');
+    }
+
+    public function updateDocumentStatus(Request $request, $id)
+    {
+        $user = User::findOrFail($id);
+
+        $status = (int) $request->input('status');
+
+        $user->documents_status = $status;
+        $user->save();
+
+        return response()->json([
+            'success' => true,
+            'status'  => $status,
+        ]);
     }
 }

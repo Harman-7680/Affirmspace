@@ -1,8 +1,8 @@
 <?php
 namespace App\Models;
 
-use Carbon\Carbon;
 use App\Notifications\CustomVerifyEmail;
+use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -52,6 +52,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'bank_status',
         'bank_rejection_reason',
         'payment_id',
+        'documents_status',
     ];
 
     /**
@@ -291,5 +292,10 @@ class User extends Authenticatable implements MustVerifyEmail
     public function details()
     {
         return $this->hasOne(UserDetail::class);
+    }
+
+    public function documents()
+    {
+        return $this->hasOne(CounselorDocument::class, 'user_id');
     }
 }

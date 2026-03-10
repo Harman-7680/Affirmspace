@@ -25,6 +25,7 @@ use App\Http\Middleware\UpdateLastSeen;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
 // Route::get('/email/verify', function () {
@@ -166,6 +167,7 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
 
     Route::get('/registration-settings', [AdminRegistrationSettingController::class, 'edit'])->name('admin.registration.settings');
     Route::post('/registration-settings', [AdminRegistrationSettingController::class, 'update'])->name('admin.registration.settings.update');
+    Route::post('users/document-status/{id}', [AdminController::class, 'updateDocumentStatus']);
 });
 
 // this is outside middleware because on login page we need to fetch specializations
@@ -197,7 +199,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // registration payment related routes
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'verified', 'counselor.docs'])->group(function () {
     Route::get('/registration/payment', [RegistrationPaymentController::class, 'show'])
         ->name('registration.payment');
     Route::post('/registration/order', [RegistrationPaymentController::class, 'createOrder'])
@@ -207,7 +209,7 @@ Route::middleware(['auth'])->group(function () {
 });
 
 // left sidebar and navbar related routes verified to check email verified ?
-Route::middleware(['auth', 'registration.paid', 'verified', 'profile.complete'])->group(function () {
+Route::middleware(['auth', 'verified', 'registration.paid', 'profile.complete'])->group(function () {
     Route::get('/feed', [ProfileController::class, 'feed'])->name('feed');
     Route::get('/messages/{receiver_id?}', [ProfileController::class, 'messages'])->name('messages');
     Route::get('/video', [ProfileController::class, 'video'])->name('video');
@@ -287,7 +289,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // counselor related routes
-Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
+Route::middleware('auth', 'verified', 'counselor.docs', 'registration.paid')->group(function () {
     Route::get('/counselor/messages/{user_id?}', [CounselorController::class, 'messages'])->name('counselor.messages');
 
     Route::post('/contact/{id}', [CounselorController::class, 'contact'])->name('appointment.contact');
@@ -316,6 +318,14 @@ Route::middleware('auth', 'registration.paid', 'verified')->group(function () {
     Route::post('/counselor/bank-details', [BankDetailsController::class, 'store'])->name('counselor.bank.store');
     Route::post('/counselor/bank/change', [BankDetailsController::class, 'requestChange'])
         ->name('counselor.bank.change');
+});
+
+Route::middleware(['auth', 'verified'])->group(function () {
+    Route::get('/counselor-documents', [CounselorController::class, 'documents'])
+        ->name('counselor.documents')
+        ->middleware(['counselor.docs']);
+    Route::post('/counselor-documents', [CounselorController::class, 'storeDocuments'])
+        ->name('counselor.documents.store');
 });
 
 // rooms related routes
@@ -381,6 +391,12 @@ Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithA
 
 Route::fallback(function () {
     return response()->view('errors.fallback', [], 404);
+});
+
+Route::get('/sitemap.xml', function () {
+    return response()
+        ->view('sitemap')
+        ->header('Content-Type', 'text/xml');
 });
 
 require __DIR__ . '/auth.php';

@@ -22,6 +22,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'isAdmin'           => \App\Http\Middleware\IsAdmin::class,
             'profile.complete'  => \App\Http\Middleware\EnsureProfileComplete::class,
             'registration.paid' => \App\Http\Middleware\EnsureRegistrationPaid::class,
+            'counselor.docs'    => \App\Http\Middleware\CounselorDocumentVerified::class,
         ]);
 
         $middleware->web([

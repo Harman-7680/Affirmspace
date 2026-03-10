@@ -44,8 +44,7 @@
                 <ul class="menu-content">
 
                     {{-- COUNSELEE --}}
-                    <li
-                        class="nav-item {{ request()->routeIs('admin.counselee', 'admin.verify.list', 'admin.specializations.index') ? 'open' : '' }}">
+                    <li class="nav-item {{ request()->routeIs('admin.counselee', 'admin.verify.list') ? 'open' : '' }}">
                         <a href="javascript:void(0)" class="menu-item">
                             <i class="fa fa-user"></i>
                             Counselee
@@ -68,6 +67,26 @@
                                     Dating
                                 </a>
                             </li>
+                        </ul>
+                    </li>
+
+                    {{-- COUNSELOR --}}
+                    <li
+                        class="nav-item {{ request()->routeIs('admin.counselor', 'admin.specializations.index') ? 'open' : '' }}">
+                        <a href="javascript:void(0)" class="menu-item">
+                            <i class="fa fa-user-tie"></i>
+                            Counselor
+                        </a>
+
+                        <ul class="menu-content">
+
+                            <li>
+                                <a class="menu-item {{ request()->routeIs('admin.counselor') ? 'active' : '' }}"
+                                    href="{{ route('admin.counselor') }}">
+                                    <i class="fa fa-users"></i>
+                                    All Counselor
+                                </a>
+                            </li>
 
                             <li>
                                 <a class="menu-item {{ request()->routeIs('admin.specializations.index') ? 'active' : '' }}"
@@ -78,15 +97,6 @@
                             </li>
 
                         </ul>
-                    </li>
-
-                    {{-- COUNSELOR --}}
-                    <li>
-                        <a class="menu-item {{ request()->routeIs('admin.counselor') ? 'active' : '' }}"
-                            href="{{ route('admin.counselor') }}">
-                            <i class="fa fa-user-tie"></i>
-                            Counselors
-                        </a>
                     </li>
 
                     {{-- EVENTS --}}

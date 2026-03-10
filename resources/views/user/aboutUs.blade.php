@@ -2,10 +2,12 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>About Us – AffirmSpace</title>
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
     <style>
         * {
             margin: 0;
@@ -15,210 +17,239 @@
         }
 
         body {
-            background: linear-gradient(135deg, #ff512f, #dd2476);
-            color: #ffffff;
+            background: #f9fafb;
+            color: #222;
             line-height: 1.6;
         }
 
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 80px 24px;
+        header {
+            background: #ffffff;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .hero {
-            text-align: center;
-            margin-bottom: 100px;
-        }
-
-        .hero h1 {
-            color: white;
-            font-size: clamp(2.5rem, 5vw, 4rem);
-            font-weight: 800;
-        }
-
-        .hero p {
-            max-width: 760px;
-            margin: 24px auto 0;
-            font-size: 1.2rem;
-            color: #ffe6ee;
-        }
-
-        .glass {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(14px);
-            border-radius: 24px;
-            padding: 48px;
-            margin-bottom: 48px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
-        }
-
-        .section-title {
-            font-size: 2rem;
-            margin-bottom: 16px;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #222;
+            font-size: 1.6rem;
             font-weight: 700;
         }
 
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 32px;
-            margin-top: 32px;
+        .logo img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
         }
 
-        .card {
-            background: linear-gradient(180deg, rgba(255, 255, 255, 0.12), rgba(255, 255, 255, 0.04));
-            border-radius: 20px;
-            padding: 32px;
-            transition: transform 0.3s ease, box-shadow 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 24px 50px rgba(0, 0, 0, 0.35);
-        }
-
-        .card h3 {
-            margin-bottom: 12px;
-            font-size: 1.3rem;
-        }
-
-        .card p {
-            color: #ffe1ec;
-            font-size: 0.95rem;
-        }
-
-        .cta {
-            text-align: center;
-            padding: 80px 24px;
-            background: linear-gradient(135deg, #ff512f, #dd2476);
-            border-radius: 32px;
-            margin-top: 80px;
-        }
-
-        .cta h2 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 16px;
-        }
-
-        .cta p {
-            font-size: 1.1rem;
-            margin-bottom: 32px;
-        }
-
-        .cta a {
-            display: inline-block;
-            padding: 14px 36px;
-            border-radius: 999px;
-            background: #0f0f1a;
-            color: #ffffff;
+        .nav-btn {
+            padding: 10px 24px;
+            border-radius: 30px;
             text-decoration: none;
+            color: white;
             font-weight: 600;
-            transition: background 0.3s ease, transform 0.3s ease;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
         }
 
-        .cta a:hover {
-            background: #000000;
-            transform: scale(1.05);
+        section {
+            padding: 80px 8%;
         }
 
-        footer {
+        section h2 {
+            font-size: 2.1rem;
+            margin-bottom: 15px;
             text-align: center;
-            margin-top: 80px;
+        }
+
+        section p {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+            color: #555;
+        }
+
+        .features {
+            background: #ffffff;
+        }
+
+        .feature-grid {
+            margin-top: 50px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        .feature-card {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        .feature-card h3 {
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+        }
+
+        .feature-card p {
+            text-align: left;
+            color: #555;
+            margin-bottom: 10px;
+        }
+
+        .disclaimer {
+            margin-top: 35px;
+            font-size: 0.9rem;
+            text-align: center;
+            color: #666;
+        }
+
+        .site-footer {
+            background: #ffffff;
+            padding: 35px 8%;
+            border-top: 1px solid #eee;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #dd2476;
+        }
+
+        .footer-copy {
             font-size: 0.85rem;
-            color: #ffd1e0;
+            color: #777;
         }
 
-        .top-header {
-            position: fixed;
-            top: 35px;
-            left: 35px;
-            z-index: 100;
-        }
-
-        .logo-link img {
-            height: 88px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-
-        .logo-link:hover img {
-            transform: scale(1.08);
-            opacity: 0.9;
+        @media(max-width: 900px) {
+            section {
+                padding: 60px 6%;
+            }
         }
     </style>
 </head>
 
 <body>
-    <header class="top-header">
-        <a href="{{ route('/') }}" class="logo-link">
+
+    <!-- Header -->
+    <header>
+        <a href="/" class="logo">
             <img src="images/welcomepage.png" alt="AffirmSpace Logo">
+            <span>AffirmSpace</span>
         </a>
+
+        <a href="/register" class="nav-btn">Get Started</a>
     </header>
 
-    <div class="container">
-        <section class="hero">
-            <h1>We’re Building a Safer Digital Home</h1>
-            <p>
-                AffirmSpace is a next-generation social and mental wellness platform designed
-                for the LGBTQ+ community — where identity is respected, voices are protected,
-                and support is always within reach.
-            </p>
-        </section>
+    <!-- Hero Section -->
+    <section>
+        <h2>More Than a Dating Platform 🌈</h2>
+        <p>
+            AffirmSpace is a global LGBTQ+ community, gay chat platform, and
+            counselling ecosystem built for connection, safety, and genuine understanding.
+            We are not just another gay dating website — we are a space where identity is respected
+            and conversations go beyond surface-level attraction.
+        </p>
+    </section>
 
-        <section class="glass">
-            <h2 class="section-title">Why AffirmSpace Exists</h2>
-            <p>
-                The internet wasn’t built with queer safety in mind. Harassment, misgendering,
-                discrimination, and isolation are everyday realities for millions. AffirmSpace
-                was created to change that.
-                <br><br>
-                We believe everyone deserves a space where they can express themselves freely,
-                connect authentically, and access real mental health support — without fear.
-            </p>
-        </section>
+    <!-- About Content -->
+    <section class="features">
+        <div class="feature-grid">
 
-        <section class="glass">
-            <h2 class="section-title">What Makes Us Different</h2>
-            <div class="grid">
-                <div class="card">
-                    <h3>Identity-First Design</h3>
-                    <p>Pronouns, gender identity, and self-expression are core — not optional.</p>
-                </div>
-                <div class="card">
-                    <h3>Built-In Counseling</h3>
-                    <p>Access verified counselors and trained interns in a safe, private space.</p>
-                </div>
-                <div class="card">
-                    <h3>Safety Over Virality</h3>
-                    <p>Paid access and moderation-first systems to reduce trolling and abuse.</p>
-                </div>
-                <div class="card">
-                    <h3>Community Without Fear</h3>
-                    <p>No hate speech. No harassment. Just real people and real connections.</p>
-                </div>
+            <div class="feature-card">
+                <h3>1. A Safe LGBTQ+ Community</h3>
+                <p>
+                    AffirmSpace was created to provide a secure space for the LGBTQ+ community —
+                    including gay, lesbian, bisexual, transgender, non-binary, and questioning individuals.
+                    We prioritize safety, moderation, and respectful interaction.
+                </p>
             </div>
-        </section>
 
-        <section class="glass">
-            <h2 class="section-title">Our Mission</h2>
-            <p>
-                To empower LGBTQ+ individuals globally by providing a digital ecosystem
-                that combines community, creativity, and mental health — all rooted in dignity,
-                privacy, and respect.
-            </p>
-        </section>
+            <div class="feature-card">
+                <h3>2. Meaningful Gay Chat & Connections</h3>
+                <p>
+                    Whether you're looking for free gay chat, private conversations,
+                    friendships, or long-term relationships, our platform helps you meet people
+                    in a safe and inclusive environment.
+                </p>
+            </div>
 
-        {{-- <section class="cta">
-            <h2>You Belong Here 🌈</h2>
-            <p>Join a platform where your identity is affirmed — always.</p>
-            <a href="#">Join AffirmSpace</a>
-        </section> --}}
+            <div class="feature-card">
+                <h3>3. Beyond Traditional Gay Dating Apps</h3>
+                <p>
+                    Unlike many gay dating apps focused only on swiping,
+                    AffirmSpace encourages authentic conversations, comfort, and respect.
+                    We believe connection should be built on understanding — not pressure.
+                </p>
+            </div>
 
-        <footer>
-            © 2025 AffirmSpace. Built with pride, safety, and purpose. 🌈
-        </footer>
-    </div>
+            <div class="feature-card">
+                <h3>4. Built-In Counselling Support</h3>
+                <p>
+                    AffirmSpace integrates professional and intern counselling support
+                    directly into the platform. Users can access emotional guidance,
+                    relationship advice, and safe discussions when needed.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>5. Identity & Pronoun Respect</h3>
+                <p>
+                    We empower users to express their true identity through customizable
+                    profiles, pronoun selection, and inclusive profile options.
+                    Everyone deserves to feel seen and respected.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>6. Our Vision</h3>
+                <p>
+                    Our mission is to build a trusted global LGBTQ+ social platform
+                    that combines dating, community, and mental well-being —
+                    creating a digital space where people can truly belong.
+                </p>
+            </div>
+
+        </div>
+
+        <p class="disclaimer">
+            Come as you are — Stay because you feel understood 💜
+        </p>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="/aboutUs">About Us</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/refundPolicy">Refund</a>
+            <a href="/terms">Terms & Conditions</a>
+            <a href="/contactWithAdmin">Contact</a>
+        </div>
+
+        <p class="footer-copy">
+            © 2026 AffirmSpace. All rights reserved.
+        </p>
+    </footer>
+
 </body>
 
 </html>

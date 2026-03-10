@@ -481,6 +481,8 @@ class AuthController extends Controller
             ]);
         }
 
+        event(new Registered($user));
+
         // Get registration fee
         $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
 
@@ -495,7 +497,7 @@ class AuthController extends Controller
         }
 
         // If fee NOT required → send verification email
-        event(new Registered($user));
+        // event(new Registered($user));
 
         return response()->json([
             'status'  => 'success',

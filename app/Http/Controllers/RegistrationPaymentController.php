@@ -8,7 +8,19 @@ class RegistrationPaymentController extends Controller
 {
     public function show()
     {
-        $amount = \DB::table('registration_settings')->value('registration_fee');
+        $user = auth()->user();
+
+        $amount = \DB::table('registration_settings')->value('registration_fee') ?? 0;
+
+        // If payment already done OR fee disabled
+        if ($user->is_paid == 1 || $amount == 0) {
+
+            if ($user->role == 1) {
+                return redirect()->route('profile');
+            }
+
+            return redirect()->route('feed');
+        }
 
         return view('payment.registration', compact('amount'));
     }
@@ -107,9 +119,9 @@ class RegistrationPaymentController extends Controller
             'payment_id' => $request->razorpay_payment_id,
         ]);
 
-        if (! $user->email_verified_at) {
-            event(new \Illuminate\Auth\Events\Registered($user));
-        }
+        // if (! $user->email_verified_at) {
+        //     event(new \Illuminate\Auth\Events\Registered($user));
+        // }
 
         return redirect()->route('verification.notice')
             ->with('success', 'Payment successful! Please verify your email.');

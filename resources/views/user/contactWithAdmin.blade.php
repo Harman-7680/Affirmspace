@@ -2,8 +2,8 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us – AffirmSpace</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
@@ -17,91 +17,102 @@
         }
 
         body {
-            background: linear-gradient(135deg, #ff512f, #dd2476);
-            color: #ffffff;
-            min-height: 100vh;
+            background: #f9fafb;
+            color: #222;
+            line-height: 1.6;
         }
 
-        /* LOGO HEADER */
-        .top-header {
-            position: fixed;
-            top: 35px;
-            left: 35px;
-            z-index: 100;
+        header {
+            background: #ffffff;
+            padding: 20px 8%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .logo-link img {
-            height: 80px;
-            transition: transform 0.3s ease, opacity 0.3s ease;
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            text-decoration: none;
+            color: #222;
+            font-size: 1.6rem;
+            font-weight: 700;
         }
 
-        .logo-link:hover img {
-            transform: scale(1.08);
-            opacity: 0.9;
+        .logo img {
+            width: 42px;
+            height: 42px;
+            object-fit: contain;
         }
 
-        /* CONTAINER */
-        .container {
-            max-width: 900px;
-            margin: auto;
-            padding: 120px 24px 80px;
+        .nav-btn {
+            padding: 10px 24px;
+            border-radius: 30px;
+            text-decoration: none;
+            color: white;
+            font-weight: 600;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
         }
 
-        .hero {
+        section {
+            padding: 80px 8%;
+        }
+
+        section h2 {
+            font-size: 2.1rem;
+            margin-bottom: 15px;
             text-align: center;
-            margin-bottom: 60px;
         }
 
-        .hero h1 {
-            font-size: clamp(2.2rem, 5vw, 3.5rem);
-            font-weight: 800;
+        section p {
+            max-width: 800px;
+            margin: 0 auto;
+            text-align: center;
+            color: #555;
         }
 
-        .hero p {
-            max-width: 600px;
-            margin: 16px auto 0;
-            font-size: 1.1rem;
-            color: #ffe6ee;
+        .contact-wrapper {
+            background: #ffffff;
         }
 
-        /* GLASS CARD */
-        .glass {
-            background: rgba(255, 255, 255, 0.08);
-            backdrop-filter: blur(14px);
-            border-radius: 24px;
+        .contact-card {
+            max-width: 700px;
+            margin: 50px auto 0;
+            background: #f9fafb;
             padding: 40px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+            border-radius: 18px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
         }
 
-        /* ALERTS */
         .alert {
             margin-bottom: 20px;
             padding: 14px;
             border-radius: 10px;
             text-align: center;
             font-weight: 600;
+            font-size: 14px;
         }
 
         .alert.success {
-            background: rgba(34, 197, 94, 0.2);
-            border: 1px solid #22c55e;
-            color: #d1fae5;
+            background: #e6fffa;
+            color: #047857;
+            border: 1px solid #10b981;
         }
 
         .alert.error {
-            background: rgba(239, 68, 68, 0.2);
+            background: #fee2e2;
+            color: #991b1b;
             border: 1px solid #ef4444;
-            color: #fee2e2;
         }
 
-        /* FORM */
         .form-group {
-            margin-bottom: 18px;
+            margin-bottom: 20px;
         }
 
         .form-group label {
             display: block;
-            margin-bottom: 6px;
+            margin-bottom: 8px;
             font-weight: 600;
             font-size: 14px;
         }
@@ -111,61 +122,78 @@
             width: 100%;
             padding: 14px;
             border-radius: 10px;
-            border: none;
-            outline: none;
+            border: 1px solid #ddd;
             font-size: 14px;
-            background: rgba(255, 255, 255, 0.15);
-            color: #fff;
+            outline: none;
+            transition: border 0.3s ease;
         }
 
-        .form-group input::placeholder,
-        .form-group textarea::placeholder {
-            color: #fbd5e1;
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: #dd2476;
         }
 
         .form-group small {
-            color: #ffd1d1;
+            color: #dc2626;
             font-size: 12px;
         }
 
-        /* BUTTON */
         .btn-submit {
             width: 100%;
             padding: 16px;
-            border-radius: 999px;
-            background: #0f0f1a;
-            color: #fff;
+            border-radius: 30px;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            color: white;
             font-size: 16px;
             font-weight: 700;
             border: none;
             cursor: pointer;
-            transition: transform 0.3s ease, background 0.3s ease;
+            transition: transform 0.3s ease, opacity 0.3s ease;
         }
 
         .btn-submit:hover {
-            background: #000;
-            transform: scale(1.03);
+            transform: scale(1.02);
+            opacity: 0.9;
         }
 
-        footer {
+        .site-footer {
+            background: #ffffff;
+            padding: 35px 8%;
+            border-top: 1px solid #eee;
             text-align: center;
-            margin-top: 80px;
-            font-size: 0.85rem;
-            color: #ffd1e0;
         }
 
-        @media (max-width: 600px) {
-            .glass {
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 25px;
+            flex-wrap: wrap;
+            margin-bottom: 15px;
+        }
+
+        .footer-links a {
+            text-decoration: none;
+            font-size: 0.95rem;
+            color: #555;
+            font-weight: 500;
+        }
+
+        .footer-links a:hover {
+            color: #dd2476;
+        }
+
+        .footer-copy {
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        @media(max-width: 900px) {
+            section {
+                padding: 60px 6%;
+            }
+
+            .contact-card {
                 padding: 28px;
-            }
-
-            .top-header {
-                top: 20px;
-                left: 20px;
-            }
-
-            .logo-link img {
-                height: 60px;
             }
         }
     </style>
@@ -173,23 +201,30 @@
 
 <body>
 
-    <!-- LOGO -->
-    <header class="top-header">
-        <a href="{{ route('/') }}" class="logo-link">
+    <!-- Header -->
+    <header>
+        <a href="/" class="logo">
             <img src="images/welcomepage.png" alt="AffirmSpace Logo">
+            <span>AffirmSpace</span>
         </a>
+
+        <a href="/register" class="nav-btn">Get Started</a>
     </header>
 
-    <div class="container">
+    <!-- Hero -->
+    <section>
+        <h2>Contact Us</h2>
+        <p>
+            Have a question, feedback, or need support? Our team is here to help you.
+            We aim to respond as quickly as possible.
+        </p>
+    </section>
 
-        <section class="hero">
-            <h1>Contact Us</h1>
-            <p>Have a question or need help? We’re here for you.</p>
-        </section>
+    <!-- Contact Form -->
+    <section class="contact-wrapper">
 
-        <section class="glass">
+        <div class="contact-card">
 
-            <!-- FLASH -->
             @if (session('success'))
                 <div class="alert success">{{ session('success') }}</div>
             @endif
@@ -236,14 +271,27 @@
                 <button type="submit" class="btn-submit">
                     Send Message
                 </button>
+
             </form>
-        </section>
 
-        <footer>
-            © 2026 AffirmSpace. Built with pride, safety, and purpose 🌈
-        </footer>
+        </div>
 
-    </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="site-footer">
+        <div class="footer-links">
+            <a href="/aboutUs">About Us</a>
+            <a href="/privacy">Privacy Policy</a>
+            <a href="/refundPolicy">Refund</a>
+            <a href="/terms">Terms & Conditions</a>
+            <a href="/contactWithAdmin">Contact</a>
+        </div>
+
+        <p class="footer-copy">
+            © 2026 AffirmSpace. All rights reserved.
+        </p>
+    </footer>
 
 </body>
 

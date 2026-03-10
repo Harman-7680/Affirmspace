@@ -496,13 +496,21 @@
                     <div class="space-y-6 w-full mx-auto">
                         <div class="md:flex items-center gap-16 justify-between max-md:space-y-3">
                             <label class="md:w-40 text-right" for="current_password">Current Password</label>
-                            <div class="flex-1 max-md:mt-4">
+                                <div class="flex-1 max-md:mt-4">
                                 <input id="current_password" name="current_password" type="password"
                                     placeholder="******" class="w-full border rounded px-3 py-2"
                                     autocomplete="current-password">
+
                                 @error('current_password', 'updatePassword')
                                     <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
                                 @enderror
+
+                                @if (auth()->user()->social_id)
+                                    <p class="text-sm text-blue-500 mt-1">
+                                        Logged in with Google/Facebook? Setting a password for the first time — use <span
+                                            class="font-semibold">Forgot Password</span>.
+                                    </p>
+                                @endif
                             </div>
                         </div>
 

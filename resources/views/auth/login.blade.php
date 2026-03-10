@@ -85,9 +85,15 @@
 
                 <!-- title -->
                 <div>
-                    <h2 class="text-2xl font-semibold mb-1.5"> Log in to your account </h2>
-                    <p class="text-sm text-gray-700 font-normal">If you haven’t signed up yet. <a
-                            href="{{ route('register') }}" class="text-blue-700">Register here!</a></p>
+                    <h2 class="text-2xl font-semibold mb-1.5">Log in to your account</h2>
+
+                    <p class="text-sm text-gray-700 font-normal">
+                        If you haven’t signed up yet.
+                        Register as
+                        <a href="{{ route('register', ['role' => 0]) }}" class="text-blue-700 no-underline">User</a>
+                        or
+                        <a href="{{ route('register', ['role' => 1]) }}" class="text-blue-700 no-underline">Doctor</a>.
+                    </p>
                 </div>
 
                 <!-- form -->

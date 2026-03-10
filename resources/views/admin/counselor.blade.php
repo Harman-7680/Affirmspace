@@ -40,6 +40,8 @@
                         <th>Status</th>
                         <th>Payment Status</th>
                         <th>Bank</th>
+                        <th>Documents</th>
+                        <th>Verification</th>
                         <th>Action</th>
                         <th>View Profile</th>
                     </tr>
@@ -133,6 +135,89 @@
                             </td>
 
                             <td>
+                                <div class="d-flex gap-2">
+
+                                    <!-- Document 1 -->
+                                    <template x-if="user.document1">
+                                        <div>
+                                            <template x-if="user.document1.toLowerCase().endsWith('.pdf')">
+                                                <a :href="'/storage/' + user.document1" target="_blank"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    PDF
+                                                </a>
+                                            </template>
+
+                                            <template x-if="!user.document1.toLowerCase().endsWith('.pdf')">
+                                                <img :src="'/storage/' + user.document1" class="doc-preview"
+                                                    style="height:40px;width:40px;object-fit:cover;cursor:pointer;border-radius:4px;">
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Document 2 -->
+                                    <template x-if="user.document2">
+                                        <div>
+                                            <template x-if="user.document2.toLowerCase().endsWith('.pdf')">
+                                                <a :href="'/storage/' + user.document2" target="_blank"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    PDF
+                                                </a>
+                                            </template>
+
+                                            <template x-if="!user.document2.toLowerCase().endsWith('.pdf')">
+                                                <img :src="'/storage/' + user.document2" class="doc-preview"
+                                                    style="height:40px;width:40px;object-fit:cover;cursor:pointer;border-radius:4px;">
+                                            </template>
+                                        </div>
+                                    </template>
+
+                                    <!-- Document 3 -->
+                                    <template x-if="user.document3">
+                                        <div>
+                                            <template x-if="user.document3.toLowerCase().endsWith('.pdf')">
+                                                <a :href="'/storage/' + user.document3" target="_blank"
+                                                    class="btn btn-sm btn-outline-primary">
+                                                    PDF
+                                                </a>
+                                            </template>
+
+                                            <template x-if="!user.document3.toLowerCase().endsWith('.pdf')">
+                                                <img :src="'/storage/' + user.document3" class="doc-preview"
+                                                    style="height:40px;width:40px;object-fit:cover;cursor:pointer;border-radius:4px;">
+                                            </template>
+                                        </div>
+                                    </template>
+                                </div>
+                            </td>
+
+                            <td>
+                                <template x-if="Number(user.documents_status) === 0">
+                                    <span class="badge bg-secondary">Not Uploaded</span>
+                                </template>
+
+                                <template x-if="Number(user.documents_status) === 1">
+                                    <div class="d-flex gap-1">
+                                        <button class="btn btn-success btn-sm mr-1 "
+                                            @click="updateDocumentStatus(user.id,3)">
+                                            Approve
+                                        </button>
+
+                                        <button class="btn btn-danger btn-sm" @click="updateDocumentStatus(user.id,2)">
+                                            Reject
+                                        </button>
+                                    </div>
+                                </template>
+
+                                <template x-if="Number(user.documents_status) === 2">
+                                    <span class="badge bg-danger">Rejected</span>
+                                </template>
+
+                                <template x-if="Number(user.documents_status) === 3">
+                                    <span class="badge bg-success">Approved</span>
+                                </template>
+                            </td>
+
+                            <td>
                                 <button @click="toggleStatus(user)" type="button" class="btn"
                                     :class="user.status == 1 ? 'btn-inactive' : 'btn-active'">
                                     <span x-text="user.status == 1 ? 'Deactivate' : 'Activate'"></span>
@@ -145,6 +230,15 @@
                     </template>
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Lightbox overlay (hidden by default) -->
+    <div id="lightbox-overlay" aria-hidden="true" style="display:none;">
+        <div id="lightbox-backdrop"></div>
+        <div id="lightbox-content" role="dialog" aria-modal="true">
+            <button id="lightbox-close" aria-label="Close">&times;</button>
+            <img id="lightbox-img" src="" alt="preview">
         </div>
     </div>
 @endsection
@@ -200,8 +294,60 @@
                         .catch(error => {
                             console.error('Error toggling status:', error);
                         });
+                },
+                updateDocumentStatus(userId, status) {
+
+                    fetch(`/users/document-status/${userId}`, {
+                            method: "POST",
+                            headers: {
+                                "X-CSRF-TOKEN": document.querySelector('meta[name="csrf-token"]').content,
+                                "Accept": "application/json",
+                                "Content-Type": "application/json"
+                            },
+                            body: JSON.stringify({
+                                status: status
+                            })
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                let user = this.users.find(u => u.id == userId)
+                                if (user) user.documents_status = status
+                            } else {
+                                alert("Update failed")
+                            }
+                        })
+                        .catch(() => alert("Server error"));
                 }
             }
+        }
+
+        document.addEventListener("click", function(e) {
+
+            if (e.target.classList.contains("doc-preview")) {
+
+                const img = document.getElementById("lightbox-img");
+
+                img.src = e.target.src;
+
+                document.getElementById("lightbox-overlay").style.display = "block";
+
+            }
+
+        });
+
+
+        document.getElementById("lightbox-close").onclick = function() {
+
+            document.getElementById("lightbox-overlay").style.display = "none";
+
+        }
+
+
+        document.getElementById("lightbox-backdrop").onclick = function() {
+
+            document.getElementById("lightbox-overlay").style.display = "none";
+
         }
     </script>
 @endsection
@@ -213,6 +359,71 @@
             padding: 6px 8px !important;
             vertical-align: middle;
             font-size: 13px;
+        }
+    </style>
+
+    <style>
+        /* overlay container fills screen */
+        #lightbox-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 2000;
+        }
+
+        /* translucent backdrop (transparent look) */
+        #lightbox-backdrop {
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.45);
+            /* tweak opacity (0.0 - 0.9) */
+            backdrop-filter: blur(2px);
+            /* optional soft blur */
+        }
+
+        /* center content */
+        #lightbox-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            max-width: 95%;
+            max-height: 95%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            pointer-events: none;
+            /* let close button handle pointer */
+        }
+
+        /* the preview image */
+        #lightbox-img {
+            max-width: 100%;
+            max-height: 100%;
+            border-radius: 8px;
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.4);
+            pointer-events: auto;
+        }
+
+        /* close button */
+        #lightbox-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            z-index: 2010;
+            background: transparent;
+            border: none;
+            color: #fff;
+            font-size: 30px;
+            cursor: pointer;
+            pointer-events: auto;
+        }
+
+        .doc-preview {
+            transition: transform .2s;
+        }
+
+        .doc-preview:hover {
+            transform: scale(1.2);
         }
     </style>
 @endsection

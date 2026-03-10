@@ -76,17 +76,16 @@ class RegisteredUserController extends Controller
         $user->is_paid = 0;
         $user->save();
 
-        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
-
         Auth::login($user);
 
+        // SEND VERIFICATION EMAIL IMMEDIATELY
+        event(new Registered($user));
+
+        $registrationFee = optional(RegistrationSetting::first())->registration_fee ?? 0;
+
         if ($registrationFee > 0) {
-            // Payment required
             return redirect()->route('registration.payment');
         }
-
-        // Payment not required
-        event(new Registered($user));
 
         return redirect()->route('verification.notice')
             ->with('success', 'Registration successful! Please verify your email.');

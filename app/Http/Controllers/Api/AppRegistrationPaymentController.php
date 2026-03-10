@@ -157,9 +157,9 @@ class AppRegistrationPaymentController extends Controller
             'payment_id' => $request->razorpay_payment_id,
         ]);
 
-        if (! $user->email_verified_at) {
-            event(new Registered($user));
-        }
+        // if (! $user->email_verified_at) {
+        //     event(new Registered($user));
+        // }
 
         return view('payment.appSuccess');
     }

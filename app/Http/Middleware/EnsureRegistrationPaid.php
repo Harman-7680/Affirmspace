@@ -32,6 +32,11 @@ class EnsureRegistrationPaid
             return $next($request);
         }
 
+        // Skip payment check until documents verified
+        if ($user->role == 1 && $user->documents_status != 3) {
+            return $next($request);
+        }
+
         /**
          * IMPORTANT:
          * - Payment check AFTER auth
