@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AdminAreaPriceController;
+use App\Http\Controllers\AdminBlogController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AdminMessageController;
 use App\Http\Controllers\AdminRegistrationSettingController;
@@ -168,6 +169,11 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
     Route::get('/registration-settings', [AdminRegistrationSettingController::class, 'edit'])->name('admin.registration.settings');
     Route::post('/registration-settings', [AdminRegistrationSettingController::class, 'update'])->name('admin.registration.settings.update');
     Route::post('users/document-status/{id}', [AdminController::class, 'updateDocumentStatus']);
+
+    Route::get('/manage/blogs', [AdminBlogController::class, 'index'])->name('admin.blogs');
+    Route::post('/manage/blog/store', [AdminBlogController::class, 'store']);
+    Route::post('/manage/comment/approve/{id}', [AdminBlogController::class, 'approve']);
+    Route::post('/manage/comment/reject/{id}', [AdminBlogController::class, 'reject']);
 });
 
 // this is outside middleware because on login page we need to fetch specializations
