@@ -16,7 +16,7 @@
 
         <hr>
 
-        <p><strong>Name:</strong> {{ $user->name }}</p>
+        <p><strong>Name:</strong> {{ $user->first_name }}</p>
 
         <p><strong>Email:</strong> {{ $user->email }}</p>
 
