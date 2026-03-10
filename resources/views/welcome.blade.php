@@ -413,13 +413,15 @@
             margin-bottom: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
             overflow: hidden;
-            transition: all 0.25s ease;
+            transition: all .25s ease;
         }
 
         .faq-item:hover {
             border-left: 4px solid #ff512f;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08);
         }
+
+        /* QUESTION BUTTON */
 
         .faq-question {
             width: 100%;
@@ -430,8 +432,30 @@
             border: none;
             background: none;
             cursor: pointer;
-            transition: all 0.25s ease;
+            transition: all .25s ease;
+
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
+
+        /* + icon */
+
+        .faq-question::after {
+            content: "+";
+            font-size: 24px;
+            font-weight: 700;
+            color: #dd2476;
+            transition: transform .25s ease;
+        }
+
+        /* when open */
+
+        .faq-question.active::after {
+            content: "−";
+        }
+
+        /* hover gradient */
 
         .faq-question:hover {
             background: linear-gradient(90deg, #ff512f, #dd2476);
@@ -439,17 +463,19 @@
             -webkit-text-fill-color: transparent;
         }
 
+        /* ANSWER */
+
         .faq-answer {
             max-height: 0;
             overflow: hidden;
-            transition: max-height 0.35s ease;
+            transition: max-height .35s ease;
             padding: 0 24px;
         }
 
         .faq-answer p {
             padding-bottom: 20px;
             color: #555;
-            font-size: 0.95rem;
+            font-size: .95rem;
             line-height: 1.6;
         }
 
@@ -612,7 +638,7 @@
 
     <section class="identity">
 
-        <div class="identity-bg" style="background-image:url('images/header1.png');"></div>
+        <div class="identity-bg" style="background-image:url('images/beyou.jpg');"></div>
 
         <div class="identity-content">
             <h2>Be Yourself — On Your Terms</h2>
@@ -843,6 +869,12 @@
         question.addEventListener("click", () => {
 
             const answer = question.nextElementSibling;
+
+            /* toggle + / - icon */
+
+            question.classList.toggle("active");
+
+            /* open / close answer */
 
             if (answer.style.maxHeight) {
                 answer.style.maxHeight = null;

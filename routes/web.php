@@ -367,30 +367,21 @@ Route::get('/app/payment/{order_id}', [AppRegistrationPaymentController::class, 
 Route::post('/app/payment/success', [AppRegistrationPaymentController::class, 'success'])->name('app.payment.success');
 Route::get('/payment/cancel', [AppRegistrationPaymentController::class, 'cancel'])->name('app.payment.cancel');
 
-Route::get('/terms', function () {
-    return view('user.terms');
-})->name('terms');
-
-Route::get('/aboutUs', function () {
-    return view('user.aboutUs');
-})->name('aboutUs');
-
-Route::get('/privacy', function () {
-    return view('user.privacy');
-})->name('privacy');
-
-Route::get('/refundPolicy', function () {
-    return view('user.refundPolicy');
-})->name('refundPolicy');
-
-Route::get('/contactWithAdmin', function () {
-    return view('user.contactWithAdmin');
-})->name('contactWithAdmin');
-
+Route::get('/terms', function () {return view('user.terms');})->name('terms');
+Route::get('/aboutUs', function () {return view('user.aboutUs');})->name('aboutUs');
+Route::get('/privacy', function () {return view('user.privacy');})->name('privacy');
+Route::get('/refundPolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
+Route::get('/contactWithAdmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
 Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->name('AdminSend');
 
-Route::fallback(function () {
-    return response()->view('errors.fallback', [], 404);
+// seo related routes
+Route::group([], function () {
+    Route::get('/events', function () {return view('seo.events');});
+    Route::get('/blogs', function () {return view('seo.blogs');});
+    Route::get('/chat', function () {return view('seo.chat');});
+    Route::get('/dating', function () {return view('seo.dating');});
+    Route::get('/community', function () {return view('seo.community');});
+    Route::get('/healthcare', function () {return view('seo.healthcare');});
 });
 
 Route::get('/sitemap.xml', function () {
@@ -398,5 +389,7 @@ Route::get('/sitemap.xml', function () {
         ->view('sitemap')
         ->header('Content-Type', 'text/xml');
 });
+
+Route::fallback(function () {return response()->view('errors.fallback', [], 404);});
 
 require __DIR__ . '/auth.php';
