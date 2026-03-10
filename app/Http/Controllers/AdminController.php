@@ -14,8 +14,11 @@ use App\Models\Rating;
 use App\Models\Status;
 use App\Models\User;
 use App\Models\UserDetail;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 
 class AdminController extends Controller
@@ -462,6 +465,59 @@ class AdminController extends Controller
 
         $user->documents_status = $status;
         $user->save();
+
+        // Message based on status
+        if ($status == 2) {
+            $message = "Your counselor documents have been rejected by admin.";
+        } elseif ($status == 3) {
+            $message = "Congratulations! Your counselor documents have been approved.";
+        } else {
+            $message = "Your document status has been updated.";
+        }
+
+        $tokens = UserDevice::where('user_id', $user->id)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        foreach ($tokens as $token) {
+
+            try {
+
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    'Document Status Update',
+                    $message,
+                    [
+                        'type'   => 'document_status',
+                        'status' => $status,
+                    ]
+                );
+
+            } catch (\Throwable $e) {
+
+                Log::warning("Firebase push failed for user {$user->id}: " . $e->getMessage());
+
+            }
+        }
+
+        try {
+
+            Mail::send('emails.document-status', [
+                'user'   => $user,
+                'status' => $status,
+            ], function ($mail) use ($user) {
+
+                $mail->to($user->email)
+                    ->subject('Document Verification Status Updated');
+
+            });
+
+        } catch (\Throwable $e) {
+
+            Log::error("Document status email failed for user {$user->id}: " . $e->getMessage());
+
+        }
 
         return response()->json([
             'success' => true,

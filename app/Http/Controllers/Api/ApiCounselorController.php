@@ -481,6 +481,19 @@ class ApiCounselorController extends Controller
             'documents_status' => 1, // Pending verification
         ]);
 
+        // Send email to admin
+        Mail::send('emails.admin-documents', [
+            'user' => $user,
+            'doc1' => $doc1,
+            'doc2' => $doc2,
+            'doc3' => $doc3,
+        ], function ($message) use ($user) {
+
+            $message->to('admin@gmail.com')
+                ->subject('New Counselor Documents Submitted by ' . $user->name);
+
+        });
+
         return response()->json([
             'success' => true,
             'message' => 'Documents uploaded successfully',
