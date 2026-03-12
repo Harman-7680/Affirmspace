@@ -160,6 +160,11 @@
             font-size: 0.85rem;
             color: #777;
         }
+
+        /* this is active class for active tabs */
+        .activeTab {
+            color: #ff512f !important;
+        }
     </style>
     <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
 </head>
