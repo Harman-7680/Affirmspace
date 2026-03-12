@@ -1,13 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.seo')
 
-<head>
+@section('meta')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact Us – AffirmSpace</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+@endsection
 
+@section('css')
     <style>
         * {
             margin: 0;
@@ -197,20 +198,9 @@
             }
         }
     </style>
-</head>
+@endsection
 
-<body>
-
-    <!-- Header -->
-    <header>
-        <a href="/" class="logo">
-            <img src="images/welcomepage.png" alt="AffirmSpace Logo">
-            <span>AffirmSpace</span>
-        </a>
-
-        <a href="/register" class="nav-btn">Get Started</a>
-    </header>
-
+@section('content')
     <!-- Hero -->
     <section>
         <h2>Contact Us</h2>
@@ -277,22 +267,4 @@
         </div>
 
     </section>
-
-    <!-- Footer -->
-    <footer class="site-footer">
-        <div class="footer-links">
-            <a href="/aboutUs">About Us</a>
-            <a href="/privacy">Privacy Policy</a>
-            <a href="/refundPolicy">Refund</a>
-            <a href="/terms">Terms & Conditions</a>
-            <a href="/contactWithAdmin">Contact</a>
-        </div>
-
-        <p class="footer-copy">
-            © 2026 AffirmSpace. All rights reserved.
-        </p>
-    </footer>
-
-</body>
-
-</html>
+@endsection

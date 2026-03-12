@@ -1,100 +1,17 @@
-<!DOCTYPE html>
-<html lang="en">
+@extends('layouts.seo')
 
-<head>
-
-    <script async src="https://www.googletagmanager.com/gtag/js?id=G-GK7P3JDQN0"></script>
-    <script>
-        window.dataLayer = window.dataLayer || [];
-
-        function gtag() {
-            dataLayer.push(arguments);
-        }
-        gtag('js', new Date());
-
-        gtag('config', 'G-GK7P3JDQN0');
-    </script>
-
-    <!-- Google Tag Manager -->
-    <script>
-        (function(w, d, s, l, i) {
-            w[l] = w[l] || [];
-            w[l].push({
-                'gtm.start': new Date().getTime(),
-                event: 'gtm.js'
-            });
-            var f = d.getElementsByTagName(s)[0],
-                j = d.createElement(s),
-                dl = l != 'dataLayer' ? '&l=' + l : '';
-            j.async = true;
-            j.src =
-                'https://www.googletagmanager.com/gtm.js?id=' + i + dl;
-            f.parentNode.insertBefore(j, f);
-        })(window, document, 'script', 'dataLayer', 'GTM-TT8733ZM');
-    </script>
-    <!-- End Google Tag Manager -->
-
+@section('meta')
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>AffirmSpace</title>
     <meta name="description"
         content="AffirmSpace is a safe LGBTQ+ platform for dating, community, anonymous chats, local events, and discovering trusted gender-affirming healthcare providers." />
 
-    <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+@endsection
 
+@section('css')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: #f9fafb;
-            color: #222;
-            line-height: 1.6;
-        }
-
-        header {
-            background: #ffffff;
-            padding: 20px 8%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-            z-index: 100;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #222;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .logo img {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-        }
-
-        .nav-btn {
-            padding: 10px 24px;
-            border-radius: 30px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            background: linear-gradient(90deg, #ff512f, #dd2476);
-        }
-
-        /* ────────────────────────────────────────
-           HERO WITH FIXED BACKGROUND + SMOOTH FADE
-        ──────────────────────────────────────── */
         .parallax-hero {
             position: relative;
             height: 85vh;
@@ -254,44 +171,6 @@
             }
         }
 
-        /* ────────────────────────────────────────
-           SPLASH SCREEN & OTHER STYLES (unchanged)
-        ──────────────────────────────────────── */
-        #splash-screen {
-            position: fixed;
-            inset: 0;
-            background-color: #dafaf8ff;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            flex-direction: column;
-            color: white;
-            font-size: 2rem;
-            z-index: 9999;
-            opacity: 1;
-            transition: opacity 0.5s ease;
-        }
-
-        #splash-screen img {
-            width: 150px;
-            margin-bottom: 20px;
-            animation: pulse 1s infinite;
-        }
-
-        @keyframes pulse {
-
-            0%,
-            50%,
-            100% {
-                transform: scale(1);
-            }
-
-            25%,
-            75% {
-                transform: scale(1.3);
-            }
-        }
-
         section {
             padding: 80px 8%;
         }
@@ -340,7 +219,7 @@
         }
 
         /* .identity { background: #ffffff; text-align: center; }
-        .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
+                                                            .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
 
         .trust {
             background: #f9fafb;
@@ -487,72 +366,16 @@
         .cta p {
             margin-bottom: 30px;
         }
-
-        .site-footer {
-            background: #ffffff;
-            padding: 35px 8%;
-            border-top: 1px solid #eee;
-        }
-
-        .footer-inner {
-            max-width: 1200px;
-            margin: auto;
-            text-align: center;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .footer-links a {
-            text-decoration: none;
-            font-size: 0.95rem;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .footer-links a:hover {
-            color: #dd2476;
-        }
-
-        .footer-copy {
-            font-size: 0.85rem;
-            color: #777;
-        }
     </style>
-</head>
+@endsection
 
-<body>
-
-    <!-- Google Tag Manager (noscript) -->
-    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-TT8733ZM" height="0" width="0"
-            style="display:none;visibility:hidden"></iframe></noscript>
-    <!-- End Google Tag Manager (noscript) -->
-
-    <!-- Splash screen -->
-    <div id="splash-screen">
-        <img src="images/welcomepage.png" alt="AffirmSpace">
-    </div>
-
-    <header>
-        <a href="/" class="logo">
-            <img src="images/welcomepage.png" alt="AffirmSpace Logo">
-            <span>AffirmSpace</span>
-        </a>
-        <a href="{{ 'login' }}" class="nav-btn">Login</a>
-    </header>
-
+@section('content')
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
     <section class="parallax-hero">
-        <div class="fixed-bg-layer" id="bgLayer1"
-            style="background-image: url('images/header1.png'); opacity: 1;"></div>
-        <div class="fixed-bg-layer" id="bgLayer2"
-            style="background-image: url('images/Consultant.png'); opacity: 0;"></div>
-
+        <div class="fixed-bg-layer" id="bgLayer1" style="background-image: url('images/header1.png'); opacity: 1;">
+        </div>
+        <div class="fixed-bg-layer" id="bgLayer2" style="background-image: url('images/Consultant.png'); opacity: 0;">
+        </div>
         <div class="parallax-overlay"></div>
 
         <div class="hero-content">
@@ -571,7 +394,6 @@
             </div>
         </div>
     </section>
-
 
     <section>
         <h2>What is AffirmSpace?</h2>
@@ -669,8 +491,6 @@
         </ul>
     </section>
 
-
-
     <section class="how-it-works">
         <h2>How AffirmSpace Works</h2>
 
@@ -722,10 +542,16 @@
                 </p>
             </div>
 
+            <div class="step-card">
+                <h3>6️⃣ Safe & Private Platform </h3>
+                <p>
+                    AffirmSpace prioritizes user safety with privacy controls, respectful community guidelines, and
+                    secure communication features designed for the LGBTQ+ community.
+                </p>
+            </div>
+
         </div>
     </section>
-
-
 
     <section class="faq-section">
 
@@ -812,81 +638,51 @@
 
         <a href="{{ 'login' }}" class="primary-btn">Join the LGBTQ+ Community</a>
     </section>
+@endsection
 
-    <footer class="site-footer">
-        <div class="footer-inner">
-            <div class="footer-links">
-                <a href="{{ '/aboutUs' }}">About Us</a>
-                <a href="{{ '/privacy' }}">Privacy Policy</a>
-                <a href="{{ '/refundPolicy' }}">Refund</a>
-                <a href="{{ '/terms' }}">Terms & Conditions</a>
-                <a href="{{ '/contactWithAdmin' }}">Contact</a>
-            </div>
+@section('script')
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
 
-            <p class="footer-copy">
-                © 2026 AffirmSpace. All rights reserved.
-            </p>
-        </div>
-    </footer>
+            // Smooth image crossfade
+            const layer1 = document.getElementById('bgLayer1');
+            const layer2 = document.getElementById('bgLayer2');
+            let showLayer1 = true;
 
-</body>
+            setInterval(() => {
+                if (showLayer1) {
+                    layer1.style.opacity = '0';
+                    layer2.style.opacity = '1';
+                } else {
+                    layer1.style.opacity = '1';
+                    layer2.style.opacity = '0';
+                }
+                showLayer1 = !showLayer1;
+            }, 7000); // change every 7 seconds – fade takes 2 seconds
+        });
+    </script>
 
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const splash = document.getElementById('splash-screen');
-        if (!sessionStorage.getItem('flashShown')) {
-            splash.style.display = 'flex';
-            setTimeout(() => {
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                }, 500);
-            }, 1000);
-            sessionStorage.setItem('flashShown', 'true');
-        }
+    <script>
+        document.querySelectorAll(".faq-question").forEach((question) => {
 
-        // Smooth image crossfade
-        const layer1 = document.getElementById('bgLayer1');
-        const layer2 = document.getElementById('bgLayer2');
-        let showLayer1 = true;
+            question.addEventListener("click", () => {
 
-        setInterval(() => {
-            if (showLayer1) {
-                layer1.style.opacity = '0';
-                layer2.style.opacity = '1';
-            } else {
-                layer1.style.opacity = '1';
-                layer2.style.opacity = '0';
-            }
-            showLayer1 = !showLayer1;
-        }, 7000); // change every 7 seconds – fade takes 2 seconds
-    });
-</script>
+                const answer = question.nextElementSibling;
 
-<script>
-    document.querySelectorAll(".faq-question").forEach((question) => {
+                /* toggle + / - icon */
 
-        question.addEventListener("click", () => {
+                question.classList.toggle("active");
 
-            const answer = question.nextElementSibling;
+                /* open / close answer */
 
-            /* toggle + / - icon */
+                if (answer.style.maxHeight) {
+                    answer.style.maxHeight = null;
+                } else {
+                    answer.style.maxHeight = answer.scrollHeight + "px";
+                }
 
-            question.classList.toggle("active");
-
-            /* open / close answer */
-
-            if (answer.style.maxHeight) {
-                answer.style.maxHeight = null;
-            } else {
-                answer.style.maxHeight = answer.scrollHeight + "px";
-            }
+            });
 
         });
-
-    });
-</script>
-
-</body>
-
-</html>
+    </script>
+@endsection
