@@ -219,7 +219,7 @@
         }
 
         /* .identity { background: #ffffff; text-align: center; }
-                                                            .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
+                                                                .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
 
         .trust {
             background: #f9fafb;
@@ -491,7 +491,11 @@
         </ul>
     </section>
 
-    <section class="how-it-works">
+    <section class="how-it-works"
+        style="background: url(images/how_it_work.jpeg) 
+      no-repeat center center;
+      background-size: cover;
+      min-height: 100vh;">
         <h2>How AffirmSpace Works</h2>
 
         <p class="section-desc">
