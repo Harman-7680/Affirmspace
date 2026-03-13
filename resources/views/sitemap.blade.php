@@ -18,7 +18,7 @@
     </url>
 
     <url>
-        <loc>https://www.affirmspace.com/contactwitnadmin</loc>
+        <loc>https://www.affirmspace.com/contactwithadmin</loc>
     </url>
 
     <url>
