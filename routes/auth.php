@@ -6,6 +6,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\RegisteredUserController;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
@@ -25,7 +26,7 @@ Route::get('login', function () {
     return app(\App\Http\Controllers\Auth\AuthenticatedSessionController::class)->create();
 })->name('login');
 
-Route::get('register', function () {
+Route::get('register', function (Request $request) {
     if (Auth::check()) {
         $user = Auth::user();
 
@@ -38,6 +39,18 @@ Route::get('register', function () {
         }
         abort(403, 'Unauthorized');
     }
+
+    if (! $request->has('role')) {
+        return redirect('/');
+    }
+
+    $role = $request->query('role');
+
+    // agar role galat hai
+    if (! in_array($role, [0, 1])) {
+        return redirect('/');
+    }
+
     return app(\App\Http\Controllers\Auth\RegisteredUserController::class)->create();
 })->name('register');
 

@@ -199,7 +199,7 @@
 
                         <div
                             class="overflow-y-auto max-h-96 text-sm text-gray-700 dark:text-gray-200 pr-2 leading-relaxed">
-                            @include('user.terms')
+                            @include('user.term')
                         </div>
 
                         <div class="mt-6 flex justify-end space-x-3">
