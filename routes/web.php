@@ -382,12 +382,12 @@ Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithA
 
 // seo related routes
 Route::group([], function () {
-    Route::get('/events', function () {return view('seo.events');});
-    Route::get('/blogs', function () {return view('seo.blogs');});
-    Route::get('/chat', function () {return view('seo.chat');});
-    Route::get('/dating', function () {return view('seo.dating');});
-    Route::get('/community', function () {return view('seo.community');});
-    Route::get('/healthcare', function () {return view('seo.healthcare');});
+    Route::get('/events', function () {return view('seo.events');})->name('events');
+    Route::get('/blogs', function () {return view('seo.blogs');})->name('blogs');
+    Route::get('/chat', function () {return view('seo.chat');})->name('chat');
+    Route::get('/dating', function () {return view('seo.dating');})->name('chatAndDating');
+    Route::get('/community', function () {return view('seo.community');})->name('community');
+    Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
 });
 
 Route::get('/sitemap.xml', function () {
