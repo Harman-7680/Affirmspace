@@ -1,8 +1,8 @@
 <footer class="site-footer">
     <div class="footer-inner">
         <div class="footer-links">
-            <a href="{{ '/aboutus' }}"
-                class="{{ request()->routeIs('aboutUs') ? 'activeTab font-bold text-blue-600' : '' }}">About Us</a>
+            <a href="{{ '/blogs' }}"
+                class="{{ request()->routeIs('blogs') ? 'activeTab font-bold text-blue-600' : '' }}">Blogs</a>
 
             <a href="{{ '/privacy' }}"
                 class="{{ request()->routeIs('privacy') ? 'activeTab font-bold text-blue-600' : '' }}">Privacy Policy</a>
@@ -19,7 +19,7 @@
         </div>
 
         <p class="footer-copy">
-            © 2026 AffirmSpace. All rights reserved.
+            © {{ date('Y') }} AffirmSpace. All rights reserved.
         </p>
     </div>
 </footer>

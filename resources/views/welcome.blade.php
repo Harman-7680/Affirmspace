@@ -219,7 +219,7 @@
         }
 
         /* .identity { background: #ffffff; text-align: center; }
-                                                                .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
+                                                                                    .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
 
         .trust {
             background: #f9fafb;
@@ -366,15 +366,59 @@
         .cta p {
             margin-bottom: 30px;
         }
+
+        /* ────────────────────────────────────────
+                                                       SPLASH SCREEN & OTHER STYLES (unchanged)
+                                                    ──────────────────────────────────────── */
+        #splash-screen {
+            position: fixed;
+            inset: 0;
+            background-color: #dafaf8ff;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            color: white;
+            font-size: 2rem;
+            z-index: 9999;
+            opacity: 1;
+            transition: opacity 0.5s ease;
+        }
+
+        #splash-screen img {
+            width: 150px;
+            margin-bottom: 20px;
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            50%,
+            100% {
+                transform: scale(1);
+            }
+
+            25%,
+            75% {
+                transform: scale(1.3);
+            }
+        }
     </style>
 @endsection
 
 @section('content')
+    <!-- Splash screen -->
+    <div id="splash-screen">
+        <img src="images/welcomepage.png" alt="AffirmSpace">
+    </div>
+
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
     <section class="parallax-hero">
         <div class="fixed-bg-layer" id="bgLayer1" style="background-image: url('images/header1.png'); opacity: 1;">
         </div>
-        <div class="fixed-bg-layer" id="bgLayer2" style="background-image: url('images/Consultant.png'); opacity: 0;">
+        <div class="fixed-bg-layer" id="bgLayer2"
+            style="background-image: url('images/Consultant.png'); opacity: 0;">
         </div>
         <div class="parallax-overlay"></div>
 
@@ -492,7 +536,7 @@
     </section>
 
     <section class="how-it-works"
-        style="background: url(images/how_it_work.jpeg) 
+        style="background: url(public/images/how_it_work.jpeg) 
       no-repeat center center;
       background-size: cover;
       min-height: 100vh;">
@@ -646,6 +690,20 @@
 
 @section('script')
     <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const splash = document.getElementById('splash-screen');
+            if (!sessionStorage.getItem('flashShown')) {
+                splash.style.display = 'flex';
+                setTimeout(() => {
+                    splash.style.opacity = '0';
+                    setTimeout(() => {
+                        splash.style.display = 'none';
+                    }, 500);
+                }, 1000);
+                sessionStorage.setItem('flashShown', 'true');
+            }
+        });
+
         document.addEventListener('DOMContentLoaded', () => {
 
             // Smooth image crossfade

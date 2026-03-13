@@ -10,52 +10,6 @@
 
 @section('css')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: #f9fafb;
-            color: #222;
-            line-height: 1.6;
-        }
-
-        header {
-            background: #ffffff;
-            padding: 20px 8%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #222;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .logo img {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-        }
-
-        .nav-btn {
-            padding: 10px 24px;
-            border-radius: 30px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            background: linear-gradient(90deg, #ff512f, #dd2476);
-        }
-
         section {
             padding: 80px 8%;
         }
@@ -116,43 +70,6 @@
             font-size: 0.85rem;
             text-align: center;
             color: #666;
-        }
-
-        .site-footer {
-            background: #ffffff;
-            padding: 35px 8%;
-            border-top: 1px solid #eee;
-            text-align: center;
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
-            margin-bottom: 15px;
-        }
-
-        .footer-links a {
-            text-decoration: none;
-            font-size: 0.95rem;
-            color: #555;
-            font-weight: 500;
-        }
-
-        .footer-links a:hover {
-            color: #dd2476;
-        }
-
-        .footer-copy {
-            font-size: 0.85rem;
-            color: #777;
-        }
-
-        @media(max-width: 900px) {
-            section {
-                padding: 60px 6%;
-            }
         }
     </style>
 @endsection

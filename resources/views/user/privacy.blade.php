@@ -10,52 +10,6 @@
 
 @section('css')
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Inter', sans-serif;
-        }
-
-        body {
-            background: #f9fafb;
-            color: #222;
-            line-height: 1.6;
-        }
-
-        header {
-            background: #ffffff;
-            padding: 20px 8%;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .logo {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            text-decoration: none;
-            color: #222;
-            font-size: 1.6rem;
-            font-weight: 700;
-        }
-
-        .logo img {
-            width: 42px;
-            height: 42px;
-            object-fit: contain;
-        }
-
-        .nav-btn {
-            padding: 10px 24px;
-            border-radius: 30px;
-            text-decoration: none;
-            color: white;
-            font-weight: 600;
-            background: linear-gradient(90deg, #ff512f, #dd2476);
-        }
-
         section {
             padding: 80px 8%;
         }
@@ -118,54 +72,87 @@
             color: #666;
         }
 
-        .site-footer {
-            background: #ffffff;
-            padding: 35px 8%;
-            border-top: 1px solid #eee;
+        .privacy-parallax {
+            position: relative;
+            padding: 120px 8%;
             text-align: center;
+            color: white;
+            overflow: hidden;
         }
 
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 25px;
-            flex-wrap: wrap;
+        /* IMAGE */
+
+        .privacy-img {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            object-fit: cover;
+            z-index: -2;
+        }
+
+        /* DARK OVERLAY */
+
+        .privacy-parallax::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.55);
+            z-index: -1;
+        }
+
+        /* TEXT */
+
+        .privacy-content {
+            max-width: 850px;
+            margin: auto;
+        }
+
+        .privacy-content h2 {
+            font-size: 2.2rem;
             margin-bottom: 15px;
         }
 
-        .footer-links a {
-            text-decoration: none;
-            font-size: 0.95rem;
-            color: #555;
-            font-weight: 500;
+        .privacy-content p {
+            color: #f0f0f0;
+            font-size: 1.05rem;
+            line-height: 1.7;
         }
 
-        .footer-links a:hover {
-            color: #dd2476;
-        }
+        /* MOBILE FIX */
 
-        .footer-copy {
-            font-size: 0.85rem;
-            color: #777;
-        }
+        @media(max-width:1024px) {
 
-        @media(max-width: 900px) {
-            section {
-                padding: 60px 6%;
+            .privacy-img {
+                position: absolute;
+                height: 100%;
             }
+
+            .privacy-parallax {
+                padding: 100px 8%;
+            }
+
         }
     </style>
 @endsection
 
 @section('content')
     <!-- Hero Section -->
-    <section>
-        <h2>Your Privacy Matters 🔐</h2>
-        <p>
-            AffirmSpace is a global 18+ community and counselling platform built on trust,
-            dignity, and respect. This Privacy Policy explains how we collect,
-            use, store, and protect your information.
-        </p>
+    <section class="privacy-parallax">
+
+        <img src="images/coursel.png" class="privacy-img" alt="Privacy background">
+
+        <div class="privacy-content">
+            <h2>Your Privacy Matters 🔐</h2>
+
+            <p>
+                AffirmSpace is a global 18+ community and counselling platform built on trust,
+                dignity, and respect. This Privacy Policy explains how we collect,
+                use, store, and protect your information.
+            </p>
+        </div>
+
     </section>
 
     <!-- Privacy Content -->
