@@ -33,7 +33,7 @@
                     'admin.area-price.index',
                     'sendMessage',
                     'admin.registration.settings*',
-                )
+                ) || request()->is('manage/blogs*')
                     ? 'open'
                     : '' }}">
                 <a href="javascript:void(0)">
@@ -139,6 +139,14 @@
                             href="{{ route('admin.registration.settings') }}">
                             <i class="fa fa-cogs"></i>
                             Registration Settings
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="menu-item {{ request()->is('manage/blogs*') ? 'active' : '' }}"
+                            href="{{ url('/manage/blogs') }}">
+                            <i class="fa fa-blog"></i>
+                            Manage Blogs
                         </a>
                     </li>
                 </ul>
