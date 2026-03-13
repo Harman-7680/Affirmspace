@@ -374,10 +374,10 @@ Route::post('/app/payment/success', [AppRegistrationPaymentController::class, 's
 Route::get('/payment/cancel', [AppRegistrationPaymentController::class, 'cancel'])->name('app.payment.cancel');
 
 Route::get('/terms', function () {return view('user.terms');})->name('terms');
-Route::get('/aboutUs', function () {return view('user.aboutUs');})->name('aboutUs');
+Route::get('/aboutus', function () {return view('user.aboutUs');})->name('aboutUs');
 Route::get('/privacy', function () {return view('user.privacy');})->name('privacy');
-Route::get('/refundPolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
-Route::get('/contactWithAdmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
+Route::get('/refundpolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
+Route::get('/contactwithadmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
 Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->name('AdminSend');
 
 // seo related routes
@@ -388,6 +388,7 @@ Route::group([], function () {
     Route::get('/dating', function () {return view('seo.dating');})->name('chatAndDating');
     Route::get('/community', function () {return view('seo.community');})->name('community');
     Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
+    Route::get('/counselling', function () {return view('seo.counselling');})->name('counselling');
 });
 
 Route::get('/sitemap.xml', function () {
