@@ -6,7 +6,7 @@
     </url>
 
     <url>
-        <loc>https://www.affirmspace.com/aboutUs</loc>
+        <loc>https://www.affirmspace.com/aboutus</loc>
     </url>
 
     <url>
@@ -14,15 +14,11 @@
     </url>
 
     <url>
-        <loc>https://www.affirmspace.com/refundPolicy</loc>
+        <loc>https://www.affirmspace.com/refundpolicy</loc>
     </url>
 
     <url>
-        <loc>https://www.affirmspace.com/terms</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/contactWitnAdmin</loc>
+        <loc>https://www.affirmspace.com/contactwitnadmin</loc>
     </url>
 
     <url>
@@ -33,4 +29,31 @@
         <loc>https://www.affirmspace.com/register</loc>
     </url>
 
+    <url>
+        <loc>https://www.affirmspace.com/terms</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/blogs</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/community</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/chat</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/dating</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/counselling</loc>
+    </url>
+
+    <url>
+        <loc>https://www.affirmspace.com/events</loc>
+    </url>
 </urlset>
