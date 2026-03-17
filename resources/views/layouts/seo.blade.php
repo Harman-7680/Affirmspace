@@ -58,6 +58,11 @@
             box-sizing: border-box;
         }
 
+        .activeTabDropdown {
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            color: white !important;
+        }
+
         header {
             background: white;
             box-shadow: 0 2px 10px rgba(0, 0, 0, 0.08);
@@ -175,8 +180,10 @@
         }
 
         .dropdown-content a:hover {
-            background: #eff6ff;
-            color: #2563eb;
+            /* background: #eff6ff; */
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            /* color: #2563eb; */
+            color: white;
         }
 
         /* ──────────────── MOBILE ──────────────── */

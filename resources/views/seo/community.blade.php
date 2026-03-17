@@ -184,7 +184,8 @@
             <div class="feature-grid">
 
                 <div class="feature-card">
-                    <h3>🌈 Inclusive Community</h3>
+                    <img src="{{ asset('images/community/Inclusive_Community.jpeg') }}" height="50" alt="">
+                    <h3> Inclusive Community</h3>
                     <p>
                         AffirmSpace welcomes people from across the LGBTQ+ spectrum, creating a space
                         where identities are respected and celebrated.
@@ -192,7 +193,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>🤝 Meaningful Connections</h3>
+                    <img src="{{ asset('images/community/Meaningful_Connections.jpeg') }}" height="50" alt="">
+                    <h3> Meaningful Connections</h3>
                     <p>
                         Meet like-minded individuals, engage in thoughtful conversations,
                         and build friendships within the community.
@@ -200,7 +202,9 @@
                 </div>
 
                 <div class="feature-card">
-                    <h3>🔒 Safe & Respectful Environment</h3>
+                    <img src="{{ asset('images/community/Safe_Respectful_Environment.jpeg') }}" height="50"
+                        alt="">
+                    <h3> Safe & Respectful Environment</h3>
                     <p>
                         The platform prioritizes privacy, moderation, and respectful communication
                         so everyone feels comfortable participating.
@@ -260,10 +264,21 @@
 
             <div class="values-grid">
 
-                <div class="value-card">Respect for All</div>
-                <div class="value-card">Supportive Conversations</div>
-                <div class="value-card">Safe Digital Spaces</div>
-                <div class="value-card">Meaningful Connections</div>
+                <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
+                        src="{{ asset('images/community/Respect_for_All.jpeg') }}" height="30" alt="">
+                    Respect for All</div>
+
+                <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
+                        src="{{ asset('images/community/Supportive_Conversations.jpeg') }}" height="30" alt="">
+                    Supportive Conversations</div>
+
+                <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
+                        src="{{ asset('images/community/Safe_Digital_Spaces.jpeg') }}" height="30" alt=""> Safe
+                    Digital Spaces</div>
+
+                <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
+                        src="{{ asset('images/community/Meaningful Connections_2.jpeg') }}" height="30" alt="">
+                    Meaningful Connections</div>
 
             </div>
 

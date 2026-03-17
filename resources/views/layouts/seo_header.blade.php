@@ -23,10 +23,17 @@
                         <span class="arrow"></span>
                     </div>
                     <div class="dropdown-content">
-                        <a href="/chat">Chat</a>
-                        <a href="/dating">Dating</a>
-                        <a href="/counselling">Counselling</a>
-                        <a href="/events">Events</a>
+                        <a href="/chat"
+                            class="{{ request()->routeIs('chat') ? 'activeTabDropdown font-bold text-blue-600' : '' }}">Chat</a>
+
+                        <a href="/dating"
+                            class="{{ request()->routeIs('chatAndDating') ? 'activeTabDropdown font-bold text-blue-600' : '' }}">Dating</a>
+
+                        <a href="/counselling"
+                            class="{{ request()->routeIs('counselling') ? 'activeTabDropdown font-bold text-blue-600' : '' }}">Counselling</a>
+
+                        <a href="/events"
+                            class="{{ request()->routeIs('events') ? 'activeTabDropdown font-bold text-blue-600' : '' }}">Events</a>
                     </div>
                 </li>
 
