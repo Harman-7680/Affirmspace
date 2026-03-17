@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 use App\Mail\ContactAdminMail;
 use App\Mail\VerificationRejectedMail;
 use App\Models\Comment;
-use App\Models\CounselorAvailability;
 use App\Models\Event;
 use App\Models\Friendship;
 use App\Models\Like;
@@ -270,11 +269,16 @@ class AdminController extends Controller
         $totalReviews  = $user->ratingsReceived()->count();
 
         // Get all availability IDs for this counselor
-        $availabilityIds = CounselorAvailability::where('counselor_id', $id)->pluck('id');
+        // $availabilityIds = CounselorAvailability::where('counselor_id', $id)->pluck('id');
 
         // Get all messages linked to those availabilities
+        // $appointments = Message::with('availability')
+        //     ->whereIn('availability_id', $availabilityIds)
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
         $appointments = Message::with('availability')
-            ->whereIn('availability_id', $availabilityIds)
+            ->where('receiver_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
 

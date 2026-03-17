@@ -182,7 +182,7 @@
                 @forelse($appointments as $appointment)
                     <tr>
                         <td>
-                            @php
+                            {{-- @php
                                 $availability = optional($appointment->availability);
                                 $date = $availability->available_date;
                                 $start = $availability->start_time;
@@ -202,6 +202,46 @@
                                 </div>
                             @else
                                 N/A
+                            @endif --}}
+                            @php
+                                $availability = optional($appointment->availability);
+
+                                $date = $availability->available_date;
+                                $start = $availability->start_time;
+                                $end = $availability->end_time;
+
+                                $appointmentEnd = null;
+
+                                if ($date && $end) {
+                                    $appointmentEnd = \Carbon\Carbon::parse($date . ' ' . $end);
+                                }
+
+                                $isExpired = !$availability->id || ($appointmentEnd && $appointmentEnd->isPast());
+                            @endphp
+
+                            @if (!$isExpired && $date && $start && $end)
+                                {{-- ACTIVE SLOT (OLD BEHAVIOR) --}}
+                                <div>
+                                    <strong>
+                                        {{ \Carbon\Carbon::parse($date)->format('d M Y') }}
+                                    </strong>
+                                </div>
+                                <div class="text-muted">
+                                    {{ \Carbon\Carbon::parse($start)->format('h:i A') }}
+                                    -
+                                    {{ \Carbon\Carbon::parse($end)->format('h:i A') }}
+                                </div>
+                            @else
+                                {{-- EXPIRED OR DELETED SLOT --}}
+                                <div>
+                                    <strong>
+                                        {{ \Carbon\Carbon::parse($appointment->created_at)->format('d M Y') }}
+                                    </strong>
+                                </div>
+                                <div class="text-muted">
+                                    {{ \Carbon\Carbon::parse($appointment->created_at)->format('h:i A') }}
+                                    <span style="color:red;">(Expired Slot)</span>
+                                </div>
                             @endif
                         </td>
 
