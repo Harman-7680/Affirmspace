@@ -208,6 +208,7 @@
             justify-content: flex-start;
             /* NOT center */
             gap: 80px;
+            height: 350px;
             padding-left: 60px;
             /* pushes slightly right */
         }
