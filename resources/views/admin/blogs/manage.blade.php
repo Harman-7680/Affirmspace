@@ -12,13 +12,22 @@
             <div class="mb-2 d-flex align-items-center gap-3 flex-nowrap w-100">
 
                 <input type="text" x-model="slug" placeholder="Blog Title" class="form-control"
-                    style="width:25%; height:40px; margin-right:40px;">
+                    style="width:20%; height:40px; margin-right:10px;">
+
+                <select x-model="category" class="form-control" style="width:20%; height:40px; margin-right:10px;">
+                    <option value="">Select Category</option>
+                    <option value="Health">Health</option>
+                    <option value="Career">Career</option>
+                    <option value="Relationship">Relationship</option>
+                    <option value="Mental">Mental</option>
+                    <option value="Education">Education</option>
+                </select>
 
                 <input type="text" x-model="short_description" placeholder="Short Description" class="form-control"
-                    style="width:30%; height:40px; margin-right:5px;">
+                    style="width:20%; height:40px; margin-right:10px;">
 
                 <input type="file" @change="handleImage" class="form-control"
-                    style="width:25%; height:40px; margin-right:15px;">
+                    style="width:20%; height:40px; margin-right:10px;">
 
                 <button class="btn btn-primary" @click="addBlog()" style="height:40px;">
                     Add
@@ -53,6 +62,7 @@
                         <tr>
                             <th>#</th>
                             <th>Slug</th>
+                            <th>Category</th>
                             <th>Short Description</th>
                             <th>Image</th>
                         </tr>
@@ -67,6 +77,8 @@
                                 <td x-text="(currentPage-1)*perPage + index + 1"></td>
 
                                 <td x-text="blog.slug"></td>
+
+                                <td x-text="blog.category"></td>
 
                                 <td x-text="blog.short_description"></td>
 
@@ -151,6 +163,7 @@
                 comments: @json($comments),
 
                 slug: '',
+                category: '',
                 short_description: '',
                 image: null,
 
@@ -201,6 +214,7 @@
                     let formData = new FormData()
 
                     formData.append('slug', this.slug)
+                    formData.append('category', this.category)
                     formData.append('short_description', this.short_description)
                     formData.append('image', this.image)
 
@@ -225,6 +239,7 @@
                                 this.blogs.unshift(data.blog)
 
                                 this.slug = ''
+                                this.category = ''
                                 this.short_description = ''
 
                                 this.currentPage = 1

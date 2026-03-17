@@ -22,6 +22,11 @@ class AdminBlogController extends Controller
 
     public function store(Request $request)
     {
+        $request->validate([
+            'slug'              => 'required',
+            'short_description' => 'required',
+            'category'          => 'required',
+        ]);
 
         $image = null;
 
@@ -36,6 +41,7 @@ class AdminBlogController extends Controller
             'image'             => $image,
             'parent_id'         => null,
             'approved'          => 1,
+            'category'          => $request->category,
         ]);
 
         return response()->json([

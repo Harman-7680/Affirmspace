@@ -15,6 +15,7 @@ class Blog extends Model
         'name',
         'comment',
         'approved',
+        'category',
     ];
 
 }
