@@ -260,7 +260,7 @@
 
                         <td>
 
-                            @php
+                            {{-- @php
                                 $availability = optional($appointment->availability);
 
                                 $appointmentEnd = null;
@@ -272,6 +272,22 @@
                                 }
 
                                 $isPastAppointment = $appointmentEnd && $appointmentEnd->isPast();
+                            @endphp --}}
+
+                            @php
+                                $availability = optional($appointment->availability);
+
+                                if ($availability->available_date && $availability->end_time) {
+                                    // Use availability time (active case)
+                                    $appointmentEnd = \Carbon\Carbon::parse(
+                                        $availability->available_date . ' ' . $availability->end_time,
+                                    );
+                                } else {
+                                    // Fallback: use message created_at (expired/deleted case)
+                                    $appointmentEnd = \Carbon\Carbon::parse($appointment->created_at);
+                                }
+
+                                $isPastAppointment = $appointmentEnd->isPast();
                             @endphp
 
                             {{-- PAID --}}
