@@ -179,6 +179,13 @@ class AuthController extends Controller
 
         $user = Auth::user();
 
+        if ($user->role == 2) {
+            Auth::logout();
+            return response()->json([
+                'message' => 'Admins are not allowed to login from this panel.',
+            ], 403);
+        }
+
         if (! $user || $user->status == 0) {
             $message = ! $user
                 ? 'We could not find an account with this email address.'
