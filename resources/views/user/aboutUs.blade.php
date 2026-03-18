@@ -152,56 +152,61 @@
         <div class="feature-grid">
 
             <div class="feature-card">
-                <h3>1. A Safe LGBTQ+ Community</h3>
+                <h3>🛡️ A Safe LGBTQ+ Community </h3>
                 <p>
-                    AffirmSpace was created to provide a secure space for the LGBTQ+ community —
-                    including gay, lesbian, bisexual, transgender, non-binary, and questioning individuals.
-                    We prioritize safety, moderation, and respectful interaction.
+                    <a href="{{ route('/') }}" style="text-decoration:none; color:black;"> <b>AffirmSpace</b></a> was
+                    created to provide a secure and inclusive environment where people can express their identity freely and
+                    connect without fear of judgment.<a href="{{ route('community') }}"
+                        style="text-decoration:none; color:black;"><b> As a safe LGBTQ+ community platform,</b></a> we
+                    prioritize respectful interaction, privacy, and meaningful conversations for individuals across the
+                    LGBTQ+ spectrum.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>2. Meaningful Gay Chat & Connections</h3>
+                <h3>💬 Meaningful LGBTQ+ Chat & Real Connections</h3>
                 <p>
-                    Whether you're looking for free gay chat, private conversations,
-                    friendships, or long-term relationships, our platform helps you meet people
-                    in a safe and inclusive environment.
+                    Whether you're looking for casual conversations, friendships, or long-term relationships, AffirmSpace
+                    helps people connect through inclusive <a href="{{ route('chat') }}"
+                        style="text-decoration:none; color:black;"><b>LGBTQ+ chat and community</b></a> discussions in a
+                    safe environment.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>3. Beyond Traditional Gay Dating Apps</h3>
+                <h3>❤️ Beyond Traditional LGBTQ Dating Apps </h3>
                 <p>
-                    Unlike many gay dating apps focused only on swiping,
-                    AffirmSpace encourages authentic conversations, comfort, and respect.
-                    We believe connection should be built on understanding — not pressure.
+                    Unlike many <a href="{{ route('chatAndDating') }}" style="text-decoration:none; color:black;"><b>LGBTQ
+                            dating apps</b></a> that focus only on swiping and quick matches, AffirmSpace promotes deeper
+                    connections built on trust, shared experiences, and mutual understanding within the community.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>4. Built-In Counselling Support</h3>
+                <h3>🧠 Built-In Counselling Support </h3>
                 <p>
-                    AffirmSpace integrates professional and intern counselling support
-                    directly into the platform. Users can access emotional guidance,
-                    relationship advice, and safe discussions when needed.
+                    AffirmSpace goes beyond social networking by integrating <a href="{{ route('counselling') }}"
+                        style="text-decoration:none; color:black;"><b>LGBTQ-friendly counselling support</b></a> directly
+                    into the platform. Users can access guidance for mental health, identity challenges, relationships, and
+                    personal growth through trained counsellors and supervised interns.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>5. Identity & Pronoun Respect</h3>
+                <h3>🌈 Identity & Pronoun Respect </h3>
                 <p>
-                    We empower users to express their true identity through customizable
-                    profiles, pronoun selection, and inclusive profile options.
-                    Everyone deserves to feel seen and respected.
+                    We believe identity deserves recognition and respect. AffirmSpace allows members to express themselves
+                    through customizable profiles, pronoun options, and inclusive identity choices that cr
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>6. Our Vision</h3>
+                <h3>🚀 Our Vision </h3>
                 <p>
-                    Our mission is to build a trusted global LGBTQ+ social platform
-                    that combines dating, community, and mental well-being —
-                    creating a digital space where people can truly belong.
+                    Our vision is to build a trusted global platform where LGBTQ+ individuals can connect, share
+                    experiences, and find the understanding and support they deserve. AffirmSpace aims to create a space
+                    where community, relationships, and mental well-being are supported together in one safe digital
+                    environment.
                 </p>
             </div>
 

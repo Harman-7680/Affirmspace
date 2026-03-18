@@ -76,6 +76,11 @@
 
         /* IMAGE */
 
+        .hero-image {
+            display: flex;
+            justify-content: end;
+        }
+
         .hero-image img {
             width: 100%;
             max-width: 450px;
@@ -115,7 +120,7 @@
 
         .mid-card img {
             width: 70px;
-            height: 70px;
+            height: 90px;
             border-radius: 12px;
             object-fit: cover;
         }
@@ -217,7 +222,7 @@
                 </div>
 
                 <div class="hero-image">
-                    <img src="images/counselling/logo1.png" alt="Counselling">
+                    <img src="images/counselling/Header_Image_Counselling.png" alt="Counselling">
                 </div>
 
             </div>

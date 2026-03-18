@@ -132,52 +132,133 @@
             margin-bottom: 10px;
         }
 
+        /* FEATURE IMAGES */
+
+        .feature-img {
+            width: 70px;
+            height: 70px;
+            object-fit: cover;
+            margin-bottom: 15px;
+            border-radius: 12px;
+        }
+
 
 
         /* HOW IT WORKS */
 
         .how-works {
+            position: relative;
+            overflow: hidden;
+            padding: 120px 0;
             text-align: center;
-            background: white;
+            color: white;
         }
 
-        .how-works h2 {
-            font-size: 34px;
+
+        /* BACKGROUND IMAGE (PARALLAX READY) */
+
+        .bg-image {
+            position: absolute;
+            top: -10%;
+            /* extra space for smooth movement */
+            left: 0;
+            width: 100%;
+            height: 120%;
+            /* bigger for parallax */
+            z-index: 0;
         }
+
+        .bg-image img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: translateY(0);
+            will-change: transform;
+            /* 🔥 smooth performance */
+        }
+
+
+        /* DARK OVERLAY */
+
+        .how-works::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            z-index: 1;
+        }
+
+
+        /* CONTENT ABOVE IMAGE */
+
+        .how-works .container {
+            position: relative;
+            z-index: 2;
+        }
+
+
+        /* HEADING */
+
+        .how-works h2 {
+            font-size: 36px;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+
+        /* GRID */
 
         .steps {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 30px;
-            margin-top: 40px;
+            margin-top: 50px;
         }
 
+
+        /* CARDS */
+
         .step {
-            background: #f8f9ff;
-            padding: 30px;
-            border-radius: 14px;
-            transition: 0.3s;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(12px);
+            padding: 35px 25px;
+            border-radius: 16px;
+            transition: 0.3s ease;
+            color: white;
         }
 
         .step:hover {
-            transform: translateY(-5px);
+            transform: translateY(-8px);
+            background: rgba(255, 255, 255, 0.18);
         }
 
-        .step-number {
-            width: 42px;
-            height: 42px;
-            border-radius: 50%;
-            background: #dd2476;
-            color: white;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: auto;
+
+        /* STEP IMAGES */
+
+        .step-img {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
             margin-bottom: 15px;
-            font-weight: 600;
+            border-radius: 12px;
         }
 
 
+        /* TEXT */
+
+        .step h3 {
+            margin-bottom: 10px;
+            font-size: 18px;
+        }
+
+        .step p {
+            font-size: 14px;
+            line-height: 1.6;
+            opacity: 0.9;
+        }
 
         /* COMMUNITY SECTION */
 
@@ -209,7 +290,7 @@
             background: linear-gradient(90deg, #ff512f, #dd2476);
             color: white;
             text-align: center;
-            padding: 0px 0;
+            padding: 80px 0;
         }
 
         .cta-box h2 {
@@ -286,7 +367,7 @@
                 </div>
 
                 <div class="hero-image">
-                    <img src="images/dating.png" alt="AffirmSpace Dating">
+                    <img src="images/dating/datingheader.png" alt="AffirmSpace Dating">
                 </div>
 
             </div>
@@ -304,7 +385,7 @@
             <div class="features-grid">
 
                 <div class="feature-card">
-                    <div class="icon">🏳️‍🌈</div>
+                    <img src="images/dating/Datingspace.png" class="feature-img" alt="">
                     <h3>Safe LGBTQ+ Dating Space</h3>
                     <p>
                         Meet people who respect your identity and values in a safe and inclusive environment.
@@ -312,7 +393,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <div class="icon">✔️</div>
+                    <img src="images/dating/Authentication.png" class="feature-img" alt="">
                     <h3>Authentic Profiles</h3>
                     <p>
                         Find genuine connections with real people from the LGBTQ+ community.
@@ -320,7 +401,7 @@
                 </div>
 
                 <div class="feature-card">
-                    <div class="icon">❤️</div>
+                    <img src="images/dating/Connections.png" class="feature-img" alt="">
                     <h3>Meaningful Connections</h3>
                     <p>
                         Whether you're looking for friendship, dating, or a relationship,
@@ -336,6 +417,11 @@
 
 
     <section class="how-works">
+
+        <div class="bg-image">
+            <img src="images/dating/datingwork.jpeg" alt="">
+        </div>
+
         <div class="container">
 
             <h2>How It Works</h2>
@@ -343,7 +429,7 @@
             <div class="steps">
 
                 <div class="step">
-                    <div class="step-number">1</div>
+                    <img src="images/dating/1.png" class="step-img" alt="">
                     <h3>Create Your Profile</h3>
                     <p>
                         Share your interests, identity, and what you're looking for.
@@ -351,7 +437,7 @@
                 </div>
 
                 <div class="step">
-                    <div class="step-number">2</div>
+                    <img src="images/dating/2.png" class="step-img" alt="">
                     <h3>Discover People</h3>
                     <p>
                         Browse profiles and find people who share your values.
@@ -359,7 +445,7 @@
                 </div>
 
                 <div class="step">
-                    <div class="step-number">3</div>
+                    <img src="images/dating/3.png" class="step-img" alt="">
                     <h3>Start a Conversation</h3>
                     <p>
                         Match and begin meaningful conversations in a safe space.
@@ -403,4 +489,23 @@
 
         </div>
     </section>
+@endsection
+
+@section('script')
+    <script>
+        window.addEventListener("scroll", function() {
+
+            const section = document.querySelector(".how-works");
+            const bg = document.querySelector(".bg-image img");
+
+            const rect = section.getBoundingClientRect();
+            const speed = 0.3; // adjust speed (0.2–0.5 best)
+
+            if (rect.top < window.innerHeight && rect.bottom > 0) {
+                let offset = rect.top * speed;
+                bg.style.transform = "translateY(" + offset + "px)";
+            }
+
+        });
+    </script>
 @endsection

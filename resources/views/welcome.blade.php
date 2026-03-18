@@ -219,7 +219,7 @@
         }
 
         /* .identity { background: #ffffff; text-align: center; }
-                                                                                    .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
+                                                                                                    .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
 
         .trust {
             background: #f9fafb;
@@ -368,8 +368,8 @@
         }
 
         /* ────────────────────────────────────────
-                                                       SPLASH SCREEN & OTHER STYLES (unchanged)
-                                                    ──────────────────────────────────────── */
+                                                                       SPLASH SCREEN & OTHER STYLES (unchanged)
+                                                                    ──────────────────────────────────────── */
         #splash-screen {
             position: fixed;
             inset: 0;
@@ -417,8 +417,7 @@
     <section class="parallax-hero">
         <div class="fixed-bg-layer" id="bgLayer1" style="background-image: url('images/header1.png'); opacity: 1;">
         </div>
-        <div class="fixed-bg-layer" id="bgLayer2"
-            style="background-image: url('images/Consultant.png'); opacity: 0;">
+        <div class="fixed-bg-layer" id="bgLayer2" style="background-image: url('images/Consultant.png'); opacity: 0;">
         </div>
         <div class="parallax-overlay"></div>
 
@@ -536,7 +535,7 @@
     </section>
 
     <section class="how-it-works"
-        style="background: url(public/images/how_it_work.jpeg) 
+        style="background: url(images/how_it_work.jpeg) 
       no-repeat center center;
       background-size: cover;
       min-height: 100vh;">
