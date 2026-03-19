@@ -3,70 +3,82 @@
 @section('meta')
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Blogs – AffirmSpace</title>
+    <title>Blog – AffirmSpace</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
 
 @section('content')
-    <div class="blog-container">
+    <div class="main-wrapper">
 
-        <!-- Blog Card -->
-        <div class="blog-card">
+        <!-- BLOG SECTION -->
+        <div class="blog-layout">
 
+            <!-- LEFT IMAGE -->
             @if ($blog->image)
-                <div class="blog-img-left">
+                <div class="blog-image-box">
                     <img src="{{ asset('storage/' . $blog->image) }}">
                 </div>
             @endif
 
-            <div class="blog-content-right">
-                <h1 class="blog-title">{{ $blog->short_description }}</h1>
+            <!-- RIGHT CONTENT -->
+            <div class="blog-content">
 
-                <p class="blog-desc">{{ $blog->long_description }}</p>
+                <span class="category">{{ $blog->category }}</span>
 
-                <span class="blog-category">
-                    {{ $blog->category }}
-                </span>
+                <h1>{{ $blog->short_description }}</h1>
+
+                <p class="desc">{{ $blog->long_description }}</p>
+
             </div>
 
         </div>
 
-        <!-- Comments -->
-        <div class="comment-section">
-            <h3>💬 Comments</h3>
+        <!-- COMMENTS -->
+        <div class="comments-wrapper">
+            <h3>💬 Community Thoughts</h3>
 
             @forelse($blog->comments as $comment)
-                <div class="comment-box">
-                    <strong>{{ $comment->name }}</strong>
-                    <p>{{ $comment->comment }}</p>
+                <div class="comment-card">
+                    <div class="avatar">
+                        {{ strtoupper(substr($comment->name, 0, 1)) }}
+                    </div>
+
+                    <div class="comment-content">
+                        <h5>{{ $comment->name }}</h5>
+                        <p>{{ $comment->comment }}</p>
+                    </div>
                 </div>
             @empty
-                <p class="no-comment">No comments yet</p>
+                <p class="empty">No comments yet</p>
             @endforelse
         </div>
 
-        <!-- Comment Form -->
-        <div class="form-section">
-            <h3>Leave a Comment</h3>
+        <!-- COMMENT FORM -->
+        <div class="form-wrapper">
+
+            <h3>✍️ Share Your Thoughts</h3>
 
             <form action="{{ route('blog.comment.store', $blog->id) }}" method="POST">
                 @csrf
 
-                <input type="text" name="name" placeholder="Your Name" required class="input-field">
+                <div class="input-group">
+                    <input type="text" name="name" required>
+                    <label>Your Name</label>
+                </div>
 
-                <textarea name="comment" placeholder="Write your comment..." required class="input-field textarea"></textarea>
+                <div class="input-group">
+                    <textarea name="comment" required></textarea>
+                    <label>Your Comment</label>
+                </div>
 
-                <button type="submit" class="btn-submit">
-                    Submit Comment
-                </button>
+                <button type="submit">Post Comment</button>
             </form>
 
             @if (session('success'))
-                <p class="success-msg">
-                    {{ session('success') }}
-                </p>
+                <p class="success">{{ session('success') }}</p>
             @endif
+
         </div>
 
     </div>
@@ -76,163 +88,150 @@
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background: #f5f7fb;
+            background: linear-gradient(135deg, #eef2ff, #f8fafc);
         }
 
-        /* Container */
-        .blog-container {
-            max-width: 900px;
+        /* MAIN */
+        .main-wrapper {
+            max-width: 1100px;
             margin: 40px auto;
             padding: 20px;
         }
 
-        /* Blog Card */
-        .blog-card {
-            display: flex;
-            gap: 20px;
-            background: #fff;
-            padding: 20px;
-            border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
-            margin-bottom: 30px;
-            align-items: center;
-            transition: 0.3s;
+        /* BLOG LAYOUT */
+        .blog-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 25px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
         }
 
-        .blog-card:hover {
-            transform: translateY(-3px);
-        }
-
-        /* Left Image */
-        .blog-img-left {
-            width: 40%;
-        }
-
-        .blog-img-left img {
+        /* IMAGE */
+        .blog-image-box img {
             width: 100%;
-            height: 220px;
+            height: 320px;
             object-fit: cover;
-            border-radius: 10px;
-            transition: 0.3s;
+            border-radius: 12px;
         }
 
-        .blog-img-left img:hover {
-            transform: scale(1.05);
+        /* CONTENT */
+        .blog-content h1 {
+            font-size: 30px;
+            font-weight: 800;
+            margin: 10px 0;
         }
 
-        /* Right Content */
-        .blog-content-right {
-            width: 60%;
-        }
-
-        .blog-title {
-            font-size: 24px;
-            font-weight: 700;
-            margin-bottom: 10px;
-        }
-
-        .blog-desc {
+        .blog-content .desc {
             color: #555;
-            margin-bottom: 15px;
             line-height: 1.6;
         }
 
-        .blog-category {
-            display: inline-block;
-            background: #007bff;
-            color: #fff;
-            padding: 6px 12px;
+        .category {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
+            color: white;
+            padding: 6px 14px;
             border-radius: 20px;
             font-size: 13px;
         }
 
-        /* Comments */
-        .comment-section {
-            margin-top: 20px;
+        /* COMMENTS */
+        .comments-wrapper {
+            margin-top: 40px;
         }
 
-        .comment-section h3 {
-            margin-bottom: 15px;
-        }
-
-        .comment-box {
-            background: #fff;
+        .comment-card {
+            display: flex;
+            gap: 15px;
+            background: white;
             padding: 15px;
-            border-radius: 10px;
-            margin-bottom: 12px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.05);
-        }
-
-        .comment-box strong {
-            display: block;
-            margin-bottom: 5px;
-        }
-
-        .no-comment {
-            color: #888;
-        }
-
-        /* Form */
-        .form-section {
-            margin-top: 30px;
-            background: #fff;
-            padding: 20px;
             border-radius: 12px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+            margin-bottom: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.05);
         }
 
-        .input-field {
+        .avatar {
+            width: 40px;
+            height: 40px;
+            background: #6366f1;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        /* FORM */
+        .form-wrapper {
+            margin-top: 40px;
+            padding: 25px;
+            border-radius: 16px;
+            background: white;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        }
+
+        .input-group {
+            position: relative;
+            margin-bottom: 20px;
+        }
+
+        .input-group input,
+        .input-group textarea {
             width: 100%;
-            padding: 10px;
-            margin-bottom: 12px;
+            padding: 12px;
             border: 1px solid #ddd;
             border-radius: 8px;
-            transition: 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: #007bff;
             outline: none;
         }
 
-        .textarea {
-            min-height: 100px;
+        .input-group label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            font-size: 13px;
+            color: #777;
+            transition: 0.3s;
+            background: white;
+            padding: 0 5px;
         }
 
-        /* Button */
-        .btn-submit {
-            background: #007bff;
+        .input-group input:focus+label,
+        .input-group textarea:focus+label,
+        .input-group input:valid+label,
+        .input-group textarea:valid+label {
+            top: -8px;
+            font-size: 11px;
+            color: #3b82f6;
+        }
+
+        /* BUTTON */
+        button {
+            background: linear-gradient(135deg, #6366f1, #3b82f6);
             color: white;
-            padding: 10px 18px;
+            padding: 10px 20px;
             border: none;
             border-radius: 8px;
             cursor: pointer;
-            transition: 0.3s;
         }
 
-        .btn-submit:hover {
-            background: #0056b3;
+        button:hover {
+            opacity: 0.9;
         }
 
-        /* Success */
-        .success-msg {
-            margin-top: 10px;
+        /* SUCCESS */
+        .success {
             color: green;
+            margin-top: 10px;
         }
 
-        /* Responsive */
-        @media (max-width: 768px) {
-            .blog-card {
-                flex-direction: column;
-            }
-
-            .blog-img-left,
-            .blog-content-right {
-                width: 100%;
-            }
-
-            .blog-img-left img {
-                height: 200px;
+        /* RESPONSIVE */
+        @media(max-width:768px) {
+            .blog-layout {
+                grid-template-columns: 1fr;
             }
         }
     </style>
