@@ -65,6 +65,7 @@
                             <th>Category</th>
                             <th>Short Description</th>
                             <th>Image</th>
+                            <th>Action</th>
                         </tr>
                     </thead>
 
@@ -84,6 +85,14 @@
 
                                 <td>
                                     <img :src="'/storage/' + blog.image" width="60">
+                                </td>
+
+                                <td>
+                                    <button class="btn btn-sm btn-warning" @click="openEdit(blog)">Edit</button>
+
+                                    <button class="btn btn-sm btn-danger" @click="deleteBlog(blog.id)">
+                                        Delete
+                                    </button>
                                 </td>
 
                             </tr>
@@ -147,8 +156,40 @@
 
             </div>
 
-        </div>
+            <template x-if="showModal">
+                <div
+                    style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999;
+        display:flex; align-items:center; justify-content:center;">
 
+                    <div @click.stop
+                        style="background:white; padding:20px; width:400px; border-radius:10px; 
+            box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+
+                        <h4>Edit Blog</h4>
+
+                        <input type="text" x-model="editBlog.slug" class="form-control mb-2">
+
+                        <select x-model="editBlog.category" class="form-control mb-2">
+                            <option value="Health">Health</option>
+                            <option value="Career">Career</option>
+                            <option value="Relationship">Relationship</option>
+                            <option value="Mental">Mental</option>
+                            <option value="Education">Education</option>
+                        </select>
+
+                        <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
+
+                        <input type="file" @change="handleEditImage" class="form-control mb-2">
+
+                        <div class="text-end">
+                            <button class="btn btn-secondary" @click="showModal = false">Cancel</button>
+                            <button class="btn btn-primary" @click="updateBlog()">Update</button>
+                        </div>
+
+                    </div>
+                </div>
+            </template>
+        </div>
     </div>
 @endsection
 
@@ -166,12 +207,25 @@
                 category: '',
                 short_description: '',
                 image: null,
-
+                showModal: false,
+                editBlog: {},
+                editImage: null,
 
                 /* pagination */
 
                 currentPage: 1,
                 perPage: 10,
+
+                openEdit(blog) {
+                    this.editBlog = {
+                        ...blog
+                    }
+                    this.showModal = true
+                },
+
+                handleEditImage(e) {
+                    this.editImage = e.target.files[0]
+                },
 
                 get totalPages() {
                     return Math.ceil(this.blogs.length / this.perPage) || 1
@@ -306,10 +360,74 @@
 
                         })
 
+                },
+
+                updateBlog() {
+
+                    let formData = new FormData()
+
+                    formData.append('slug', this.editBlog.slug)
+                    formData.append('category', this.editBlog.category)
+                    formData.append('short_description', this.editBlog.short_description)
+
+                    if (this.editImage) {
+                        formData.append('image', this.editImage)
+                    }
+
+                    fetch("/manage/blog/update/" + this.editBlog.id, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+
+                                let index = this.blogs.findIndex(b => b.id === this.editBlog.id)
+
+                                this.blogs[index] = data.blog
+
+                                this.showModal = false
+                            }
+                        })
+                },
+
+                deleteBlog(id) {
+
+                    if (!confirm('Delete this blog?')) return
+
+                    fetch("/manage/blog/delete/" + id, {
+                            method: 'POST',
+                            headers: {
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            }
+                        })
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.success) {
+                                this.blogs = this.blogs.filter(b => b.id !== id)
+                            }
+                        })
                 }
 
             }
 
         }
     </script>
+@endsection
+
+@section('css')
+    <style>
+        [x-cloak] {
+            display: none !important;
+        }
+
+        .modal-overlay {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+        }
+    </style>
 @endsection

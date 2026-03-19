@@ -161,6 +161,8 @@ Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
     Route::post('/manage/blog/store', [AdminBlogController::class, 'store']);
     Route::post('/manage/comment/approve/{id}', [AdminBlogController::class, 'approve']);
     Route::post('/manage/comment/reject/{id}', [AdminBlogController::class, 'reject']);
+    Route::post('/manage/blog/update/{id}', [AdminBlogController::class, 'update']);
+    Route::post('/manage/blog/delete/{id}', [AdminBlogController::class, 'delete']);
 });
 
 // this is outside middleware because on login page we need to fetch specializations

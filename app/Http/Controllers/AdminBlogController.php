@@ -81,4 +81,30 @@ class AdminBlogController extends Controller
         return response()->json(['success' => true]);
     }
 
+    public function update(Request $request, $id)
+    {
+        $blog = Blog::findOrFail($id);
+
+        $blog->slug              = Str::slug($request->slug);
+        $blog->category          = Str::slug($request->category);
+        $blog->short_description = $request->short_description;
+
+        if ($request->hasFile('image')) {
+            $blog->image = $request->file('image')->store('blogs', 'public');
+        }
+
+        $blog->save();
+
+        return response()->json([
+            'success' => true,
+            'blog'    => $blog,
+        ]);
+    }
+
+    public function delete($id)
+    {
+        Blog::findOrFail($id)->delete();
+
+        return response()->json(['success' => true]);
+    }
 }
