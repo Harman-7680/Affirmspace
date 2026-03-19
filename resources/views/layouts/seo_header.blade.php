@@ -1,6 +1,6 @@
 <header>
     <a href="/" class="logo-container">
-        <img src="images/welcomepage.png" alt="AffirmSpace Logo">
+        <img src="{{ asset('images/welcomepage.png') }}" alt="AffirmSpace Logo">
         <span>AffirmSpace</span>
     </a>
 

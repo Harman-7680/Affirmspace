@@ -22,26 +22,41 @@ class AdminBlogController extends Controller
 
     public function store(Request $request)
     {
+        // Clean slug
+        $slug = Str::slug(trim($request->slug));
+
+        // Clean category
+        $category = Str::slug(trim($request->category));
+
+        // Merge cleaned values back
+        $request->merge([
+            'slug'     => $slug,
+            'category' => $category,
+        ]);
+
+        // Validation
         $request->validate([
-            'slug'              => 'required',
+            'slug'              => 'required|unique:blogs,slug',
             'short_description' => 'required',
             'category'          => 'required',
         ]);
 
+        // Image upload
         $image = null;
 
         if ($request->hasFile('image')) {
             $image = $request->file('image')->store('blogs', 'public');
         }
 
+        // Create blog
         $blog = Blog::create([
-            'slug'              => Str::slug($request->slug),
+            'slug'              => $slug,
             'short_description' => $request->short_description,
             'long_description'  => $request->long_description,
             'image'             => $image,
             'parent_id'         => null,
             'approved'          => 1,
-            'category'          => $request->category,
+            'category'          => $category,
         ]);
 
         return response()->json([

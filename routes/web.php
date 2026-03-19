@@ -15,6 +15,7 @@ use App\Http\Controllers\DatingController;
 use App\Http\Controllers\DatingMessageController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
@@ -85,21 +86,7 @@ Route::post('/email/verification-notification', function (\Illuminate\Http\Reque
 })->name('verification.send');
 
 // this route for home page redirect
-Route::get('/', function () {
-    if (Auth::check()) {
-        $user = Auth::user();
-        if ($user->role == 0) {
-            return redirect()->route('feed');
-        } elseif ($user->role == 1) {
-            return redirect()->route('profile');
-        } elseif ($user->role == 2) {
-            return redirect()->route('admin.dashboard');
-        } else {
-            abort(403, 'Unauthorized');
-        }
-    }
-    return view('welcome');
-})->name('/');
+Route::get('/', [HomeController::class, 'index'])->name('/');
 
 // these routes for login with social account
 Route::prefix('auth')->group(function () {
@@ -383,7 +370,9 @@ Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithA
 // seo related routes
 Route::group([], function () {
     Route::get('/events', function () {return view('seo.events');})->name('events');
-    Route::get('/blogs', function () {return view('seo.blogs');})->name('blogs');
+    Route::get('/blogs', [HomeController::class, 'blogs'])->name('blogs');
+    Route::get('/blog/{category}/{slug}', [HomeController::class, 'showBlog'])->name('blog.detail');
+    Route::post('/blog/{id}/comment', [HomeController::class, 'storeComment'])->name('blog.comment.store');
     Route::get('/chat', function () {return view('seo.chat');})->name('chat');
     Route::get('/dating', function () {return view('seo.dating');})->name('chatAndDating');
     Route::get('/community', function () {return view('seo.community');})->name('community');

@@ -18,4 +18,8 @@ class Blog extends Model
         'category',
     ];
 
+    public function comments()
+    {
+        return $this->hasMany(Blog::class, 'parent_id');
+    }
 }
