@@ -38,6 +38,7 @@ class AdminBlogController extends Controller
         $request->validate([
             'slug'              => 'required|unique:blogs,slug',
             'short_description' => 'required',
+            'long_description'  => 'required',
             'category'          => 'required',
         ]);
 
@@ -88,6 +89,7 @@ class AdminBlogController extends Controller
         $blog->slug              = Str::slug($request->slug);
         $blog->category          = Str::slug($request->category);
         $blog->short_description = $request->short_description;
+        $blog->long_description  = $request->long_description;
 
         if ($request->hasFile('image')) {
             $blog->image = $request->file('image')->store('blogs', 'public');

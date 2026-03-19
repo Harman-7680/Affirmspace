@@ -11,10 +11,19 @@
 
             <div class="mb-2 d-flex align-items-center gap-3 flex-nowrap w-100">
 
-                <input type="text" x-model="slug" placeholder="Blog Title" class="form-control"
+                <input type="text" x-model="slug" placeholder="Slug" class="form-control"
+                    style="width:15%; height:40px; margin-right:10px;">
+
+                <input type="text" x-model="short_description" placeholder="Title" class="form-control"
+                    style="width:15%; height:40px; margin-right:10px;">
+
+                <input type="text" x-model="long_description" placeholder="Description" class="form-control"
+                    style="width:15%; height:40px; margin-right:10px;">
+
+                <input type="file" @change="handleImage" class="form-control"
                     style="width:20%; height:40px; margin-right:10px;">
 
-                <select x-model="category" class="form-control" style="width:20%; height:40px; margin-right:10px;">
+                <select x-model="category" class="form-control" style="width:15%; height:40px; margin-right:10px;">
                     <option value="">Select Category</option>
                     <option value="Health">Health</option>
                     <option value="Career">Career</option>
@@ -22,12 +31,6 @@
                     <option value="Mental">Mental</option>
                     <option value="Education">Education</option>
                 </select>
-
-                <input type="text" x-model="short_description" placeholder="Short Description" class="form-control"
-                    style="width:20%; height:40px; margin-right:10px;">
-
-                <input type="file" @change="handleImage" class="form-control"
-                    style="width:20%; height:40px; margin-right:10px;">
 
                 <button class="btn btn-primary" @click="addBlog()" style="height:40px;">
                     Add
@@ -63,7 +66,8 @@
                             <th>#</th>
                             <th>Slug</th>
                             <th>Category</th>
-                            <th>Short Description</th>
+                            <th>Title</th>
+                            <th>Description</th>
                             <th>Image</th>
                             <th>Action</th>
                         </tr>
@@ -82,6 +86,7 @@
                                 <td x-text="blog.category"></td>
 
                                 <td x-text="blog.short_description"></td>
+                                <td x-text="blog.long_description"></td>
 
                                 <td>
                                     <img :src="'/storage/' + blog.image" width="60">
@@ -117,6 +122,9 @@
                             <th>#</th>
                             <th>Name</th>
                             <th>Comment</th>
+                            <th>Category</th>
+                            <th>Title</th>
+                            <th>Description</th>
                             <th>Action</th>
                         </tr>
 
@@ -124,7 +132,7 @@
 
                     <tbody>
 
-                        <template x-for="(comment,index) in comments" :key="comment.id">
+                        <template x-for="(comment, index) in comments" :key="comment.id">
 
                             <tr>
 
@@ -134,8 +142,15 @@
 
                                 <td x-text="comment.comment"></td>
 
-                                <td>
+                                <!-- Category -->
+                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.category"></td>
 
+                                <!-- Short Description -->
+                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.short_description"></td>
+
+                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.long_description"></td>
+
+                                <td>
                                     <button class="btn btn-sm btn-success" @click="approve(comment.id)">
                                         Approve
                                     </button>
@@ -143,7 +158,6 @@
                                     <button class="btn btn-sm btn-danger" @click="reject(comment.id)">
                                         Reject
                                     </button>
-
                                 </td>
 
                             </tr>
@@ -168,7 +182,9 @@
                         <h4>Edit Blog</h4>
 
                         <input type="text" x-model="editBlog.slug" class="form-control mb-2">
-
+                        <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
+                        <input type="text" x-model="editBlog.long_description" class="form-control mb-2">
+                        <input type="file" @change="handleEditImage" class="form-control mb-2">
                         <select x-model="editBlog.category" class="form-control mb-2">
                             <option value="Health">Health</option>
                             <option value="Career">Career</option>
@@ -176,11 +192,6 @@
                             <option value="Mental">Mental</option>
                             <option value="Education">Education</option>
                         </select>
-
-                        <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
-
-                        <input type="file" @change="handleEditImage" class="form-control mb-2">
-
                         <div class="text-end">
                             <button class="btn btn-secondary" @click="showModal = false">Cancel</button>
                             <button class="btn btn-primary" @click="updateBlog()">Update</button>
@@ -206,6 +217,7 @@
                 slug: '',
                 category: '',
                 short_description: '',
+                long_description: '',
                 image: null,
                 showModal: false,
                 editBlog: {},
@@ -270,6 +282,7 @@
                     formData.append('slug', this.slug)
                     formData.append('category', this.category)
                     formData.append('short_description', this.short_description)
+                    formData.append('long_description', this.long_description)
                     formData.append('image', this.image)
 
                     fetch("/manage/blog/store", {
@@ -295,6 +308,7 @@
                                 this.slug = ''
                                 this.category = ''
                                 this.short_description = ''
+                                this.long_description = ''
 
                                 this.currentPage = 1
 
@@ -369,6 +383,7 @@
                     formData.append('slug', this.editBlog.slug)
                     formData.append('category', this.editBlog.category)
                     formData.append('short_description', this.editBlog.short_description)
+                    formData.append('long_description', this.editBlog.long_description)
 
                     if (this.editImage) {
                         formData.append('image', this.editImage)
