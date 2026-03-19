@@ -218,9 +218,6 @@
             color: #666;
         }
 
-        /* .identity { background: #ffffff; text-align: center; }
-                                                                                                    .identity-points { margin-top: 30px; display: flex; justify-content: center; flex-wrap: wrap; gap: 20px; font-weight: 500; } */
-
         .trust {
             background: #f9fafb;
             text-align: center;
@@ -367,9 +364,6 @@
             margin-bottom: 30px;
         }
 
-        /* ────────────────────────────────────────
-                                                                       SPLASH SCREEN & OTHER STYLES (unchanged)
-                                                                    ──────────────────────────────────────── */
         #splash-screen {
             position: fixed;
             inset: 0;
