@@ -265,19 +265,19 @@
             <div class="values-grid">
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Respect_for_All.jpeg') }}" height="30" alt="">
+                        src="{{ asset('images/community/Respect_for_All.png') }}" height="75" alt="">
                     Respect for All</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Supportive_Conversations.jpeg') }}" height="30" alt="">
+                        src="{{ asset('images/community/Supportive_Conversations.png') }}" height="75" alt="">
                     Supportive Conversations</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Safe_Digital_Spaces.jpeg') }}" height="30" alt=""> Safe
-                    Digital Spaces</div>
+                        src="{{ asset('images/community/Safe_Digital_Spaces.png') }}" height="75" alt="">
+                    Safe Digital Spaces</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Meaningful Connections_2.jpeg') }}" height="30" alt="">
+                        src="{{ asset('images/community/Meaningful Connections_2.png') }}" height="75" alt="">
                     Meaningful Connections</div>
 
             </div>

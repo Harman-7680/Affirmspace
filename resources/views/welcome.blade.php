@@ -203,12 +203,40 @@
             background: #f9fafb;
             padding: 28px;
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+
+            border: 1px solid #e5e7eb;
+            /* 👈 subtle visible border */
+
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.04);
+            transition: all 0.3s ease;
+        }
+
+
+        /*  HOVER EFFECT */
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+
+            border: 1px solid transparent;
+
+            background:
+                linear-gradient(#fff, #fff) padding-box,
+                linear-gradient(90deg, #ff512f, #dd2476) border-box;
+
+            box-shadow: 0 15px 35px rgba(221, 36, 118, 0.25);
         }
 
         .feature-card h3 {
             margin-bottom: 10px;
             font-size: 1.1rem;
+        }
+
+        .feature-card h3 {
+            transition: 0.3s;
+        }
+
+        .feature-card:hover h3 {
+            color: #dd2476;
         }
 
         .disclaimer {
@@ -233,37 +261,72 @@
             font-weight: 500;
         }
 
+        /* HOW IT WORKS SECTION */
+
         .how-it-works {
-            padding: 80px 8%;
-            background: #f9fafb;
+            background: linear-gradient(135deg, #FF6F3C, #FF9EB5);
+            padding: 100px 8%;
+            text-align: center;
+            min-height: 100vh;
         }
 
-        .section-desc {
-            max-width: 850px;
-            margin: auto;
-            text-align: center;
-            color: #555;
-            margin-bottom: 50px;
+
+        /* HEADING */
+
+        .how-it-works h2 {
+            font-size: 36px;
+            margin-bottom: 15px;
+            color: #2b2b2b;
         }
+
+
+        /* DESCRIPTION */
+
+        .section-desc {
+            max-width: 750px;
+            margin: 0 auto 50px;
+            color: #333;
+            line-height: 1.6;
+        }
+
+
+        /* GRID (3 CARDS PER ROW) */
 
         .steps-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
         }
+
+
+        /* CARDS */
 
         .step-card {
-            background: #ffffff;
-            padding: 28px;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-            transition: transform 0.25s ease, box-shadow 0.25s ease;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 30px 25px;
+            border-radius: 16px;
+            text-align: center;
+            line-height: 1.6;
+            transition: 0.3s ease;
         }
 
+
+        /* HOVER EFFECT */
+
         .step-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+            transform: translateY(-6px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
+
+
+        .steps-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            /* 🔥 force 3 per row */
+            gap: 30px;
+            margin-top: 50px;
+        }
+
 
         .faq-section {
             padding: 80px 8%;
@@ -398,6 +461,124 @@
                 transform: scale(1.3);
             }
         }
+
+        .hero-split {
+            background: linear-gradient(135deg, #f5f7fa 0%, #e4e9fd 100%);
+            padding: 30px 0;
+            min-height: 80vh;
+            display: flex;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
+        .split-content {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 60px;
+            align-items: center;
+        }
+
+        .left-text {
+            padding-right: 20px;
+        }
+
+        .left-text h1 {
+            font-size: 3.1rem;
+            font-weight: 700;
+            line-height: 1.15;
+            margin-bottom: 2.2rem;
+            color: #1a1a1a;
+        }
+
+        .buttons {
+            display: flex;
+            gap: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.9rem 2.1rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            border-radius: 50px;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .btn-primary {
+            background: #e91e63;
+            color: white;
+            border: none;
+        }
+
+        .btn-primary:hover {
+            background: #c2185b;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(233, 30, 99, 0.3);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #e91e63;
+            border: 2px solid #e91e63;
+        }
+
+        .btn-secondary:hover {
+            background: #e91e63;
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        .right-video {
+            position: relative;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+        }
+
+        .right-video video,
+        .right-video img {
+            width: 100%;
+            height: auto;
+            display: block;
+            object-fit: cover;
+            height: 500px;
+        }
+
+        /* Mobile / tablet responsiveness */
+        @media (max-width: 992px) {
+            .split-content {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .left-text {
+                text-align: center;
+                padding-right: 0;
+            }
+
+            .left-text h1 {
+                font-size: 2.4rem;
+            }
+
+            .buttons {
+                justify-content: center;
+            }
+
+            .right-video {
+                max-width: 540px;
+                margin: 0 auto;
+            }
+        }
     </style>
 @endsection
 
@@ -408,26 +589,58 @@
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
-    <section class="parallax-hero">
-        <div class="fixed-bg-layer" id="bgLayer1" style="background-image: url('images/header1.png'); opacity: 1;">
-        </div>
-        <div class="fixed-bg-layer" id="bgLayer2" style="background-image: url('images/Consultant.png'); opacity: 0;">
-        </div>
-        <div class="parallax-overlay"></div>
+    {{-- <section class="parallax-hero">
+            <div class="fixed-bg-layer" id="bgLayer1" 
+            style="background-image: url('public/images/header1.png'); opacity: 1;
+            ">
+            </div>
+            <div class="fixed-bg-layer" id="bgLayer2"
+                style="background-image: url('public/images/Consultant.png'); opacity: 0;
+                ">
+            </div>
+            <div class="parallax-overlay"></div>
 
-        <div class="hero-content">
-            <div class="hero-text">
-                <h1>AffirmSpace – A Safe LGBTQ+ Social Network for Dating, Community, Events & Gender-Affirming
-                    Healthcare</h1>
-                <p>
-                    AffirmSpace is an all-in-one LGBTQ+ social network designed to help people connect, date, share
-                    experiences, join anonymous support groups, discover LGBTQ+ events, and access trusted
-                    gender-affirming healthcare providers in a safe and inclusive digital community.
-                </p>
-                <div class="hero-buttons">
-                    <a href="{{ 'register' }}?role=0" class="primary-btn">User</a>
-                    <a href="{{ 'register' }}?role=1" class="secondary-btn">Doctor</a>
+            <div class="hero-content">
+                <div class="hero-text">
+                    <h1>AffirmSpace – A Safe LGBTQ+ Social Network for Dating, Community, Events & Gender-Affirming
+                        Healthcare</h1>
+                    <p>
+                        AffirmSpace is an all-in-one LGBTQ+ social network designed to help people connect, date, share
+                        experiences, join anonymous support groups, discover LGBTQ+ events, and access trusted
+                        gender-affirming healthcare providers in a safe and inclusive digital community.
+                    </p>
+                    <div class="hero-buttons">
+                        <a href="{{ 'register' }}?role=0" class="primary-btn">User</a>
+                        <a href="{{ 'register' }}?role=1" class="secondary-btn">Doctor</a>
+                    </div>
                 </div>
+            </div>
+        </section> --}}
+
+    <section class="hero-split">
+        <div class="container">
+            <div class="split-content">
+
+                <!-- Left: Text + Buttons -->
+                <div class="left-text">
+                    <h1>A Safe LGBTQ+ Social Media Platform<br>to Connect, Date & Find Support</h1>
+
+                    <div class="buttons">
+                        <a href="{{ 'register' }}?role=0" class="primary-btn">I'm a User</a>
+                        <a href="{{ 'register' }}?role=1" class="secondary-btn">I'm a Doctor / Therapist</a>
+                    </div>
+                </div>
+
+                <!-- Right: Video -->
+                <div class="right-video">
+                    <video autoplay muted loop playsinline>
+                        <source src="{{ asset('images/welcome_video.mp4') }}" type="video/mp4">
+                        <!-- Optional fallback image if video doesn't load -->
+                        <img src="/images/fallback-community.jpg" alt="LGBTQ+ community connecting">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
             </div>
         </div>
     </section>
@@ -528,11 +741,7 @@
         </ul>
     </section>
 
-    <section class="how-it-works"
-        style="background: url(images/how_it_work.jpeg) 
-      no-repeat center center;
-      background-size: cover;
-      min-height: 100vh;">
+    <section class="how-it-works">
         <h2>How AffirmSpace Works</h2>
 
         <p class="section-desc">
