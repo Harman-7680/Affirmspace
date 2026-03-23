@@ -25,11 +25,14 @@
 
                 <select x-model="category" class="form-control" style="width:15%; height:40px; margin-right:10px;">
                     <option value="">Select Category</option>
-                    <option value="Health">Health</option>
-                    <option value="Career">Career</option>
-                    <option value="Relationship">Relationship</option>
-                    <option value="Mental">Mental</option>
-                    <option value="Education">Education</option>
+                    <option value="LGBTQ Basics">LGBTQ Basics</option>
+                    <option value="Identity & Expression">Identity & Expression</option>
+                    <option value="Mental Health & Support">Mental Health & Support</option>
+                    <option value="Dating & Relationships">Dating & Relationships</option>
+                    <option value="Safety & Coming Out">Safety & Coming Out</option>
+                    <option value="Community & Culture">Community & Culture</option>
+                    <option value="Legal Rights India">Legal Rights India</option>
+                    <option value="Gender Affirming Care">Gender Affirming Care</option>
                 </select>
 
                 <button class="btn btn-primary" @click="addBlog()" style="height:40px;">
@@ -186,11 +189,14 @@
                         <input type="text" x-model="editBlog.long_description" class="form-control mb-2">
                         <input type="file" @change="handleEditImage" class="form-control mb-2">
                         <select x-model="editBlog.category" class="form-control mb-2">
-                            <option value="Health">Health</option>
-                            <option value="Career">Career</option>
-                            <option value="Relationship">Relationship</option>
-                            <option value="Mental">Mental</option>
-                            <option value="Education">Education</option>
+                            <option value="LGBTQ Basics">LGBTQ Basics</option>
+                            <option value="Identity & Expression">Identity & Expression</option>
+                            <option value="Mental Health & Support">Mental Health & Support</option>
+                            <option value="Dating & Relationships">Dating & Relationships</option>
+                            <option value="Safety & Coming Out">Safety & Coming Out</option>
+                            <option value="Community & Culture">Community & Culture</option>
+                            <option value="Legal Rights India">Legal Rights India</option>
+                            <option value="Gender Affirming Care">Gender Affirming Care</option>
                         </select>
                         <div class="text-end">
                             <button class="btn btn-secondary" @click="showModal = false">Cancel</button>
@@ -286,19 +292,27 @@
                     formData.append('image', this.image)
 
                     fetch("/manage/blog/store", {
-
                             method: 'POST',
-
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-
                             body: formData
-
                         })
+                        .then(async res => {
 
-                        .then(res => res.json())
+                            if (!res.ok) {
+                                let errorData = await res.json()
 
+                                if (errorData.errors) {
+                                    let messages = Object.values(errorData.errors).flat().join('\n')
+                                    alert(messages) // 🔥 ALERT SHOW
+                                }
+
+                                throw new Error('Validation failed')
+                            }
+
+                            return res.json()
+                        })
                         .then(data => {
 
                             if (data.success) {
@@ -311,11 +325,9 @@
                                 this.long_description = ''
 
                                 this.currentPage = 1
-
                             }
 
                         })
-
                 },
 
 

@@ -24,7 +24,7 @@
             <!-- RIGHT CONTENT -->
             <div class="blog-content">
 
-                <span class="category">{{ $blog->category }}</span>
+                <span class="category">{{ ucfirst(str_replace('-', ' ', $blog->category)) }}</span>
 
                 <h1>{{ $blog->short_description }}</h1>
 

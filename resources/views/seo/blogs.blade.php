@@ -153,84 +153,82 @@
         <input type="text" id="searchInput" placeholder="🔍 Search articles...">
     </section>
 
-
     <!-- ================= BLOG CONTENT ================= -->
     <section class="blog-page">
 
-        <!-- CATEGORY 1 -->
-        <h2 class="category-title">🌈 LGBTQ+ Basics</h2>
-        <div class="blog-container" data-category="basics">
+        @forelse($blogs->reverse() as $category => $items)
+            {{-- CATEGORY TITLE --}}
+            <h2 class="category-title">
+                {{ ucfirst(str_replace('-', ' ', $category)) }}
+            </h2>
 
-            <a href="/what-is-lgbtq" class="blog-card" data-title="what is lgbtq">
-                <img src="images/blog/blog1.jpeg" alt="">
-                <div class="blog-content">
-                    <h3>What Is LGBTQ+? Meaning, Full Form & Everything You Need to Know</h3>
-                    <p>Learn the meaning, full form, and everything about LGBTQ+ identities.</p>
-                    <span>Read More →</span>
-                </div>
-            </a>
+            {{-- BLOGS --}}
+            <div class="blog-container">
 
-            <a href="/lgbtq-full-form-meaning" class="blog-card" data-title="lgbtq full form">
-                <img src="images/blog2.jpg">
-                <div class="blog-content">
-                    <h3>LGBTQ+ Full Form Explained</h3>
-                    <p>Understand what each letter means in a simple way.</p>
-                    <span>Read More →</span>
-                </div>
-            </a>
+                @foreach ($items as $blog)
+                    <a href="{{ route('blog.detail', [$blog->category, $blog->slug]) }}" class="blog-card"
+                        data-title="{{ strtolower($blog->slug) }}"
+                        data-desc="{{ strtolower($blog->short_description . ' ' . $blog->long_description) }}">
 
-        </div>
+                        @if ($blog->image)
+                            <img src="{{ asset('storage/' . $blog->image) }}">
+                        @endif
 
+                        <div class="blog-content">
+                            <p>{{ $blog->short_description }}</p>
+                            <p style="font-weight:900;">{{ $blog->long_description }}</p>
 
-        <!-- CATEGORY 2 -->
-        <h2 class="category-title">🧬 Identity & Expression</h2>
-        <div class="blog-container">
+                            <span>Read More →</span>
+                        </div>
+                    </a>
+                @endforeach
 
-            <a href="/types-of-lgbtq-identities" class="blog-card" data-title="types of lgbtq identities">
-                <img src="images/blog3.jpg">
-                <div class="blog-content">
-                    <h3>Types of LGBTQ+ Identities</h3>
-                    <p>Explore gender identities and sexual orientations.</p>
-                    <span>Read More →</span>
-                </div>
-            </a>
-
-        </div>
-
-
-        <!-- CATEGORY 3 -->
-        <h2 class="category-title">💜 Mental Health & Support</h2>
-        <div class="blog-container">
-
-            <a href="/lgbtq-mental-health-support" class="blog-card" data-title="mental health lgbtq">
-                <img src="images/blog4.jpg">
-                <div class="blog-content">
-                    <h3>LGBTQ+ Mental Health Support</h3>
-                    <p>Find support and improve emotional well-being.</p>
-                    <span>Read More →</span>
-                </div>
-            </a>
-
-        </div>
+            </div>
+        @empty
+            <p style="text-align:center;">No blogs found</p>
+        @endforelse
 
     </section>
 
     <script>
-        const searchInput = document.getElementById("searchInput");
-        const cards = document.querySelectorAll(".blog-card");
+        document.getElementById("searchInput").addEventListener("keyup", function() {
 
-        searchInput.addEventListener("keyup", function() {
-            const value = this.value.toLowerCase();
+            let value = this.value.toLowerCase();
 
-            cards.forEach(card => {
-                const title = card.dataset.title.toLowerCase();
+            let categories = document.querySelectorAll(".blog-container");
 
-                if (title.includes(value)) {
-                    card.style.display = "block";
+            categories.forEach(container => {
+
+                let cards = container.querySelectorAll(".blog-card");
+                let visibleCount = 0;
+
+                cards.forEach(card => {
+
+                    let title = card.dataset.title || "";
+                    let desc = card.dataset.desc || "";
+
+                    if (title.includes(value) || desc.includes(value)) {
+                        card.style.display = "block";
+                        visibleCount++;
+                    } else {
+                        card.style.display = "none";
+                    }
+
+                });
+
+                // 🔥 category hide/show logic
+                let categoryTitle = container.previousElementSibling;
+
+                if (visibleCount === 0) {
+                    container.style.display = "none";
+                    if (categoryTitle) categoryTitle.style.display = "none";
                 } else {
-                    card.style.display = "none";
+                    container.style.display = "flex";
+                    if (categoryTitle) categoryTitle.style.display = "block";
                 }
+
             });
+
         });
     </script>
 @endsection

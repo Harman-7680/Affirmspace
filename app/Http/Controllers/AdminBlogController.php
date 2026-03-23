@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\Blog;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
+use Illuminate\Validation\ValidationException;
 
 class AdminBlogController extends Controller
 {
@@ -22,48 +23,50 @@ class AdminBlogController extends Controller
 
     public function store(Request $request)
     {
-        // Clean slug
-        $slug = Str::slug(trim($request->slug));
+        try {
 
-        // Clean category
-        $category = Str::slug(trim($request->category));
+            $slug     = Str::slug(trim($request->slug));
+            $category = Str::slug(trim($request->category));
 
-        // Merge cleaned values back
-        $request->merge([
-            'slug'     => $slug,
-            'category' => $category,
-        ]);
+            $request->merge([
+                'slug'     => $slug,
+                'category' => $category,
+            ]);
 
-        // Validation
-        $request->validate([
-            'slug'              => 'required|unique:blogs,slug',
-            'short_description' => 'required',
-            'long_description'  => 'required',
-            'category'          => 'required',
-        ]);
+            $request->validate([
+                'slug'              => 'required|unique:blogs,slug',
+                'short_description' => 'required',
+                'long_description'  => 'required',
+                'category'          => 'required',
+            ]);
 
-        // Image upload
-        $image = null;
+            $image = null;
+            if ($request->hasFile('image')) {
+                $image = $request->file('image')->store('blogs', 'public');
+            }
 
-        if ($request->hasFile('image')) {
-            $image = $request->file('image')->store('blogs', 'public');
+            $blog = Blog::create([
+                'slug'              => $slug,
+                'short_description' => $request->short_description,
+                'long_description'  => $request->long_description,
+                'image'             => $image,
+                'parent_id'         => null,
+                'approved'          => 1,
+                'category'          => $category,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'blog'    => $blog,
+            ]);
+
+        } catch (ValidationException $e) {
+
+            return response()->json([
+                'success' => false,
+                'errors'  => $e->errors(),
+            ], 422);
         }
-
-        // Create blog
-        $blog = Blog::create([
-            'slug'              => $slug,
-            'short_description' => $request->short_description,
-            'long_description'  => $request->long_description,
-            'image'             => $image,
-            'parent_id'         => null,
-            'approved'          => 1,
-            'category'          => $category,
-        ]);
-
-        return response()->json([
-            'success' => true,
-            'blog'    => $blog,
-        ]);
     }
 
     public function approve($id)
