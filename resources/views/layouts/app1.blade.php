@@ -45,6 +45,7 @@
     <!-- title and description-->
     <title>@yield('title', 'AffirmSpace')</title>
     <meta name="description" content="Socialite - Social sharing network HTML Template">
+    <meta name="robots" content="noindex, nofollow">
 
     @yield('syntax-highlighter')
 

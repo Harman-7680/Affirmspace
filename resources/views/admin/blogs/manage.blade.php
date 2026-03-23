@@ -106,58 +106,44 @@
 
             {{-- Blog Table --}}
 
-            <h4>Uploaded Blogs</h4>
+            <h4 class="mt-4">Uploaded Blogs</h4>
 
-            <div class="table-responsive">
+            <div class="mb-4 p-3 rounded shadow-sm border">
 
-                <table class="table table-sm table-bordered table-hover table-striped text-center mb-0">
+                <!-- CATEGORY HEADER -->
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h5 class="mb-0 text-primary fw-bold">
+                        <span x-text="formatCategory(currentCategory)"></span>
+                    </h5>
+                    <span class="badge bg-dark" x-text="currentBlogs.length + ' Blogs'"></span>
+                </div>
 
-                    <thead class="thead-dark">
-                        <tr>
-                            <th>#</th>
-                            <th>Slug</th>
-                            <th>Category</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Image</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
+                <!-- BLOG CARDS -->
+                <div class="row">
+                    <template x-for="blog in currentBlogs" :key="blog.id">
+                        <div class="col-md-4 mb-3">
 
-                    <tbody>
+                            <div class="card h-100 shadow-sm border-0" style="border-radius:10px;">
 
-                        <template x-for="(blog,index) in paginatedBlogs()" :key="blog.id">
+                                <img :src="'/storage/' + blog.image" class="card-img-top"
+                                    style="height:150px; object-fit:cover; border-radius:10px 10px 0 0;">
 
-                            <tr>
+                                <div class="card-body">
+                                    <h6 class="fw-bold text-dark" x-text="blog.short_description"></h6>
 
-                                <td x-text="(currentPage-1)*perPage + index + 1"></td>
+                                    <p class="text-muted small" x-text="blog.long_description.substring(0, 80) + '...'"></p>
+                                </div>
 
-                                <td x-text="blog.slug"></td>
-
-                                <td x-text="blog.category"></td>
-
-                                <td x-text="blog.short_description"></td>
-                                <td x-text="blog.long_description"></td>
-
-                                <td>
-                                    <img :src="'/storage/' + blog.image" width="60">
-                                </td>
-
-                                <td>
+                                <div class="card-footer bg-white d-flex justify-content-between">
                                     <button class="btn btn-sm btn-warning" @click="openEdit(blog)">Edit</button>
+                                    <button class="btn btn-sm btn-danger" @click="deleteBlog(blog.id)">Delete</button>
+                                </div>
 
-                                    <button class="btn btn-sm btn-danger" @click="deleteBlog(blog.id)">
-                                        Delete
-                                    </button>
-                                </td>
+                            </div>
 
-                            </tr>
-
-                        </template>
-
-                    </tbody>
-
-                </table>
+                        </div>
+                    </template>
+                </div>
 
             </div>
 
@@ -233,10 +219,6 @@
                     this.editImage = e.target.files[0]
                 },
 
-                get totalPages() {
-                    return Math.ceil(this.blogs.length / this.perPage) || 1
-                },
-
                 paginatedBlogs() {
 
                     const start = (this.currentPage - 1) * this.perPage
@@ -293,7 +275,7 @@
 
                                 if (errorData.errors) {
                                     let messages = Object.values(errorData.errors).flat().join('\n')
-                                    alert(messages) // 🔥 ALERT SHOW
+                                    alert(messages) // ALERT SHOW
                                 }
 
                                 throw new Error('Validation failed')
@@ -425,6 +407,36 @@
                                 this.blogs = this.blogs.filter(b => b.id !== id)
                             }
                         })
+                },
+                get groupedBlogs() {
+                    let grouped = {}
+
+                    this.blogs.forEach(blog => {
+                        if (!grouped[blog.category]) {
+                            grouped[blog.category] = []
+                        }
+                        grouped[blog.category].push(blog)
+                    })
+
+                    return grouped
+                },
+                get currentCategory() {
+                    return this.categories[this.currentPage - 1] || null
+                },
+                get categories() {
+                    return Object.keys(this.groupedBlogs)
+                },
+                get currentBlogs() {
+                    return this.groupedBlogs[this.currentCategory] || []
+                },
+                get totalPages() {
+                    return this.categories.length || 1
+                },
+                formatCategory(category) {
+                    return category
+                        .replace(/-/g, ' ')
+                        .toLowerCase()
+                        .replace(/\b\w/g, char => char.toUpperCase())
                 }
 
             }
