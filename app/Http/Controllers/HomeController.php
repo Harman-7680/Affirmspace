@@ -25,16 +25,22 @@ class HomeController extends Controller
         }
 
         // GUEST → BLOGS SHOW
+        // $blogs = Blog::whereNull('parent_id')
+        //     ->where('approved', 1)
+        //     ->with(['comments' => function ($query) {
+        //         $query->where('approved', 1)
+        //             ->latest()
+        //             ->take(5);
+        //     }])
+        //     ->latest()
+        //     ->get()
+        //     ->groupBy('category');
+
         $blogs = Blog::whereNull('parent_id')
             ->where('approved', 1)
-            ->with(['comments' => function ($query) {
-                $query->where('approved', 1)
-                    ->latest()
-                    ->take(5);
-            }])
-            ->latest()
-            ->get()
-            ->groupBy('category');
+            ->inRandomOrder()
+            ->take(3)
+            ->get();
 
         return view('welcome', compact('blogs'));
     }

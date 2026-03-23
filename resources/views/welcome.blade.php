@@ -1,12 +1,14 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>AffirmSpace</title>
     <meta name="description"
-        content="AffirmSpace is a safe LGBTQ+ platform for dating, community, anonymous chats, local events, and discovering trusted gender-affirming healthcare providers." />
+        content="AffirmSpace is a safe LGBTQ+ community platform to connect, chat, find meaningful relationships, and access professional LGBTQ+ mental health counselling in a secure environment.">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AffirmSpace – LGBTQ+ Community, Chat, Dating & Counselling Platform</title>
 
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="AffirmSpace">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 @endsection
 
@@ -327,7 +329,7 @@
             margin-top: 50px;
         }
 
-
+        /* faq start*/
         .faq-section {
             padding: 80px 8%;
             background: #f9fafb;
@@ -579,13 +581,142 @@
                 margin: 0 auto;
             }
         }
+
+        /* BLOG SECTION */
+        .blog-section {
+            padding: 90px 8%;
+            background: #f9fafb;
+            text-align: center;
+        }
+
+        /* HEADER */
+        .blog-header h2 {
+            font-size: 34px;
+        }
+
+        .blog-header p {
+            max-width: 720px;
+            margin: auto;
+            color: #666;
+        }
+
+        /* 🔥 LABEL STYLE (MATCHES SCREENSHOT) */
+        .blog-label {
+            margin-top: 30px;
+            font-weight: 600;
+            color: #444;
+            display: inline-block;
+            background: #fff;
+            padding: 10px 18px;
+            border-radius: 20px;
+
+            /* subtle shadow like screenshot */
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+        }
+
+        /* CONTAINER */
+        .blog-container {
+            display: flex;
+            gap: 30px;
+            margin-top: 40px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        /* 🔥 WIDER BLOG CARDS */
+        .blog-card {
+            width: 350px;
+            /* increased from 300 → 350 */
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+
+            text-decoration: none;
+            color: inherit;
+
+            transition: 0.3s ease;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        /* IMAGE */
+        .blog-card img {
+            width: 100%;
+            height: 200px;
+            /* slightly taller */
+            object-fit: cover;
+        }
+
+        /* CONTENT */
+        .blog-content {
+            padding: 22px;
+            text-align: left;
+        }
+
+        .blog-content h3 {
+            font-size: 17px;
+            margin-bottom: 10px;
+        }
+
+        .blog-content p {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        /* READ MORE */
+        .blog-content span {
+            color: #ff416c;
+            font-weight: 600;
+        }
+
+        /* 🔥 GRADIENT HOVER SHADOW */
+        .blog-card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(255, 65, 108, 0.45),
+                0 0 25px rgba(255, 75, 43, 0.3);
+        }
+
+        /* FOOTER */
+        .blog-footer {
+            margin-top: 60px;
+        }
+
+        .view-all-btn {
+            padding: 13px 28px;
+            border-radius: 25px;
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            color: #fff;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            display: inline-block;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 900px) {
+            .blog-card {
+                width: 90%;
+            }
+        }
+
+
+        @media (max-width: 600px) {
+            /* .blog-card {
+                                width: 90%;
+                            } */
+
+            .steps-grid {
+                display: flex;
+                flex-direction: column;
+            }
+        }
     </style>
 @endsection
 
 @section('content')
     <!-- Splash screen -->
     <div id="splash-screen">
-        <img src="images/welcomepage.png" alt="AffirmSpace">
+        <img src="public/images/welcomepage.png" alt="AffirmSpace">
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
@@ -802,6 +933,55 @@
 
         </div>
     </section>
+
+    <!-- ================= BLOG SECTION START ================= -->
+    <section class="blog-section">
+
+        <!-- TOP TEXT -->
+        <div class="blog-header">
+            <h2>📚 Learn, Grow & Stay Informed</h2>
+            <p>
+                Explore expert insights, guides, and resources designed to support the LGBTQ community —
+                from mental health and relationships to identity and self-growth.
+            </p>
+        </div>
+
+        <div class="blog-label">
+            💬 Latest from Our Blog
+        </div>
+
+        <!-- BLOG CARDS -->
+        <div class="blog-container">
+            @foreach ($blogs as $blog)
+                <a href="{{ url('/blog/' . $blog->category . '/' . $blog->slug) }}" class="blog-card">
+
+                    <img src="{{ asset('storage/' . $blog->image) }}" alt="">
+
+                    <div class="blog-content">
+                        <h3>{{ $blog->short_description }}</h3>
+
+                        <p>
+                            {{ \Illuminate\Support\Str::limit($blog->long_description, 120) }}
+                        </p>
+
+                        <span>Read More →</span>
+                    </div>
+                </a>
+            @endforeach
+        </div>
+
+        <!-- FOOTER -->
+        <div class="blog-footer">
+            <p>
+                🌈 Explore More Resources <br>
+                Dive deeper into topics like LGBTQ mental health, dating advice, identity support, and community wellbeing.
+            </p>
+
+            <a href="{{ route('blogs') }}" class="view-all-btn">View All Blogs →</a>
+        </div>
+
+    </section>
+    <!-- ================= BLOG SECTION END ================= -->
 
     <section class="faq-section">
 
