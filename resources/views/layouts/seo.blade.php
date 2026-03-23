@@ -342,7 +342,7 @@
         }
     </style>
     <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
-    <link rel="canonical" href="{{ url()->current() }}">
+    <link rel="canonical" href="{{ request()->is('/') ? url('/') . '/' : url()->current() }}">
 </head>
 
 <body>
