@@ -382,11 +382,7 @@ Route::group([], function () {
     Route::get('/counselling', function () {return view('seo.counselling');})->name('counselling');
 });
 
-Route::get('/sitemap.xml', function () {
-    return response()
-        ->view('sitemap')
-        ->header('Content-Type', 'text/xml');
-});
+Route::get('/sitemap.xml', [HomeController::class, 'sitemap']);
 
 Route::fallback(function () {return response()->view('errors.fallback', [], 404);});
 

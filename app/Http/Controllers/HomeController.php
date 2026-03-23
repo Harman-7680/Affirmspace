@@ -98,4 +98,13 @@ class HomeController extends Controller
 
         return back()->with('success', 'Comment submitted! Waiting for approval.');
     }
+
+    public function sitemap()
+    {
+        $blogs = \App\Models\Blog::latest()->get();
+
+        return response()
+            ->view('sitemap', compact('blogs'))
+            ->header('Content-Type', 'text/xml');
+    }
 }

@@ -56,4 +56,10 @@
     <url>
         <loc>https://www.affirmspace.com/events</loc>
     </url>
+    @foreach($blogs as $blog)
+    <url>
+        <loc>{{ url('/blog/'.$blog->category.'/'.$blog->slug) }}</loc>
+        {{-- <lastmod>{{ $blog->updated_at->toAtomString() }}</lastmod> --}}
+    </url>
+    @endforeach
 </urlset>
