@@ -481,7 +481,7 @@
 
             <h2>Start Your Journey Today</h2>
 
-            <p>
+            <p style="margin-bottom: 28px;">
                 Join AffirmSpace and meet people who truly understand you.
             </p>
 

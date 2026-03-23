@@ -148,7 +148,9 @@
         .counsel-cta {
             background: linear-gradient(90deg, #ff512f, #dd2476);
             color: white;
-            padding: 100px 0;
+            padding: 0px 0;
+            margin: 0 20px;
+            border-radius: 15px;
         }
 
         .cta-flex {

@@ -16,33 +16,86 @@
 
         /* HERO */
 
+
         .community-hero {
-            padding: 90px 8%;
-            text-align: center;
             background: #f9fafb;
+            padding: 80px 0;
         }
 
-        .hero-subtitle {
-            color: #dd2476;
-            margin: 10px 0;
-            font-weight: 600;
-        }
-
-        .hero-description {
-            max-width: 700px;
+        /* CENTER CONTENT */
+        .community-hero .container {
+            max-width: 1200px;
             margin: auto;
-            color: #555;
-            margin-bottom: 30px;
+            padding: 0 20px;
         }
 
-        .primary-btn {
+        /* GRID LAYOUT */
+        .community-hero .hero-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            gap: 50px;
+        }
+
+        /* TEXT */
+
+        .community-hero .hero-text h1 {
+            font-size: 46px;
+            font-weight: 700;
+            color: #222;
+            line-height: 1.2;
+        }
+
+        .community-hero .hero-subtitle {
+            color: #dd2476;
+            margin: 15px 0;
+            font-weight: 600;
+            font-size: 20px;
+        }
+
+        .community-hero .hero-description {
+            max-width: 520px;
+            color: #555;
+            line-height: 1.6;
+        }
+
+        /* BUTTON */
+
+        .community-hero .hero-buttons {
+            margin-top: 25px;
+        }
+
+        .community-hero .primary-btn {
             display: inline-block;
-            padding: 14px 32px;
+            padding: 14px 30px;
             border-radius: 30px;
             background: linear-gradient(90deg, #ff512f, #dd2476);
             color: white;
             font-weight: 600;
             text-decoration: none;
+        }
+
+        /* IMAGE */
+
+        .community-hero .hero-image img {
+            width: 100%;
+            max-width: 450px;
+        }
+
+        /* ============================= */
+        /* RESPONSIVE */
+        /* ============================= */
+
+        @media (max-width: 900px) {
+
+            .community-hero .hero-grid {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .community-hero .hero-description {
+                margin: auto;
+            }
         }
 
 
@@ -161,18 +214,34 @@
         <!-- HERO -->
 
         <section class="community-hero">
+            <div class="container">
 
-            <h1>🌈 AffirmSpace LGBTQ+ Community</h1>
+                <div class="hero-grid">
 
-            <h3 class="hero-subtitle">Connect. Share. Belong.</h3>
+                    <!-- LEFT SIDE -->
+                    <div class="hero-text">
+                        <h1>🌈 AffirmSpace LGBTQ+ Community</h1>
 
-            <p class="hero-description">
-                AffirmSpace provides a welcoming space where LGBTQ+ individuals can interact,
-                share experiences, and build genuine connections within a supportive and respectful community.
-            </p>
+                        <h3 class="hero-subtitle">Connect. Share. Belong.</h3>
 
-            <a href="/register" class="primary-btn">Join the Community</a>
+                        <p class="hero-description">
+                            AffirmSpace provides a welcoming space where LGBTQ+ individuals can interact,
+                            share experiences, and build genuine connections within a supportive and respectful community.
+                        </p>
 
+                        <div class="hero-buttons">
+                            <a href="/register" class="primary-btn">Join the Community</a>
+                        </div>
+                    </div>
+
+                    <!-- RIGHT SIDE -->
+                    <div class="hero-image">
+                        <img src="images/community/communityheader.png" alt="Community">
+                    </div>
+
+                </div>
+
+            </div>
         </section>
 
         <!-- COMMUNITY FEATURES -->
@@ -269,16 +338,16 @@
                     Respect for All</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Supportive_Conversations.png') }}" height="75" alt="">
-                    Supportive Conversations</div>
+                        src="{{ asset('images/community/Supportive_Conversations.png') }}" height="75"
+                        alt=""> Supportive Conversations</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
                         src="{{ asset('images/community/Safe_Digital_Spaces.png') }}" height="75" alt="">
                     Safe Digital Spaces</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Meaningful Connections_2.png') }}" height="75" alt="">
-                    Meaningful Connections</div>
+                        src="{{ asset('images/community/Meaningful Connections_2.png') }}" height="75"
+                        alt=""> Meaningful Connections</div>
 
             </div>
 

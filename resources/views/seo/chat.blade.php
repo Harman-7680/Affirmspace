@@ -237,8 +237,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <div class="icon"><img height="80" src="{{ asset('images/chat/Group_Chat.png') }}" alt="">
-                    </div>
+                    <div class="icon"><img height="80" src="{{ asset('images/chat/Group_Chat.png') }}"
+                            alt=""></div>
                     <h3>Group Chats</h3>
                     <p>Join communities and discussions.</p>
                 </div>
@@ -264,22 +264,22 @@
             <div class="steps">
 
                 <div class="step">
-                    <div class="step-number"><img height="90" src="{{ asset('images/chat/Logo1.png') }}" alt="">
-                    </div>
+                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Browse_Connect.png') }}"
+                            alt=""></div>
                     <h3>Browse & Connect</h3>
                     <p>Find people to chat with.</p>
                 </div>
 
                 <div class="step">
-                    <div class="step-number"><img height="90" src="{{ asset('images/chat/logo2.png') }}" alt="">
-                    </div>
+                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Start_Messaging.png') }}"
+                            alt=""></div>
                     <h3>Start Messaging</h3>
                     <p>Send text, emojis and media.</p>
                 </div>
 
                 <div class="step">
-                    <div class="step-number"><img height="90" src="{{ asset('images/chat/logo3.png') }}" alt="">
-                    </div>
+                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Build_Relationships.png') }}"
+                            alt=""></div>
                     <h3>Build Relationships</h3>
                     <p>Make meaningful connections.</p>
                 </div>
