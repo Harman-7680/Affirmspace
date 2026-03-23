@@ -9,7 +9,7 @@
 
             {{-- Add Blog --}}
 
-            <div class="mb-2 d-flex align-items-center gap-3 flex-nowrap w-100">
+            <div class="d-flex align-items-center gap-3 flex-nowrap w-100">
 
                 <input type="text" x-model="slug" placeholder="Slug" class="form-control"
                     style="width:15%; height:40px; margin-right:10px;">
@@ -58,7 +58,55 @@
 
             </div>
 
+            <template x-if="comments.length > 0">
+                <div>
+                    <h4>Pending Comments</h4>
+
+                    <div class="table-responsive">
+                        <table class="table table-sm table-bordered table-hover table-striped text-center mb-1">
+                            <thead class="thead-dark">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Comment</th>
+                                    <th>Category</th>
+                                    <th>Title</th>
+                                    <th>Description</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <template x-for="(comment, index) in comments" :key="comment.id">
+                                    <tr>
+                                        <td x-text="index+1"></td>
+                                        <td x-text="comment.name"></td>
+                                        <td x-text="comment.comment"></td>
+
+                                        <td x-text="blogs.find(b => b.id === comment.parent_id)?.category"></td>
+                                        <td x-text="blogs.find(b => b.id === comment.parent_id)?.short_description"></td>
+                                        <td x-text="blogs.find(b => b.id === comment.parent_id)?.long_description"></td>
+
+                                        <td>
+                                            <button class="btn btn-sm btn-success" @click="approve(comment.id)">
+                                                Approve
+                                            </button>
+
+                                            <button class="btn btn-sm btn-danger" @click="reject(comment.id)">
+                                                Reject
+                                            </button>
+                                        </td>
+                                    </tr>
+                                </template>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </template>
+
             {{-- Blog Table --}}
+
+            <h4>Uploaded Blogs</h4>
 
             <div class="table-responsive">
 
@@ -100,66 +148,6 @@
 
                                     <button class="btn btn-sm btn-danger" @click="deleteBlog(blog.id)">
                                         Delete
-                                    </button>
-                                </td>
-
-                            </tr>
-
-                        </template>
-
-                    </tbody>
-
-                </table>
-
-            </div>
-
-            <h4 class="mt-4">Pending Comments</h4>
-
-            <div class="table-responsive">
-
-                <table class="table table-sm table-bordered table-hover table-striped text-center mb-0">
-
-                    <thead class="thead-dark">
-
-                        <tr>
-                            <th>#</th>
-                            <th>Name</th>
-                            <th>Comment</th>
-                            <th>Category</th>
-                            <th>Title</th>
-                            <th>Description</th>
-                            <th>Action</th>
-                        </tr>
-
-                    </thead>
-
-                    <tbody>
-
-                        <template x-for="(comment, index) in comments" :key="comment.id">
-
-                            <tr>
-
-                                <td x-text="index+1"></td>
-
-                                <td x-text="comment.name"></td>
-
-                                <td x-text="comment.comment"></td>
-
-                                <!-- Category -->
-                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.category"></td>
-
-                                <!-- Short Description -->
-                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.short_description"></td>
-
-                                <td x-text="blogs.find(b => b.id === comment.parent_id)?.long_description"></td>
-
-                                <td>
-                                    <button class="btn btn-sm btn-success" @click="approve(comment.id)">
-                                        Approve
-                                    </button>
-
-                                    <button class="btn btn-sm btn-danger" @click="reject(comment.id)">
-                                        Reject
                                     </button>
                                 </td>
 
