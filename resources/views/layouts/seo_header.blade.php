@@ -40,9 +40,19 @@
                 <li><a href="{{ '/contactwithadmin' }}"
                         class="{{ request()->routeIs('contactWithAdmin') ? 'activeTab font-bold text-blue-600' : '' }}">Contact
                         Us</a></li>
-                <li><a href="{{ '/login' }}"
-                        class="{{ request()->routeIs('login') ? 'activeTab font-bold text-blue-600 nav-btn' : 'nav-btn' }}"
-                        class="nav-btn">Get Started</a></li>
+                <li>
+                    @if (Auth::check())
+                        <a href="{{ route('feed') }}"
+                            class="{{ request()->routeIs('feed') ? 'activeTab font-bold text-blue-600 nav-btn' : 'nav-btn' }}">
+                            Go to Feed
+                        </a>
+                    @else
+                        <a href="{{ route('login') }}"
+                            class="{{ request()->routeIs('login') ? 'activeTab font-bold text-blue-600 nav-btn' : 'nav-btn' }}">
+                            Login
+                        </a>
+                    @endif
+                </li>
             </ul>
         </nav>
     @endif
