@@ -9,6 +9,7 @@ use App\Http\Controllers\AdminSpecializationController;
 use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\BankDetailsController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
 use App\Http\Controllers\DatingController;
@@ -207,6 +208,7 @@ Route::middleware(['auth', 'verified', 'counselor.docs'])->group(function () {
 Route::middleware(['auth', 'verified', 'registration.paid', 'profile.complete'])->group(function () {
     Route::get('/feed', [ProfileController::class, 'feed'])->name('feed');
     Route::get('/messages/{receiver_id?}', [ProfileController::class, 'messages'])->name('messages');
+    Route::post('/send-message', [ChatController::class, 'sendMessage']);
     Route::get('/video', [ProfileController::class, 'video'])->name('video');
     Route::get('/event', [ProfileController::class, 'event'])->name('event');
     Route::get('/pages', [DatingController::class, 'pages'])->name('pages');

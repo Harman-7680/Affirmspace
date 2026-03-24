@@ -101,12 +101,27 @@
         const text = input.value.trim();
         if (text === '') return;
 
+        // 1. Firebase me save
         await addDoc(collection(db, "chats", chatRoom, "messages"), {
             sender_id: senderId,
             receiver_id: receiverId,
             message: text,
             timestamp: serverTimestamp()
         });
+
+        // 2. Laravel API hit (for notification)
+        await fetch('/send-message', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({
+                receiver_id: receiverId,
+                message: text
+            })
+        });
+
         input.value = '';
     });
 </script>

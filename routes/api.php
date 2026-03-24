@@ -15,6 +15,7 @@ use App\Http\Controllers\Api\ApiStatusController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialLoginController;
+use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostActionController;
 use Illuminate\Support\Facades\Route;
 
@@ -67,6 +68,7 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
     Route::get('/user/blog', [ApiProfileController::class, 'blog']);
     Route::get('/user/{id}', [ApiProfileController::class, 'show']);
     Route::get('/messages/{receiver_id?}', [ApiProfileController::class, 'messages']); // for chatting page
+    Route::post('/api/send-message', [ChatController::class, 'sendMessage']);
     Route::post('/start-call', [ApiCallController::class, 'startCall']);
 
     // counselor related routes
@@ -151,4 +153,3 @@ Route::prefix('social')->group(function () {
 Route::middleware('auth:sanctum')->get('/user', function ($request) {
     return $request->user();
 });
-
