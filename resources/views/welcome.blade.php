@@ -3,6 +3,8 @@
 @section('meta')
     <meta name="description"
         content="AffirmSpace is a safe LGBTQ+ community platform to connect, chat, find meaningful relationships, and access professional LGBTQ+ mental health counselling in a secure environment.">
+    <meta name="keywords"
+        content="LGBTQ+ community platform, LGBTQ+ dating, LGBTQ+ mental health & counselling, LGBTQ+ chat, gender-affirming healthcare">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AffirmSpace – LGBTQ+ Community, Chat, Dating & Counselling Platform</title>
@@ -241,6 +243,18 @@
             color: #dd2476;
         }
 
+        .features .feature-card {
+            display: block;
+            text-decoration: none;
+            color: inherit;
+            cursor: pointer;
+        }
+
+        /* Optional subtle hover enhancement */
+        .features .feature-card:hover h3 {
+            filter: brightness(1.2);
+        }
+
         .disclaimer {
             margin-top: 35px;
             font-size: 0.85rem;
@@ -312,7 +326,6 @@
             transition: 0.3s ease;
         }
 
-
         /* HOVER EFFECT */
 
         .step-card:hover {
@@ -320,11 +333,10 @@
             box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
         }
 
-
         .steps-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            /* 🔥 force 3 per row */
+            /* force 3 per row */
             gap: 30px;
             margin-top: 50px;
         }
@@ -600,7 +612,7 @@
             color: #666;
         }
 
-        /* 🔥 LABEL STYLE (MATCHES SCREENSHOT) */
+        /* LABEL STYLE (MATCHES SCREENSHOT) */
         .blog-label {
             margin-top: 30px;
             font-weight: 600;
@@ -623,7 +635,7 @@
             flex-wrap: wrap;
         }
 
-        /* 🔥 WIDER BLOG CARDS */
+        /* WIDER BLOG CARDS */
         .blog-card {
             width: 350px;
             /* increased from 300 → 350 */
@@ -699,12 +711,7 @@
             }
         }
 
-
         @media (max-width: 600px) {
-            /* .blog-card {
-                                width: 90%;
-                            } */
-
             .steps-grid {
                 display: flex;
                 flex-direction: column;
@@ -716,7 +723,7 @@
 @section('content')
     <!-- Splash screen -->
     <div id="splash-screen">
-        <img src="images/welcomepage.png" alt="AffirmSpace">
+        <img src="public/images/welcomepage.png" alt="AffirmSpace">
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
@@ -786,56 +793,85 @@
     </section>
 
     <section class="features">
+
         <h2>Everything You Need in One Safe LGBTQ+ Community Platform </h2>
+
         <div class="feature-grid">
-            <div class="feature-card">
+
+            <a href="{{ route('chatAndDating') }}" class="feature-card">
                 <h3>💖 LGBTQ+ Dating</h3>
-                <p>Find meaningful LGBTQ+ relationships in a safe and respectful environment. AffirmSpace helps
+                <p>
+                    Find meaningful LGBTQ+ relationships in a safe and respectful environment. AffirmSpace helps
                     individuals explore LGBTQ+ dating, queer friendships, and authentic connections without fear,
-                    discrimination, or judgment.</p>
-            </div>
-            <div class="feature-card">
+                    discrimination, or judgment.
+                </p>
+            </a>
+
+            <a href="{{ route('community') }}" class="feature-card">
                 <h3>🌈 LGBTQ+ Community & Social Sharing</h3>
-                <p>Join an active LGBTQ+ online community where you can share stories, post updates, and interact with
+                <p>
+                    Join an active LGBTQ+ online community where you can share stories, post updates, and interact with
                     people who understand your experiences. Build connections through inclusive social networking for
-                    LGBTQ+ individuals.</p>
-            </div>
-            <div class="feature-card">
+                    LGBTQ+ individuals.
+                </p>
+            </a>
+
+            <a href="{{ route('chat') }}" class="feature-card">
                 <h3>👥 Anonymous LGBTQ+ Chat Groups</h3>
-                <p>Participate in anonymous LGBTQ+ support chats where you can talk freely, ask questions, and share
+                <p>
+                    Participate in anonymous LGBTQ+ support chats where you can talk freely, ask questions, and share
                     experiences without revealing your identity. A safe place for open discussions, advice, and peer
-                    support.</p>
-            </div>
-            <div class="feature-card">
+                    support.
+                </p>
+            </a>
+
+            <a href="{{ route('events') }}" class="feature-card">
                 <h3>📍 LGBTQ+ Events Near You</h3>
-                <p>Discover LGBTQ+ events, pride parades, meetups, workshops, and queer safe spaces happening around
-                    you. Stay connected with the global and local LGBTQ+ community through curated events.</p>
-            </div>
-            <div class="feature-card">
+                <p>
+                    Discover LGBTQ+ events, pride parades, meetups, workshops, and queer safe spaces happening around
+                    you. Stay connected with the global and local LGBTQ+ community through curated events.
+                </p>
+            </a>
+
+            <a href="{{ route('counselling') }}" class="feature-card">
                 <h3>🧠 LGBTQ+ Mental & Emotional Wellbeing</h3>
-                <p>Access LGBTQ+ friendly counselors, mental health resources, and emotional support services designed
-                    to help individuals navigate identity, relationships, and personal wellbeing.</p>
-            </div>
-            <div class="feature-card">
+                <p>
+                    Access LGBTQ+ friendly counselors, mental health resources, and emotional support services designed
+                    to help individuals navigate identity, relationships, and personal wellbeing.
+                </p>
+            </a>
+
+            <a href="{{ route('counselling') }}" class="feature-card">
                 <h3>🧬 Hormone Therapy & HRT Discovery</h3>
-                <p>Find verified professionals offering hormone replacement therapy (HRT) for transgender individuals,
-                    including endocrinologists and gender-affirming healthcare providers.</p>
-            </div>
-            <div class="feature-card">
+                <p>
+                    Find verified professionals offering hormone replacement therapy (HRT) for transgender individuals,
+                    including endocrinologists and gender-affirming healthcare providers.
+                </p>
+            </a>
+
+            <a href="{{ route('counselling') }}" class="feature-card">
                 <h3>🩺 Gender-Affirming Care Specialists</h3>
-                <p>Discover doctors experienced in gender-affirming healthcare, transgender support, and
-                    transition-related medical care.</p>
-            </div>
-            <div class="feature-card">
+                <p>
+                    Discover doctors experienced in gender-affirming healthcare, transgender support, and
+                    transition-related medical care.
+                </p>
+            </a>
+
+            <a href="{{ route('counselling') }}" class="feature-card">
                 <h3>✨ Gender-Affirming Surgeries</h3>
-                <p>Explore trusted surgeons offering gender-affirming surgeries, facial feminization surgery (FFS), and
-                    other transgender medical procedures.</p>
-            </div>
+                <p>
+                    Explore trusted surgeons offering gender-affirming surgeries, facial feminization surgery (FFS), and
+                    other transgender medical procedures.
+                </p>
+            </a>
+
         </div>
+
         <p class="disclaimer">
             AffirmSpace does not provide medical advice. Our platform helps users discover verified LGBTQ+ friendly
             professionals, mental health support resources, and trusted gender-affirming healthcare providers.
         </p>
+
     </section>
 
 
