@@ -254,25 +254,8 @@
             });
 
             console.log('Call initiated');
-
-            /* ================= LARAVEL NOTIFICATION ================= */
-            fetch('/send-call-notification', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        receiver_id: receiverId,
-                        room_name: roomName,
-                    })
-                })
-                .then(res => res.json())
-                .then(data => {
-                    if (data.status) console.log('Call notification sent successfully');
-                })
-                .catch(err => console.error('FCM Error:', err));
         };
+
 
         /* ================= RECEIVER LISTENER ================= */
         db.ref('calls/active')

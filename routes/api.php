@@ -69,6 +69,7 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
     Route::get('/user/{id}', [ApiProfileController::class, 'show']);
     Route::get('/messages/{receiver_id?}', [ApiProfileController::class, 'messages']); // for chatting page
     Route::post('/api/send-message', [ChatController::class, 'sendMessage']);
+    Route::post('/app/send-call-notification', [ChatController::class, 'sendCallNotification']);
     Route::post('/start-call', [ApiCallController::class, 'startCall']);
 
     // counselor related routes
