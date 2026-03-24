@@ -48,4 +48,40 @@ class ChatController extends Controller
             'message' => 'Message sent & notification triggered',
         ]);
     }
+
+    public function sendCallNotification(Request $request)
+    {
+        $request->validate([
+            'receiver_id' => 'required|exists:users,id',
+            'room_name'   => 'required|string',
+        ]);
+
+        $sender   = auth()->user();
+        $receiver = User::findOrFail($request->receiver_id);
+
+        // Receiver device tokens
+        $tokens = UserDevice::where('user_id', $receiver->id)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token');
+
+        foreach ($tokens as $token) {
+            $this->fcm->send(
+                $token,
+                "Incoming call from {$sender->first_name}",
+                "Open app or website to answer the call",
+                [
+                    'sender_id'   => $sender->id,
+                    'receiver_id' => $receiver->id,
+                    'room_name'   => $request->room_name,
+                    'type'        => 'call',
+                ]
+            );
+        }
+
+        return response()->json([
+            'status'  => true,
+            'message' => 'Call notification sent successfully',
+        ]);
+    }
 }

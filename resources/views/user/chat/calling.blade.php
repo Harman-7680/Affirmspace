@@ -92,11 +92,25 @@
     }
 
     // --- Sender: Start Call ---
-    document.getElementById("startCall").onclick = function() {
+    // document.getElementById("startCall").onclick = function() {
+    //     currentCallId = callId;
+    //     openJitsiModal(senderName);
+
+    //     // Save call to Firebase
+    //     const callData = {
+    //         senderId: senderId,
+    //         senderName: senderName,
+    //         receiverId: receiverId,
+    //         status: 'calling',
+    //         roomName: roomName
+    //     };
+    //     db.ref('calls/active/' + callId).set(callData);
+    // };
+
+    document.getElementById("startCall").onclick = async function() {
         currentCallId = callId;
         openJitsiModal(senderName);
 
-        // Save call to Firebase
         const callData = {
             senderId: senderId,
             senderName: senderName,
@@ -105,6 +119,26 @@
             roomName: roomName
         };
         db.ref('calls/active/' + callId).set(callData);
+
+        // Laravel FCM notification
+        try {
+            const res = await fetch('/send-call-notification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({
+                    receiver_id: receiverId,
+                    room_name: roomName,
+                    call_type: 'video'
+                })
+            });
+            const data = await res.json();
+            if (data.status) console.log('Call notification sent successfully');
+        } catch (err) {
+            console.error('FCM Error:', err);
+        }
     };
 
     // --- Receiver Listener ---

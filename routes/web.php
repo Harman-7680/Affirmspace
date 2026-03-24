@@ -209,6 +209,7 @@ Route::middleware(['auth', 'verified', 'registration.paid', 'profile.complete'])
     Route::get('/feed', [ProfileController::class, 'feed'])->name('feed');
     Route::get('/messages/{receiver_id?}', [ProfileController::class, 'messages'])->name('messages');
     Route::post('/send-message', [ChatController::class, 'sendMessage']);
+    Route::post('/send-call-notification', [ChatController::class, 'sendCallNotification']);
     Route::get('/video', [ProfileController::class, 'video'])->name('video');
     Route::get('/event', [ProfileController::class, 'event'])->name('event');
     Route::get('/pages', [DatingController::class, 'pages'])->name('pages');
