@@ -15,8 +15,6 @@
         }
 
         /* HERO */
-
-
         .community-hero {
             background: #f9fafb;
             padding: 80px 0;
@@ -205,6 +203,41 @@
             }
 
         }
+
+        /* community differnt buttons */
+
+        .step-btn {
+            display: inline-block;
+            padding: 12px 22px;
+            border-radius: 30px;
+            font-weight: 600;
+            text-decoration: none;
+            color: white;
+            transition: all 0.3s ease;
+            margin-bottom: 10px;
+        }
+
+        /* Button Colors */
+        .btn-1 {
+            background: linear-gradient(45deg, #ff416c, #ff4b2b);
+            /* red-pink */
+        }
+
+        .btn-2 {
+            background: linear-gradient(45deg, #ff9a44, #fc6076);
+            /* orange */
+        }
+
+        .btn-3 {
+            background: linear-gradient(45deg, #a18cd1, #fbc2eb);
+            /* purple */
+        }
+
+        /* Hover effect */
+        .step-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
     </style>
 @endsection
 
@@ -253,7 +286,8 @@
             <div class="feature-grid">
 
                 <div class="feature-card">
-                    <img src="{{ asset('images/community/Inclusive_Community.jpeg') }}" height="50" alt="">
+                    <img src="{{ asset('images/community/Inclusive_Community.jpeg') }}" height="50"
+                        alt="">
                     <h3> Inclusive Community</h3>
                     <p>
                         AffirmSpace welcomes people from across the LGBTQ+ spectrum, creating a space
@@ -262,7 +296,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <img src="{{ asset('images/community/Meaningful_Connections.jpeg') }}" height="50" alt="">
+                    <img src="{{ asset('images/community/Meaningful_Connections.jpeg') }}" height="50"
+                        alt="">
                     <h3> Meaningful Connections</h3>
                     <p>
                         Meet like-minded individuals, engage in thoughtful conversations,
@@ -285,7 +320,6 @@
         </section>
 
         <!-- HOW COMMUNITY WORKS -->
-
         <section class="community-steps">
 
             <h2>How the AffirmSpace Community Works</h2>
@@ -293,24 +327,23 @@
             <div class="steps-grid">
 
                 <div class="step-card">
-                    <h3>Join the Platform</h3>
+                    <a href="{{ route('login') }}" class="step-btn btn-1">Join the Platform →</a>
                     <p>Create your profile and express your identity.</p>
                 </div>
 
                 <div class="step-card">
-                    <h3>Discover People</h3>
+                    <a href="{{ route('chatAndDating') }}" class="step-btn btn-2">Discover People →</a>
                     <p>Find members with shared interests and experiences.</p>
                 </div>
 
                 <div class="step-card">
-                    <h3>Start Conversations</h3>
+                    <a href="{{ route('chat') }}" class="step-btn btn-3">Start Conversations →</a>
                     <p>Interact through posts, comments, and discussions.</p>
                 </div>
 
             </div>
 
         </section>
-
         <!-- WHY COMMUNITY MATTERS -->
 
         <section class="community-why">
