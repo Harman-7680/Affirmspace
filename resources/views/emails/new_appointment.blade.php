@@ -6,27 +6,39 @@
     <title>New Appointment Request</title>
 </head>
 
-<body style="background:#f4f6f8;padding:20px;font-family:Arial,sans-serif;">
+<body style="background:#f4f6f8;padding:40px;font-family:Arial,sans-serif;">
 
     <table width="100%" cellpadding="0" cellspacing="0">
         <tr>
             <td align="center">
-                <table width="600" style="background:#ffffff;border-radius:8px;padding:20px;">
 
+                <table width="600" style="background:#ffffff;border-radius:10px;overflow:hidden;">
+
+                    <!-- HEADER -->
                     <tr>
-                        <td align="center" style="padding-bottom:20px;">
+                        <td align="center" style="padding:20px;background:#f9fafb;">
+                            <img src="{{ config('app.logo') }}" width="130">
+                        </td>
+                    </tr>
+
+                    <!-- TITLE -->
+                    <tr>
+                        <td align="center" style="padding:15px;">
                             <h2 style="color:#2563eb;margin:0;">📅 New Appointment Request</h2>
                         </td>
                     </tr>
 
+                    <!-- CONTENT -->
                     <tr>
-                        <td>
+                        <td style="padding:25px; color:#333;">
+
                             <p>Hello <strong>{{ $counselor->first_name }}</strong>,</p>
 
                             <p>You have received a new appointment request. Below are the details:</p>
 
                             <table width="100%" cellpadding="8" cellspacing="0"
                                 style="background:#f9fafb;border-radius:6px;">
+
                                 <tr>
                                     <td><strong>From:</strong></td>
                                     <td>{{ $sender->first_name }} ({{ $sender->email }})</td>
@@ -49,6 +61,7 @@
                                         {{ $availability->start_time }} – {{ $availability->end_time }}
                                     </td>
                                 </tr>
+
                             </table>
 
                             <p style="margin-top:20px;">
@@ -57,12 +70,21 @@
 
                             <p style="margin-top:30px;">
                                 Regards,<br>
-                                <strong>AffirmSpace</strong>
+                                <strong>{{ config('app.name') }}</strong>
                             </p>
+
+                        </td>
+                    </tr>
+
+                    <!-- FOOTER -->
+                    <tr>
+                        <td style="text-align:center; padding:15px; font-size:12px; color:#777; background:#f9fafb;">
+                            © {{ date('Y') }} {{ config('app.name') }}. All rights reserved.
                         </td>
                     </tr>
 
                 </table>
+
             </td>
         </tr>
     </table>
