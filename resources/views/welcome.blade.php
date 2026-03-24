@@ -716,7 +716,7 @@
 @section('content')
     <!-- Splash screen -->
     <div id="splash-screen">
-        <img src="public/images/welcomepage.png" alt="AffirmSpace">
+        <img src="images/welcomepage.png" alt="AffirmSpace">
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
