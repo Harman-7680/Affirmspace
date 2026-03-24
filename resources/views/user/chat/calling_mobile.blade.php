@@ -256,22 +256,22 @@
             console.log('Call initiated');
 
             // API call to send notification
-            fetch('/app/send-call-notification', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        sender_id: senderId,
-                        sender_name: senderName,
-                        receiver_id: receiverId,
-                        room_name: roomName
-                    })
-                })
-                .then(res => res.json())
-                .then(data => console.log('Notification:', data.message))
-                .catch(err => console.error('Notification Error:', err));
+            // fetch('/app/send-call-notification', {
+            //         method: 'POST',
+            //         headers: {
+            //             'Content-Type': 'application/json',
+            //             'Accept': 'application/json'
+            //         },
+            //         body: JSON.stringify({
+            //             sender_id: senderId,
+            //             sender_name: senderName,
+            //             receiver_id: receiverId,
+            //             room_name: roomName
+            //         })
+            //     })
+            //     .then(res => res.json())
+            //     .then(data => console.log('Notification:', data.message))
+            //     .catch(err => console.error('Notification Error:', err));
         };
 
 
