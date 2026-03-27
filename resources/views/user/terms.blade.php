@@ -291,7 +291,7 @@
 
             <div class="terms-card">
                 <h3>Contact</h3>
-                <p>Email: <strong>support@affirmspace.com</strong></p>
+                <p>Email: <strong>affirmspace@gmail.com</strong></p>
             </div>
 
         </div>
