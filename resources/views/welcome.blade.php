@@ -15,7 +15,7 @@
         content="Join AffirmSpace, a safe LGBTQ+ platform for dating, community, and mental health support. Connect, express, and be your true self 💜">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ url('/') }}">
-    <meta property="og:image" content="{{ asset('images/og.png') }}">
+    <meta property="og:image" content="{{ config('app.url') . '/images/og.png' }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 @endsection
