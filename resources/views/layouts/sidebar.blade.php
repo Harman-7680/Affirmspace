@@ -165,16 +165,7 @@
                     </li>
 
                     <hr class="my-2">
-                    {{-- <li style="" class="{{ $current === '2' ? 'active' : '' }} logout-btn">
-                        <a href="{{ route('video') }}"
-                            class="{{ $current === '2' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
-                            <i data-lucide="door-open"
-                                class="w-6 h-6 {{ $current === '2' ? 'icon-bg-remove' : '' }}"></i>
-                            <span class="{{ $current === '2' ? 'active' : '' }}">Log Out</span>
-                        </a>
-                    </li> --}}
-
-                    <li style="" class="{{ $current === '2' ? 'active' : '' }} logout-btn">
+                    <li class="{{ $current === '2' ? 'active' : '' }}">
                         <a href="#"
                             onclick="event.preventDefault(); if(confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }"
                             class="{{ $current === '2' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
@@ -187,6 +178,28 @@
                             @csrf
                         </form>
                     </li>
+                    {{-- <li style="" class="{{ $current === '2' ? 'active' : '' }} logout-btn">
+                        <a href="{{ route('video') }}"
+                            class="{{ $current === '2' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
+                            <i data-lucide="door-open"
+                                class="w-6 h-6 {{ $current === '2' ? 'icon-bg-remove' : '' }}"></i>
+                            <span class="{{ $current === '2' ? 'active' : '' }}">Log Out</span>
+                        </a>
+                    </li> --}}
+
+                    {{-- <li style="" class="{{ $current === '2' ? 'active' : '' }} logout-btn">
+                        <a href="#"
+                            onclick="event.preventDefault(); if(confirm('Are you sure you want to log out?')) { document.getElementById('logout-form').submit(); }"
+                            class="{{ $current === '2' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
+                            <i data-lucide="door-open"
+                                class="w-6 h-6 {{ $current === '2' ? 'icon-bg-remove' : '' }}"></i>
+                            <span class="{{ $current === '2' ? 'active' : '' }}">Log Out</span>
+                        </a>
+
+                        <form id="logout-form" action="{{ route('logout') }}" method="POST" class="hidden">
+                            @csrf
+                        </form>
+                    </li> --}}
 
                     <!-- Load Lucide and Initialize Icons -->
                     <script src="https://unpkg.com/lucide@latest"></script>
