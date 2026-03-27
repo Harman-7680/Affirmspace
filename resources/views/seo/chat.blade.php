@@ -1,9 +1,13 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat – AffirmSpace</title>
+    <meta name="description"
+        content="Chat privately on a safe LGBTQ+ chat platform. Connect with like-minded people, share experiences, and build real conversations securely and anonymously.">
+
+    <title>LGBTQ+ Chat Platform – Private & Safe Chat | AffirmSpace</title>
+    <meta name="author" content="AffirmSpace">
+    <meta name="keywords"
+        content="LGBTQ+ chat, LGBTQ+ chat platform, safe LGBTQ+ chat, LGBTQ+ messaging platform, LGBTQ+ community chat">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
@@ -201,8 +205,8 @@
                     </p>
 
                     <div class="hero-buttons">
-                        <a href="#" class="btn-primary">Start Chatting</a>
-                        <a href="#" class="btn-outline">Open Messages</a>
+                        <a href="{{ 'register' }}?role=0" class="btn-primary">Start Chatting</a>
+                        <a href="{{ 'login' }}" class="btn-outline">Open Messages</a>
                     </div>
                 </div>
 
@@ -278,8 +282,8 @@
                 </div>
 
                 <div class="step">
-                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Build_Relationships.png') }}"
-                            alt=""></div>
+                    <div class="step-number"><img height="60"
+                            src="{{ asset('images/chat/Build_Relationships.png') }}" alt=""></div>
                     <h3>Build Relationships</h3>
                     <p>Make meaningful connections.</p>
                 </div>
@@ -299,7 +303,7 @@
                 Connect with someone and be part of a supportive LGBTQ+ community.
             </p>
 
-            <a href="#" class="btn-light">Open Messages</a>
+            <a href="{{ 'login' }}" class="btn-light">Open Messages</a>
 
         </div>
     </section>

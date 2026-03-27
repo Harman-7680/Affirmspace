@@ -10,77 +10,23 @@
 
 @section('css')
     <style>
+        * {
+            font-family: 'Inter', sans-serif;
+        }
+
         section {
             padding: 80px 8%;
         }
 
-        section h2 {
-            font-size: 2.1rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
+        /* HERO SECTION */
 
-        section p {
-            max-width: 900px;
-            margin: 0 auto;
-            text-align: center;
-            color: #555;
-        }
-
-        .features {
-            background: #ffffff;
-        }
-
-        .feature-grid {
-            margin-top: 50px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
-        }
-
-        .feature-card {
-            background: #f9fafb;
-            padding: 28px;
-            border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
-        }
-
-        .feature-card h3 {
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-        }
-
-        .feature-card ul {
-            padding-left: 18px;
-            color: #555;
-        }
-
-        .feature-card li {
-            margin-bottom: 8px;
-        }
-
-        .feature-card p {
-            text-align: left;
-            color: #555;
-            margin-bottom: 10px;
-        }
-
-        .disclaimer {
-            margin-top: 35px;
-            font-size: 0.85rem;
-            text-align: center;
-            color: #666;
-        }
-
-        .refund-parallax {
+        .refund-hero {
             position: relative;
             padding: 120px 8%;
             text-align: center;
             color: white;
             overflow: hidden;
         }
-
-        /* IMAGE */
 
         .refund-img {
             position: fixed;
@@ -92,145 +38,246 @@
             z-index: -2;
         }
 
-        /* DARK OVERLAY */
-
-        .refund-parallax::before {
+        .refund-hero::before {
             content: "";
             position: absolute;
             inset: 0;
-            background: rgba(0, 0, 0, 0.55);
+            background: rgba(0, 0, 0, 0.6);
             z-index: -1;
         }
 
-        /* TEXT */
-
         .refund-content {
-            max-width: 850px;
+            max-width: 800px;
             margin: auto;
         }
 
-        .refund-content h2 {
-            font-size: 2.2rem;
+        .refund-content h1 {
+            font-size: 2.4rem;
             margin-bottom: 15px;
+            font-weight: 700;
         }
 
         .refund-content p {
-            color: #f0f0f0;
             font-size: 1.05rem;
             line-height: 1.7;
+            color: #eee;
         }
 
-        /* MOBILE FIX */
+        /* CONTENT SECTION */
+
+        .policy-section {
+            background: #ffffff;
+        }
+
+        .policy-header {
+            text-align: center;
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .policy-header h2 {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+
+        .policy-header p {
+            color: #666;
+        }
+
+        /* GRID */
+
+        .policy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+        }
+
+        /* CARD */
+
+        .policy-card {
+            background: #f9fafb;
+            padding: 28px;
+            border-radius: 16px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
+            transition: 0.2s ease;
+        }
+
+        .policy-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .policy-card h3 {
+            font-size: 1.15rem;
+            margin-bottom: 12px;
+            color: #111;
+        }
+
+        .policy-card p {
+            color: #555;
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+
+        .policy-card ul {
+            padding-left: 18px;
+            color: #555;
+        }
+
+        .policy-card li {
+            margin-bottom: 8px;
+        }
+
+        /* FOOTER NOTE */
+
+        .policy-footer {
+            text-align: center;
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        /* MOBILE */
 
         @media(max-width:1024px) {
-
             .refund-img {
                 position: absolute;
                 height: 100%;
             }
 
-            .refund-parallax {
+            .refund-hero {
                 padding: 100px 8%;
             }
 
+            .refund-content h1 {
+                font-size: 2rem;
+            }
         }
     </style>
 @endsection
 
 @section('content')
-    <!-- Hero Section -->
-    <section class="refund-parallax">
+    <!-- HERO -->
+    <section class="refund-hero">
 
-        <img src="images/coursel.png" class="refund-img" alt="Refund policy background">
+        <img src="{{ asset('images/coursel.png') }}" class="refund-img" alt="Refund background">
 
         <div class="refund-content">
-            <h2>Refunds & Fairness 💖</h2>
-
+            <h1>Refund Policy 💖</h1>
             <p>
-                Transparent payments and respectful policies — always.
+                Transparent payments. Clear rules. Safe and respectful support for everyone on AffirmSpace.
             </p>
         </div>
 
     </section>
 
-    <!-- Refund Content -->
-    <section class="features">
-        <div class="feature-grid">
+    <!-- POLICY CONTENT -->
+    <section class="policy-section">
 
-            <div class="feature-card">
-                <h3>1. Payments</h3>
+        <div class="policy-header">
+            <h2>Payments & Refund Guidelines</h2>
+            <p>
+                Please review our refund rules carefully before making any purchase or booking a service.
+            </p>
+        </div>
+
+        <div class="policy-grid">
+
+            <div class="policy-card">
+                <h3>1. Secure Payments</h3>
                 <p>
-                    All payments on AffirmSpace are securely processed through Razorpay.
-                    AffirmSpace does not store card numbers, CVV details, UPI credentials,
-                    or banking information.
+                    All payments are processed through authorized third-party gateways such as Razorpay.
+                </p>
+                <p>
+                    AffirmSpace does not store card details, CVV, UPI credentials, or banking passwords.
+                </p>
+                <p>
+                    By completing a transaction, you confirm that you are authorized to use the payment method.
                 </p>
             </div>
 
-            <div class="feature-card">
+            <div class="policy-card">
                 <h3>2. Counselling Sessions</h3>
                 <ul>
-                    <li>All counselling sessions must be paid in advance to confirm booking.</li>
-                    <li>There is currently no in-app cancellation feature available.</li>
-                    <li>Once a session is booked and paid for, the booking is final.</li>
-                    <li>No-shows are non-refundable.</li>
-                    <li>Completed counselling sessions are non-refundable.</li>
-                    <li>If a counsellor cancels or fails to attend, a full refund or rescheduling will be provided.</li>
-                    <li>Users should confirm availability before booking.</li>
+                    <li>Full payment is required in advance.</li>
+                    <li>Bookings are final once confirmed.</li>
+                    <li>No-shows and late arrivals are non-refundable.</li>
+                    <li>Completed sessions are non-refundable.</li>
+                    <li>If a counsellor cancels, you may reschedule or get a full refund.</li>
+                </ul>
+                <p>
+                    Counselling services are supportive in nature and do not guarantee specific outcomes.
+                </p>
+            </div>
+
+            <div class="policy-card">
+                <h3>3. Subscription Plans</h3>
+                <ul>
+                    <li>Subscriptions may auto-renew.</li>
+                    <li>You can cancel anytime to stop future billing.</li>
+                    <li>No refunds for partially used periods.</li>
+                    <li>Access continues until the billing cycle ends.</li>
                 </ul>
             </div>
 
-            <div class="feature-card">
-                <h3>3. Monthly Subscriptions (Future Feature)</h3>
+            <div class="policy-card">
+                <h3>4. Account Suspension & Misuse</h3>
                 <ul>
-                    <li>Subscriptions will auto-renew monthly.</li>
-                    <li>Users may cancel anytime to stop future renewals.</li>
-                    <li>No refunds for partially used subscription periods.</li>
-                    <li>Access continues until the end of the billing cycle.</li>
-                </ul>
-            </div>
-
-            <div class="feature-card">
-                <h3>4. Account Suspension or Misuse</h3>
-                <ul>
-                    <li>Violation of community guidelines</li>
+                    <li>Violation of guidelines</li>
+                    <li>Harassment or abuse</li>
                     <li>Fraudulent activity</li>
-                    <li>Harassment or platform misuse</li>
-                    <li>Payment disputes or chargebacks</li>
+                    <li>Illegal or harmful behavior</li>
                 </ul>
-                <p>No refunds will be issued in such cases.</p>
-            </div>
-
-            <div class="feature-card">
-                <h3>5. Duplicate or Failed Payments</h3>
                 <p>
-                    Duplicate or failed payment deductions will be reviewed and refunded
-                    within 7 working days where applicable.
-                </p>
-                <p>
-                    Approved refunds via Razorpay may take 5–10 business days
-                    depending on your bank or UPI provider.
+                    Accounts may be suspended or terminated without refund in such cases.
                 </p>
             </div>
 
-            <div class="feature-card">
+            <div class="policy-card">
+                <h3>5. Duplicate or Failed Transactions</h3>
+                <p>
+                    If a duplicate or failed transaction occurs, contact support for review.
+                </p>
+                <p>
+                    Approved refunds are processed within 7 working days, with additional bank processing time.
+                </p>
+            </div>
+
+            <div class="policy-card">
                 <h3>6. International Payments</h3>
                 <p>
-                    Currency conversion differences, exchange rate fluctuations,
-                    or bank processing fees may affect the refunded amount.
-                    AffirmSpace is not responsible for variations caused by
-                    payment providers or financial institutions.
+                    Exchange rates and bank charges may affect the refunded amount.
+                </p>
+                <p>
+                    AffirmSpace is not responsible for differences caused by payment providers.
                 </p>
             </div>
 
-            <div class="feature-card">
+            <div class="policy-card">
+                <h3>7. Refund Eligibility</h3>
+                <p>Refunds are issued only in these cases:</p>
+                <ul>
+                    <li>Counsellor cancellation</li>
+                    <li>Duplicate payment</li>
+                    <li>Technical failure of service</li>
+                </ul>
+                <p>
+                    All other payments are non-refundable unless required by law.
+                </p>
+            </div>
+
+            <div class="policy-card">
                 <h3>Contact Support</h3>
-                <p>Email: support@affirmspace.com</p>
+                <p>Email: <strong>info@affirmspace.com</strong></p>
+                <p>
+                    Please include your registered email, transaction ID, and payment date.
+                </p>
             </div>
 
         </div>
 
-        <p class="disclaimer">
+        <div class="policy-footer">
             © 2026 AffirmSpace — Secure Payments, Honest Policies ✨
-        </p>
+        </div>
+
     </section>
 @endsection

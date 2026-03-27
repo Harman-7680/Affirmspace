@@ -1,9 +1,12 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dating – AffirmSpace</title>
+    <meta name="description"
+        content="Find meaningful LGBTQ+ relationships on a safe LGBTQ+ dating app and platform. Meet, chat, and build real connections with like-minded people securely.">
+    <title>LGBTQ+ Dating App – Find Real Connections | AffirmSpace</title>
+    <meta name="author" content="AffirmSpace">
+    <meta name="keywords"
+        content="LGBTQ+ dating, LGBTQ+ dating platform, safe LGBTQ+ dating, LGBTQ+ dating app / website, LGBTQ+ relationships">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
@@ -361,8 +364,8 @@
                     </p>
 
                     <div class="hero-buttons">
-                        <a href="#" class="btn-primary">Start Exploring</a>
-                        <a href="#" class="btn-outline">Create Your Profile</a>
+                        <a href="{{ 'login' }}" class="btn-primary">Start Exploring</a>
+                        <a href="{{ 'register' }}?role=0" class="btn-outline">Create Your Profile</a>
                     </div>
                 </div>
 
@@ -374,8 +377,6 @@
 
         </div>
     </section>
-
-
 
     <section class="why-dating">
         <div class="container">
@@ -413,8 +414,6 @@
 
         </div>
     </section>
-
-
 
     <section class="how-works">
 
@@ -457,8 +456,6 @@
         </div>
     </section>
 
-
-
     <section class="community-section">
         <div class="container community-box">
 
@@ -474,8 +471,6 @@
         </div>
     </section>
 
-
-
     <section class="dating-cta">
         <div class="container cta-box">
 
@@ -485,7 +480,7 @@
                 Join AffirmSpace and meet people who truly understand you.
             </p>
 
-            <a href="#" class="btn-primary">Create Your Profile</a>
+            <a href="{{ 'register' }}?role=0" class="btn-primary">Create Your Profile</a>
 
         </div>
     </section>

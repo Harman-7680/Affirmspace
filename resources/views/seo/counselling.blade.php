@@ -1,9 +1,13 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Counselling – AffirmSpace</title>
+    <meta name="description"
+        content="Get confidential LGBTQ+ counselling and mental health support online. Talk to trained, identity-affirming counsellors in a safe space.">
+
+    <title>LGBTQ+ Counselling & Mental Health Support | AffirmSpace</title>
+    <meta name="author" content="AffirmSpace">
+    <meta name="keywords"
+        content="LGBTQ+ counselling, LGBTQ+ mental health support, LGBTQ+ therapists / counsellors, LGBTQ+ counselling platform, LGBTQ+ mental wellness	">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
@@ -219,7 +223,7 @@
                     </p>
 
                     <div class="hero-buttons">
-                        <a href="#" class="btn-primary">Find a Counsellor</a>
+                        <a href="{{ 'login' }}" class="btn-primary">Find a Counsellor</a>
                     </div>
                 </div>
 
@@ -295,7 +299,7 @@
                     Join AffirmSpace and access counselling support from professionals who understand your experiences.
                 </p>
 
-                <a href="#" class="btn-primary">Start Your Counselling Journey</a>
+                <a href="{{ 'register' }}?role=0" class="btn-primary">Start Your Counselling Journey</a>
             </div>
 
             <div class="cta-image">

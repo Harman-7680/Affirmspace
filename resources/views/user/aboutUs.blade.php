@@ -1,9 +1,13 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>About Us – AffirmSpace</title>
+    <meta name="description"
+        content="Learn about AffirmSpace’s mission to build a safe LGBTQ+ community platform for connection, dating, and mental health support in an inclusive space.">
+    <title>About AffirmSpace – LGBTQ+ Community Platform</title>
+    <meta name="author" content="AffirmSpace">
+
+    <meta name="keywords"
+        content="LGBTQ+ community platform, safe LGBTQ+ community, gay chat platform, LGBTQ+ counselling platform, alternative to LGBTQ dating apps">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection

@@ -1,9 +1,13 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Events – AffirmSpace</title>
+    <meta name="description"
+        content="Discover LGBTQ+ events, meetups, and community gatherings. Connect with people, share experiences, and join safe, inclusive events near you or online.">
+    <title>LGBTQ+ Events & Meetups Near You | AffirmSpace</title>
+    <meta name="author" content="AffirmSpace">
+
+    <meta name="keywords"
+        content="LGBTQ+ events, find LGBTQ+ events near you, online LGBTQ+ events platform, LGBTQ+ meetups, LGBTQ+ community events">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
@@ -270,8 +274,8 @@
                     </p>
 
                     <div class="hero-buttons">
-                        <a href="#" class="btn-primary">Explore Events</a>
-                        <a href="#" class="btn-outline">Host an Event</a>
+                        <a href="{{ 'register' }}?role=0" class="btn-primary">Explore Events</a>
+                        <a href="{{ 'login' }}" class="btn-outline">Host an Event</a>
                     </div>
 
                     <div class="hero-tags">
@@ -343,8 +347,6 @@
         </div>
     </section>
 
-
-
     <section class="events-cta">
         <div class="container cta-flex">
 
@@ -361,7 +363,7 @@
                     <li>✔ Celebrate Diversity</li>
                 </ul>
                 <div>
-                    <a href="#" class="btn-primary">Explore Events Now →</a>
+                    <a href="{{ 'register' }}?role=0" class="btn-primary">Explore Events Now →</a>
                 </div>
             </div>
 

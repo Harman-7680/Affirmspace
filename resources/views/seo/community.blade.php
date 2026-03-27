@@ -1,9 +1,13 @@
 @extends('layouts.seo')
 
 @section('meta')
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community – AffirmSpace</title>
+    <meta name="description"
+        content="Join AffirmSpace, a safe LGBTQ+ community platform to connect, share experiences, and build meaningful, supportive relationships.">
+
+    <title>LGBTQ+ Community Platform – Connect & Share | AffirmSpace</title>
+    <meta name="author" content="AffirmSpace">
+    <meta name="keywords"
+        content="LGBTQ+ community, LGBTQ+ community platform, online LGBTQ+ community, safe LGBTQ+ community, inclusive LGBTQ+ community				">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
 @endsection
