@@ -223,9 +223,5 @@
             </div>
 
         </div>
-
-        <p class="disclaimer">
-            © 2026 AffirmSpace — Privacy with Pride 🌈
-        </p>
     </section>
 @endsection

@@ -192,13 +192,15 @@
                 <!-- Terms Modal -->
                 <div id="termsModal"
                     class="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm hidden">
+
                     <div
                         class="bg-white dark:bg-gray-900 p-8 rounded-2xl shadow-2xl max-w-2xl w-full relative border border-gray-200 dark:border-gray-700">
 
-                        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">Terms of Use</h2>
+                        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-white">
+                            Terms of Use
+                        </h2>
 
-                        <div
-                            class="overflow-y-auto max-h-96 text-sm text-gray-700 dark:text-gray-200 pr-2 leading-relaxed">
+                        <div class="text-sm text-gray-700 dark:text-gray-200">
                             @include('user.term')
                         </div>
 
@@ -207,11 +209,13 @@
                                 class="px-4 py-2 rounded-lg bg-gray-300 hover:bg-gray-400 text-gray-800 font-medium">
                                 Close
                             </button>
+
                             <button type="button" onclick="acceptTerms()"
                                 class="px-4 py-2 rounded-lg bg-green-600 hover:bg-green-700 text-white font-medium">
                                 Accept
                             </button>
                         </div>
+
                     </div>
                 </div>
 

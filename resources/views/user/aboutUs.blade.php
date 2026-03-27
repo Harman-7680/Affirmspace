@@ -216,8 +216,5 @@
 
         </div>
 
-        <p class="disclaimer">
-            Come as you are — Stay because you feel understood 💜
-        </p>
     </section>
 @endsection

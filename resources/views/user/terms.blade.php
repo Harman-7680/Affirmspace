@@ -241,7 +241,7 @@
                     Refunds are handled according to our official refund policy.
                 </p>
                 <p>
-                    <a href="/refund-policy">View Refund Policy</a>
+                    <a href="/refundpolicy" style="text-decoration:none; color:black;">View Refund Policy</a>
                 </p>
             </div>
 
@@ -271,7 +271,7 @@
                     Your data is handled according to our Privacy Policy.
                 </p>
                 <p>
-                    <a href="/privacy-policy">View Privacy Policy</a>
+                    <a href="/privacy" style="text-decoration:none; color:black;">View Privacy Policy</a>
                 </p>
             </div>
 
@@ -294,10 +294,6 @@
                 <p>Email: <strong>affirmspace@gmail.com</strong></p>
             </div>
 
-        </div>
-
-        <div class="terms-footer">
-            © 2026 AffirmSpace — Safe Space. Clear Rules. 🌈
         </div>
 
     </section>

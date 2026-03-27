@@ -275,9 +275,5 @@
 
         </div>
 
-        <div class="policy-footer">
-            © 2026 AffirmSpace — Secure Payments, Honest Policies ✨
-        </div>
-
     </section>
 @endsection
