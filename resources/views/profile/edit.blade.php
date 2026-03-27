@@ -141,7 +141,7 @@
                             <div class="mt-4">
                                 <label>Your referral link</label>
                                 <input type="text" readonly
-                                    value="{{ url('/register?ref=' . auth()->user()->refer_code) }}"
+                                    value="{{ url('/register?role=0&ref=' . auth()->user()->refer_code) }}"
                                     class="w-full border rounded-md p-2"
                                     onclick="this.select(); document.execCommand('copy'); alert('Referral link copied!')">
                             </div>

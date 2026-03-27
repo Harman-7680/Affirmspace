@@ -40,14 +40,8 @@ Route::get('register', function (Request $request) {
         abort(403, 'Unauthorized');
     }
 
-    if (! $request->has('role')) {
-        return redirect('/');
-    }
-
     $role = $request->query('role');
-
-    // agar role galat hai
-    if (! in_array($role, [0, 1])) {
+    if (! in_array($role, ['0', '1'], true)) {
         return redirect('/');
     }
 

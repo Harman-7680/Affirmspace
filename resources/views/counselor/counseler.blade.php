@@ -144,192 +144,222 @@
                 </div>
                 <div id="setting_tab" class="uk-switcher md:py-12 md:px-20 p-6 overflow-hidden text-black text-sm">
 
-                    <!-- tab user basic info -->
-                    <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
-                        @csrf
-                        @method('patch')
-                        <div class="space-y-6">
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">First Name</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="text" name="first_name"
-                                        value="{{ old('first_name', $user->first_name) }}"
-                                        class="w-full border rounded-md p-2" required>
-                                    <x-input-error class="mt-2" :messages="$errors->get('first_name')" />
-                                </div>
+                    <div>
+                        <div>
+                            <div class="mt-4">
+                                <label>Your referral link</label>
+                                <input type="text" readonly
+                                    value="{{ url('/register?role=1&ref=' . auth()->user()->refer_code) }}"
+                                    class="w-full border rounded-md p-2"
+                                    onclick="this.select(); document.execCommand('copy'); alert('Referral link copied!')">
                             </div>
+                            <br>
 
-                            {{-- Last Name --}}
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">Last Name</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="text" name="last_name" value="{{ old('last_name', $user->last_name) }}"
-                                        class="w-full border rounded-md p-2" required>
-                                    <x-input-error class="mt-2" :messages="$errors->get('last_name')" />
-                                </div>
-                            </div>
+                            <!-- tab user basic info -->
+                            <form action="{{ route('profile.update') }}" method="POST" enctype="multipart/form-data">
+                                @csrf
+                                @method('patch')
+                                <div class="space-y-6">
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">First Name</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="text" name="first_name"
+                                                value="{{ old('first_name', $user->first_name) }}"
+                                                class="w-full border rounded-md p-2" required>
+                                            <x-input-error class="mt-2" :messages="$errors->get('first_name')" />
+                                        </div>
+                                    </div>
 
-                            {{-- Email --}}
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">Email</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="email" name="email" value="{{ old('email', $user->email) }}"
-                                        class="w-full border rounded-md p-2" required>
-                                    <x-input-error class="mt-2" :messages="$errors->get('email')" />
-                                </div>
-                            </div>
+                                    {{-- Last Name --}}
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">Last Name</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="text" name="last_name"
+                                                value="{{ old('last_name', $user->last_name) }}"
+                                                class="w-full border rounded-md p-2" required>
+                                            <x-input-error class="mt-2" :messages="$errors->get('last_name')" />
+                                        </div>
+                                    </div>
 
-                            {{-- Bio --}}
-                            <div class="md:flex items-start gap-10">
-                                <label class="md:w-32 text-right">Bio</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    {{-- <textarea name="bio" class="lg:w-1/2 w-full border rounded-md p-2" rows="5">{{ old('bio', $user->bio ?? '') }}</textarea> --}}
-                                    <textarea name="bio" class="w-full border rounded-md p-2" rows="5">{{ old('bio', $user->bio ?? '') }}</textarea>
-                                    <x-input-error class="mt-2" :messages="$errors->get('bio')" />
-                                </div>
-                            </div>
+                                    {{-- Email --}}
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">Email</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                                class="w-full border rounded-md p-2" required>
+                                            <x-input-error class="mt-2" :messages="$errors->get('email')" />
+                                        </div>
+                                    </div>
 
-                            {{-- Address --}}
-                            <div class="md:flex items-center gap-10 mt-4">
-                                <label class="md:w-32 text-right">Address</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="text" name="address" value="{{ old('address', $user->address) }}"
-                                        placeholder="Enter your address" class="w-full border rounded-md p-2">
-                                    <x-input-error class="mt-2" :messages="$errors->get('address')" />
-                                </div>
-                            </div>
+                                    {{-- Bio --}}
+                                    <div class="md:flex items-start gap-10">
+                                        <label class="md:w-32 text-right">Bio</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            {{-- <textarea name="bio" class="lg:w-1/2 w-full border rounded-md p-2" rows="5">{{ old('bio', $user->bio ?? '') }}</textarea> --}}
+                                            <textarea name="bio" class="w-full border rounded-md p-2" rows="5">{{ old('bio', $user->bio ?? '') }}</textarea>
+                                            <x-input-error class="mt-2" :messages="$errors->get('bio')" />
+                                        </div>
+                                    </div>
 
-                            {{-- Gender --}}
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">Gender</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <select name="gender" class="border rounded-md w-full p-2">
-                                        <option value="Woman"
-                                            {{ old('gender', $user->gender) == 'Woman' ? 'selected' : '' }}>Woman</option>
-                                        <option value="Man"
-                                            {{ old('gender', $user->gender) == 'Man' ? 'selected' : '' }}>Man</option>
-                                        <option value="Trans Woman"
-                                            {{ old('gender', $user->gender) == 'Trans Woman' ? 'selected' : '' }}>Trans
-                                            Woman</option>
-                                        <option value="Trans Man"
-                                            {{ old('gender', $user->gender) == 'Trans Man' ? 'selected' : '' }}>Trans Man
-                                        </option>
-                                        <option value="Non-binary"
-                                            {{ old('gender', $user->gender) == 'Non-binary' ? 'selected' : '' }}>Non-binary
-                                        </option>
-                                        <option value="Genderqueer"
-                                            {{ old('gender', $user->gender) == 'Genderqueer' ? 'selected' : '' }}>
-                                            Genderqueer</option>
-                                        <option value="Agender"
-                                            {{ old('gender', $user->gender) == 'Agender' ? 'selected' : '' }}>Agender
-                                        </option>
-                                        <option value="Bigender"
-                                            {{ old('gender', $user->gender) == 'Bigender' ? 'selected' : '' }}>Bigender
-                                        </option>
-                                        <option value="Genderfluid"
-                                            {{ old('gender', $user->gender) == 'Genderfluid' ? 'selected' : '' }}>
-                                            Genderfluid</option>
-                                        <option value="Two-Spirit"
-                                            {{ old('gender', $user->gender) == 'Two-Spirit' ? 'selected' : '' }}>Two-Spirit
-                                        </option>
-                                        <option value="Intersex"
-                                            {{ old('gender', $user->gender) == 'Intersex' ? 'selected' : '' }}>Intersex
-                                        </option>
-                                        <option value="Questioning"
-                                            {{ old('gender', $user->gender) == 'Questioning' ? 'selected' : '' }}>
-                                            Questioning</option>
-                                        <option value="Prefer not to say"
-                                            {{ old('gender', $user->gender) == 'Prefer not to say' ? 'selected' : '' }}>
-                                            Prefer not to say</option>
-                                        {{-- <option value="Other"
+                                    {{-- Address --}}
+                                    <div class="md:flex items-center gap-10 mt-4">
+                                        <label class="md:w-32 text-right">Address</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="text" name="address"
+                                                value="{{ old('address', $user->address) }}"
+                                                placeholder="Enter your address" class="w-full border rounded-md p-2">
+                                            <x-input-error class="mt-2" :messages="$errors->get('address')" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Gender --}}
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">Gender</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <select name="gender" class="border rounded-md w-full p-2">
+                                                <option value="Woman"
+                                                    {{ old('gender', $user->gender) == 'Woman' ? 'selected' : '' }}>Woman
+                                                </option>
+                                                <option value="Man"
+                                                    {{ old('gender', $user->gender) == 'Man' ? 'selected' : '' }}>Man
+                                                </option>
+                                                <option value="Trans Woman"
+                                                    {{ old('gender', $user->gender) == 'Trans Woman' ? 'selected' : '' }}>
+                                                    Trans
+                                                    Woman</option>
+                                                <option value="Trans Man"
+                                                    {{ old('gender', $user->gender) == 'Trans Man' ? 'selected' : '' }}>
+                                                    Trans Man
+                                                </option>
+                                                <option value="Non-binary"
+                                                    {{ old('gender', $user->gender) == 'Non-binary' ? 'selected' : '' }}>
+                                                    Non-binary
+                                                </option>
+                                                <option value="Genderqueer"
+                                                    {{ old('gender', $user->gender) == 'Genderqueer' ? 'selected' : '' }}>
+                                                    Genderqueer</option>
+                                                <option value="Agender"
+                                                    {{ old('gender', $user->gender) == 'Agender' ? 'selected' : '' }}>
+                                                    Agender
+                                                </option>
+                                                <option value="Bigender"
+                                                    {{ old('gender', $user->gender) == 'Bigender' ? 'selected' : '' }}>
+                                                    Bigender
+                                                </option>
+                                                <option value="Genderfluid"
+                                                    {{ old('gender', $user->gender) == 'Genderfluid' ? 'selected' : '' }}>
+                                                    Genderfluid</option>
+                                                <option value="Two-Spirit"
+                                                    {{ old('gender', $user->gender) == 'Two-Spirit' ? 'selected' : '' }}>
+                                                    Two-Spirit
+                                                </option>
+                                                <option value="Intersex"
+                                                    {{ old('gender', $user->gender) == 'Intersex' ? 'selected' : '' }}>
+                                                    Intersex
+                                                </option>
+                                                <option value="Questioning"
+                                                    {{ old('gender', $user->gender) == 'Questioning' ? 'selected' : '' }}>
+                                                    Questioning</option>
+                                                <option value="Prefer not to say"
+                                                    {{ old('gender', $user->gender) == 'Prefer not to say' ? 'selected' : '' }}>
+                                                    Prefer not to say</option>
+                                                {{-- <option value="Other"
                                             {{ old('gender', $user->gender) == 'Other' ? 'selected' : '' }}>Other</option> --}}
-                                    </select>
-                                    <x-input-error class="mt-2" :messages="$errors->get('gender')" />
+                                            </select>
+                                            <x-input-error class="mt-2" :messages="$errors->get('gender')" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Relationship --}}
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">Relationship</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <select name="relationship" class="border rounded-md w-full p-2">
+                                                <option value="None"
+                                                    {{ old('relationship', $user->relationship) == 'None' ? 'selected' : '' }}>
+                                                    None
+                                                </option>
+                                                <option value="Single"
+                                                    {{ old('relationship', $user->relationship) == 'Single' ? 'selected' : '' }}>
+                                                    Single</option>
+                                                <option value="In a relationship"
+                                                    {{ old('relationship', $user->relationship) == 'In a relationship' ? 'selected' : '' }}>
+                                                    In a relationship</option>
+                                                <option value="Married"
+                                                    {{ old('relationship', $user->relationship) == 'Married' ? 'selected' : '' }}>
+                                                    Married</option>
+                                                <option value="Engaged"
+                                                    {{ old('relationship', $user->relationship) == 'Engaged' ? 'selected' : '' }}>
+                                                    Engaged</option>
+                                            </select>
+                                            <x-input-error class="mt-2" :messages="$errors->get('relationship')" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Pronouns --}}
+                                    <div class="md:flex items-center gap-10 mt-4">
+                                        <label class="md:w-32 text-right">Pronouns</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <select name="pronouns" class="border rounded-md w-full p-2">
+                                                <option value=""
+                                                    {{ old('pronouns', $user->pronouns) == '' ? 'selected' : '' }}>Select
+                                                    Pronouns
+                                                </option>
+                                                <option value="He/Him"
+                                                    {{ old('pronouns', $user->pronouns) == 'He/Him' ? 'selected' : '' }}>
+                                                    He/Him
+                                                </option>
+                                                <option value="She/Her"
+                                                    {{ old('pronouns', $user->pronouns) == 'She/Her' ? 'selected' : '' }}>
+                                                    She/Her
+                                                </option>
+                                                <option value="They/Them"
+                                                    {{ old('pronouns', $user->pronouns) == 'They/Them' ? 'selected' : '' }}>
+                                                    They/Them</option>
+                                                <option value="Other"
+                                                    {{ old('pronouns', $user->pronouns) == 'Other' ? 'selected' : '' }}>
+                                                    Other
+                                                </option>
+                                                <option value="Prefer not to say"
+                                                    {{ old('pronouns', $user->pronouns) == 'Prefer not to say' ? 'selected' : '' }}>
+                                                    Prefer not to say</option>
+                                            </select>
+                                            <x-input-error class="mt-2" :messages="$errors->get('pronouns')" />
+                                        </div>
+                                    </div>
+
+
+                                    {{-- Price --}}
+                                    <div class="md:flex items-center gap-10">
+                                        <label class="md:w-32 text-right">Price</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="text" name="price"
+                                                value="{{ old('price', $user->price) }}"
+                                                class="w-full border rounded-md p-2">
+                                            <x-input-error class="mt-2" :messages="$errors->get('price')" />
+                                        </div>
+                                    </div>
+
+                                    {{-- Image --}}
+                                    <div class="md:flex items-center gap-10 mt-4">
+                                        <label class="md:w-32 text-right font-medium">Image</label>
+                                        <div class="flex-1 max-md:mt-4">
+                                            <input type="file" name="image" accept="image/*"
+                                                class="w-full border rounded-md p-2 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100">
+                                            <x-input-error class="mt-2" :messages="$errors->get('image')" />
+                                        </div>
+                                    </div>
                                 </div>
-                            </div>
 
-                            {{-- Relationship --}}
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">Relationship</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <select name="relationship" class="border rounded-md w-full p-2">
-                                        <option value="None"
-                                            {{ old('relationship', $user->relationship) == 'None' ? 'selected' : '' }}>None
-                                        </option>
-                                        <option value="Single"
-                                            {{ old('relationship', $user->relationship) == 'Single' ? 'selected' : '' }}>
-                                            Single</option>
-                                        <option value="In a relationship"
-                                            {{ old('relationship', $user->relationship) == 'In a relationship' ? 'selected' : '' }}>
-                                            In a relationship</option>
-                                        <option value="Married"
-                                            {{ old('relationship', $user->relationship) == 'Married' ? 'selected' : '' }}>
-                                            Married</option>
-                                        <option value="Engaged"
-                                            {{ old('relationship', $user->relationship) == 'Engaged' ? 'selected' : '' }}>
-                                            Engaged</option>
-                                    </select>
-                                    <x-input-error class="mt-2" :messages="$errors->get('relationship')" />
-                                </div>
-                            </div>
-
-                            {{-- Pronouns --}}
-                            <div class="md:flex items-center gap-10 mt-4">
-                                <label class="md:w-32 text-right">Pronouns</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <select name="pronouns" class="border rounded-md w-full p-2">
-                                        <option value=""
-                                            {{ old('pronouns', $user->pronouns) == '' ? 'selected' : '' }}>Select Pronouns
-                                        </option>
-                                        <option value="He/Him"
-                                            {{ old('pronouns', $user->pronouns) == 'He/Him' ? 'selected' : '' }}>He/Him
-                                        </option>
-                                        <option value="She/Her"
-                                            {{ old('pronouns', $user->pronouns) == 'She/Her' ? 'selected' : '' }}>She/Her
-                                        </option>
-                                        <option value="They/Them"
-                                            {{ old('pronouns', $user->pronouns) == 'They/Them' ? 'selected' : '' }}>
-                                            They/Them</option>
-                                        <option value="Other"
-                                            {{ old('pronouns', $user->pronouns) == 'Other' ? 'selected' : '' }}>Other
-                                        </option>
-                                        <option value="Prefer not to say"
-                                            {{ old('pronouns', $user->pronouns) == 'Prefer not to say' ? 'selected' : '' }}>
-                                            Prefer not to say</option>
-                                    </select>
-                                    <x-input-error class="mt-2" :messages="$errors->get('pronouns')" />
-                                </div>
-                            </div>
-
-
-                            {{-- Price --}}
-                            <div class="md:flex items-center gap-10">
-                                <label class="md:w-32 text-right">Price</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="text" name="price" value="{{ old('price', $user->price) }}"
-                                        class="w-full border rounded-md p-2">
-                                    <x-input-error class="mt-2" :messages="$errors->get('price')" />
-                                </div>
-                            </div>
-
-                            {{-- Image --}}
-                            <div class="md:flex items-center gap-10 mt-4">
-                                <label class="md:w-32 text-right font-medium">Image</label>
-                                <div class="flex-1 max-md:mt-4">
-                                    <input type="file" name="image" accept="image/*"
-                                        class="w-full border rounded-md p-2 cursor-pointer file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:bg-blue-50 file:text-blue-600 hover:file:bg-blue-100">
-                                    <x-input-error class="mt-2" :messages="$errors->get('image')" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="flex items-center justify-center gap-4 mt-4">
-                            {{-- <button type="submit1" class="button lg:px-6 bg-secondery max-md:flex-1">
+                                <div class="flex items-center justify-center gap-4 mt-4">
+                                    {{-- <button type="submit1" class="button lg:px-6 bg-secondery max-md:flex-1">
                                             Cancle</button> --}}
-                            <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
-                                Save <span class="ripple-overlay"></span>
-                            </button>
-                    </form>
+                                    <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
+                                        Save <span class="ripple-overlay"></span>
+                                    </button>
+                            </form>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- tab socialinks -->
