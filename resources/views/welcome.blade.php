@@ -8,8 +8,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AffirmSpace – LGBTQ+ Community, Chat, Dating & Counselling Platform</title>
-
-    <meta name="robots" content="index, follow">
     <meta name="author" content="AffirmSpace">
 
     <meta property="og:title" content="AffirmSpace – LGBTQ+ Dating, Community & Mental Health Platform 🌈">
