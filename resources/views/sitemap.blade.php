@@ -1,65 +1,36 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
-    <url>
-        <loc>https://www.affirmspace.com/</loc>
-    </url>
+    @php
+        $pages = [
+            '/',
+            '/aboutus',
+            '/privacy',
+            '/refundpolicy',
+            '/contactwithadmin',
+            '/login',
+            '/register',
+            '/terms',
+            '/blogs',
+            '/community',
+            '/chat',
+            '/dating',
+            '/counselling',
+            '/events',
+        ];
+    @endphp
 
-    <url>
-        <loc>https://www.affirmspace.com/aboutus</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/privacy</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/refundpolicy</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/contactwithadmin</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/login</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/register</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/terms</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/blogs</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/community</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/chat</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/dating</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/counselling</loc>
-    </url>
-
-    <url>
-        <loc>https://www.affirmspace.com/events</loc>
-    </url>
-    @foreach($blogs as $blog)
-    <url>
-        <loc>{{ url('/blog/'.$blog->category.'/'.$blog->slug) }}</loc>
-        {{-- <lastmod>{{ $blog->updated_at->toAtomString() }}</lastmod> --}}
-    </url>
+    @foreach ($pages as $page)
+        <url>
+            <loc>{{ url($page) }}</loc>
+        </url>
     @endforeach
+
+    @foreach ($blogs as $blog)
+        <url>
+            <loc>{{ url('/blog/' . $blog->category . '/' . $blog->slug) }}</loc>
+            {{-- <lastmod>{{ $blog->updated_at->toAtomString() }}</lastmod> --}}
+        </url>
+    @endforeach
+
 </urlset>
