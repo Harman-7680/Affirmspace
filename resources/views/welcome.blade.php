@@ -2,7 +2,7 @@
 
 @section('meta')
     <meta name="description"
-        content="AffirmSpace is a safe LGBTQ+ community platform to connect, chat, find meaningful relationships, and access professional LGBTQ+ mental health counselling in a secure environment.">
+        content="AffirmSpace is a safe LGBTQ+ platform to connect, chat, find meaningful relationships, and access identity-affirming mental health counselling.">
     <meta name="keywords"
         content="LGBTQ+ community platform, LGBTQ+ dating, LGBTQ+ mental health & counselling, LGBTQ+ chat, gender-affirming healthcare">
     <meta charset="UTF-8">
@@ -11,6 +11,14 @@
 
     <meta name="robots" content="index, follow">
     <meta name="author" content="AffirmSpace">
+
+    <meta property="og:title" content="AffirmSpace – LGBTQ+ Dating, Community & Mental Health Platform 🌈">
+    <meta property="og:description"
+        content="Join AffirmSpace, a safe LGBTQ+ platform for dating, community, and mental health support. Connect, express, and be your true self 💜">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="{{ url('/') }}">
+    <meta property="og:image" content="{{ asset('images/og.png') }}">
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 @endsection
 
@@ -723,7 +731,7 @@
 @section('content')
     <!-- Splash screen -->
     <div id="splash-screen">
-        <img src="images/welcomepage.png" alt="AffirmSpace">
+        <img src="public/images/welcomepage.png" alt="AffirmSpace">
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
