@@ -147,11 +147,26 @@
                     <div>
                         <div>
                             <div class="mt-4">
-                                <label>Your referral link</label>
-                                <input type="text" readonly
-                                    value="{{ url('/register?role=1&ref=' . auth()->user()->refer_code) }}"
-                                    class="w-full border rounded-md p-2"
-                                    onclick="this.select(); document.execCommand('copy'); alert('Referral link copied!')">
+                                <label class="block mb-1 text-sm font-medium text-gray-700">
+                                    Your referral link
+                                </label>
+
+                                <div class="relative">
+                                    <input type="text" readonly
+                                        value="{{ url('/register?role=1&ref=' . auth()->user()->refer_code) }}"
+                                        class="w-full border border-gray-300 rounded-lg px-4 py-2 pr-12 bg-gray-50 text-gray-700 text-sm focus:outline-none">
+
+                                    <!-- Copy Icon Button -->
+                                    <button onclick="copyInput(this)"
+                                        class="absolute right-2 top-1/2 -translate-y-1/2 bg-white border border-gray-200 rounded-md p-1.5 hover:bg-gray-100 transition">
+
+                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-gray-600" fill="none"
+                                            viewBox="0 0 24 24" stroke="currentColor">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M8 16h8M8 12h8m-8-4h8m2 12H6a2 2 0 01-2-2V6a2 2 0 012-2h7l5 5v9a2 2 0 01-2 2z" />
+                                        </svg>
+                                    </button>
+                                </div>
                             </div>
                             <br>
 
@@ -815,5 +830,13 @@
                 });
             }
         });
+    </script>
+
+    <script>
+        function copyInput(el) {
+            let input = el.parentElement.querySelector('input');
+            input.select();
+            document.execCommand('copy');
+        }
     </script>
 @endsection
