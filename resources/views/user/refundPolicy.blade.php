@@ -267,7 +267,7 @@
 
             <div class="policy-card">
                 <h3>Contact Support</h3>
-                <p>Email: <strong>info@affirmspace.com</strong></p>
+                <p>Email: <strong>affirmspace@gmail.com</strong></p>
                 <p>
                     Please include your registered email, transaction ID, and payment date.
                 </p>
