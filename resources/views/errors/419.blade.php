@@ -3,9 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
-    <title>403 Unauthorized</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
+    <title>Session Expired</title>
     <script src="https://cdn.tailwindcss.com"></script>
 
     <style>
@@ -44,34 +42,31 @@
 
     <div class="w-full max-w-md text-center px-6">
 
-        <!-- LGBTQ line -->
+        <!-- line -->
         <div class="rainbow-bar rounded-full mb-8"></div>
 
         <!-- Illustration -->
         <div class="flex justify-center mb-6 float">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
 
-                <!-- lock body -->
-                <rect x="30" y="50" width="60" height="40" rx="10" stroke="#9ca3af" stroke-width="4" />
+                <!-- clock circle -->
+                <circle cx="60" cy="60" r="30" stroke="#9ca3af" stroke-width="4" />
 
-                <!-- lock top -->
-                <path d="M40 50V40a20 20 0 0 1 40 0v10" stroke="#9ca3af" stroke-width="4" />
+                <!-- clock hands -->
+                <line x1="60" y1="60" x2="60" y2="40" stroke="#9ca3af" stroke-width="4" />
+                <line x1="60" y1="60" x2="75" y2="60" stroke="#9ca3af" stroke-width="4" />
 
                 <!-- cross -->
-                <line x1="45" y1="60" x2="75" y2="80" stroke="#ef4444" stroke-width="3" />
-                <line x1="75" y1="60" x2="45" y2="80" stroke="#ef4444" stroke-width="3" />
+                <line x1="45" y1="45" x2="75" y2="75" stroke="#ef4444" stroke-width="3" />
+                <line x1="75" y1="45" x2="45" y2="75" stroke="#ef4444" stroke-width="3" />
 
             </svg>
         </div>
 
-        <!-- 403 -->
-        <h1 class="text-5xl font-bold text-gray-900 tracking-tight">
-            403
-        </h1>
+        <h1 class="text-5xl font-bold text-gray-900">419</h1>
 
-        <!-- message -->
         <p class="text-lg mt-4 text-gray-600">
-            You don’t have permission to access this page.
+            Your session has expired. Please refresh and try again.
         </p>
 
         <!-- button -->

@@ -42,10 +42,10 @@
 
     <div class="w-full max-w-md text-center px-6">
 
-        <!-- 🌈 subtle LGBTQ line -->
+        <!-- subtle LGBTQ line -->
         <div class="rainbow-bar rounded-full mb-8"></div>
 
-        <!-- 🔍 Illustration -->
+        <!-- Illustration -->
         <div class="flex justify-center mb-6 float">
             <svg width="120" height="120" viewBox="0 0 120 120" fill="none">
 
