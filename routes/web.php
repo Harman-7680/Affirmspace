@@ -387,6 +387,6 @@ Route::group([], function () {
 
 Route::get('/sitemap.xml', [HomeController::class, 'sitemap']);
 
-Route::fallback(function () {return response()->view('errors.fallback', [], 404);});
+Route::fallback(function () {return response()->view('errors.404', [], 404);});
 
 require __DIR__ . '/auth.php';
