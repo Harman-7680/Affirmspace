@@ -4,25 +4,25 @@
     @php
         $pages = [
             '/',
-            '/aboutus',
-            '/privacy',
-            '/refundpolicy',
-            '/contactwithadmin',
-            '/login',
-            '/register',
-            '/terms',
-            '/blogs',
-            '/community',
-            '/chat',
-            '/dating',
-            '/counselling',
-            '/events',
+            'aboutUs',
+            'privacy',
+            'refundPolicy',
+            'contactWithAdmin',
+            'login',
+            'register',
+            'terms',
+            'blogs',
+            'community',
+            'chat',
+            'chatAndDating',
+            'counselling',
+            'events',
         ];
     @endphp
 
-    @foreach ($pages as $page)
+    @foreach ($pages as $routeName)
         <url>
-            <loc>{{ url($page) }}</loc>
+            <loc>{{ route($routeName) }}</loc>
         </url>
     @endforeach
 
