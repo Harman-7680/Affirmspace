@@ -14,6 +14,10 @@ class EnsureProfileComplete
 
         $user = auth()->user();
 
+        if ($user->role !== 0) {
+            return $next($request);
+        }
+
         // VERY IMPORTANT:
         // Do NOT check profile if email is not verified
         if (! $user->hasVerifiedEmail()) {
