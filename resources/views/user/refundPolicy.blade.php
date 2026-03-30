@@ -159,7 +159,8 @@
     <!-- HERO -->
     <section class="refund-hero">
 
-        <img src="{{ asset('images/coursel.png') }}" class="refund-img" alt="Refund background">
+        <img src="{{ asset('images/coursel.png') }}" class="refund-img"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="refund-content">
             <h1>Refund Policy 💖</h1>

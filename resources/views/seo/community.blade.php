@@ -273,7 +273,8 @@
 
                     <!-- RIGHT SIDE -->
                     <div class="hero-image">
-                        <img src="images/community/communityheader.png" alt="Community">
+                        <img src="images/community/communityheader.png"
+                            alt="Diverse LGBTQ+ community celebrating pride together with rainbow flags, symbolizing inclusivity, equality, and support – AffirmSpace platform for safe LGBTQ+ connections and empowerment.">
                     </div>
 
                 </div>
@@ -290,8 +291,8 @@
             <div class="feature-grid">
 
                 <div class="feature-card">
-                    <img src="{{ asset('images/community/Inclusive_Community.jpeg') }}" height="50"
-                        alt="">
+                    <img src="{{ asset('/images/community/Inclusive_Community.jpeg') }}" height="50"
+                        alt="Rainbow heart with colorful brush strokes showing LGBTQ inclusivity.">
                     <h3> Inclusive Community</h3>
                     <p>
                         AffirmSpace welcomes people from across the LGBTQ+ spectrum, creating a space
@@ -300,8 +301,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <img src="{{ asset('images/community/Meaningful_Connections.jpeg') }}" height="50"
-                        alt="">
+                    <img src="{{ asset('/images/community/Meaningful_Connections.jpeg') }}" height="50"
+                        alt="Two hands shaking symbolizing friends connection and support">
                     <h3> Meaningful Connections</h3>
                     <p>
                         Meet like-minded individuals, engage in thoughtful conversations,
@@ -310,8 +311,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <img src="{{ asset('images/community/Safe_Respectful_Environment.jpeg') }}" height="50"
-                        alt="">
+                    <img src="{{ asset('/images/community/Safe_Respectful_Environment.jpeg') }}" height="50"
+                        alt="Blue shield with yellow lock showing lgbtq safety and protection.">
                     <h3> Safe & Respectful Environment</h3>
                     <p>
                         The platform prioritizes privacy, moderation, and respectful communication
@@ -371,20 +372,25 @@
             <div class="values-grid">
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Respect_for_All.png') }}" height="75" alt="">
+                        src="{{ asset('/images/community/Respect_for_All.png') }}" height="75"
+                        alt="Hands holding rainbow heart with LGBTQ community support and inclusivity
+">
                     Respect for All</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Supportive_Conversations.png') }}" height="75"
-                        alt=""> Supportive Conversations</div>
+                        src="{{ asset('/images/community/Supportive_Conversations.png') }}" height="75"
+                        alt="Chat bubbles with heart showing friends connection and LGBTQ community."> Supportive
+                    Conversations</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Safe_Digital_Spaces.png') }}" height="75" alt="">
+                        src="{{ asset('/images/community/Safe_Digital_Spaces.png') }}" height="75"
+                        alt="Shield with locks showing support and safety for LGBTQ community.">
                     Safe Digital Spaces</div>
 
                 <div class="value-card" style="display: flex; align-items: center; justify-content: center;"><img
-                        src="{{ asset('images/community/Meaningful Connections_2.png') }}" height="75"
-                        alt=""> Meaningful Connections</div>
+                        src="{{ asset('/images/community/Meaningful Connections_2.png') }}" height="75"
+                        alt="Puzzle heart with colors showing LGBTQ community connection and inclusivity."> Meaningful
+                    Connections</div>
 
             </div>
 

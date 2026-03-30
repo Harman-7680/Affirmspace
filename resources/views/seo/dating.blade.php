@@ -370,7 +370,8 @@
                 </div>
 
                 <div class="hero-image">
-                    <img src="images/dating/datingheader.png" alt="AffirmSpace Dating">
+                    <img src="images/dating/datingheader.png"
+                        alt="LGBTQ couple holding hands showing love and relationship.">
                 </div>
 
             </div>
@@ -386,7 +387,8 @@
             <div class="features-grid">
 
                 <div class="feature-card">
-                    <img src="images/dating/Datingspace.png" class="feature-img" alt="">
+                    <img src="images/dating/Datingspace.png" class="feature-img"
+                        alt="Shield with rainbow heart showing LGBTQ love and protection.">
                     <h3>Safe LGBTQ+ Dating Space</h3>
                     <p>
                         Meet people who respect your identity and values in a safe and inclusive environment.
@@ -394,7 +396,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <img src="images/dating/Authentication.png" class="feature-img" alt="">
+                    <img src="images/dating/Authentication.png" class="feature-img"
+                        alt="Person inside shield with checkmark on rainbow LGBTQ background.">
                     <h3>Authentic Profiles</h3>
                     <p>
                         Find genuine connections with real people from the LGBTQ+ community.
@@ -402,7 +405,8 @@
                 </div>
 
                 <div class="feature-card">
-                    <img src="images/dating/Connections.png" class="feature-img" alt="">
+                    <img src="images/dating/Connections.png" class="feature-img"
+                        alt="Two hands holding heart showing love and connection.">
                     <h3>Meaningful Connections</h3>
                     <p>
                         Whether you're looking for friendship, dating, or a relationship,
@@ -418,7 +422,8 @@
     <section class="how-works">
 
         <div class="bg-image">
-            <img src="images/dating/datingwork.jpeg" alt="">
+            <img src="images/dating/datingwork.jpeg"
+                alt="Light rainbow gradient with faint hearts and check icons pattern.">
         </div>
 
         <div class="container">
@@ -428,7 +433,7 @@
             <div class="steps">
 
                 <div class="step">
-                    <img src="images/dating/1.png" class="step-img" alt="">
+                    <img src="images/dating/1.png" class="step-img" alt="Number one on purple background.">
                     <h3>Create Your Profile</h3>
                     <p>
                         Share your interests, identity, and what you're looking for.
@@ -436,7 +441,7 @@
                 </div>
 
                 <div class="step">
-                    <img src="images/dating/2.png" class="step-img" alt="">
+                    <img src="images/dating/2.png" class="step-img" alt="Number two on red background">
                     <h3>Discover People</h3>
                     <p>
                         Browse profiles and find people who share your values.
@@ -444,7 +449,7 @@
                 </div>
 
                 <div class="step">
-                    <img src="images/dating/3.png" class="step-img" alt="">
+                    <img src="images/dating/3.png" class="step-img" alt="Number three on blue background.">
                     <h3>Start a Conversation</h3>
                     <p>
                         Match and begin meaningful conversations in a safe space.

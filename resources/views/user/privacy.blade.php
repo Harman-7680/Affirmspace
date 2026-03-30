@@ -141,7 +141,8 @@
     <!-- Hero Section -->
     <section class="privacy-parallax">
 
-        <img src="images/coursel.png" class="privacy-img" alt="Privacy background">
+        <img src="images/coursel.png" class="privacy-img"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="privacy-content">
             <h2>Your Privacy Matters 🔐</h2>

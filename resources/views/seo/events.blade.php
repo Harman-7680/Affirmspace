@@ -286,14 +286,13 @@
                 </div>
 
                 <div class="hero-image">
-                    <img src="{{ asset('images/events/eventop.png') }}" alt="Events">
+                    <img src="{{ asset('images/events/eventop.png') }}"
+                        alt="LGBTQ community celebrating pride with rainbow flag at festival.">
                 </div>
 
             </div>
         </div>
     </section>
-
-
 
     <section class="events-empty">
         <div class="container">
@@ -309,32 +308,35 @@
             <div class="cards-grid">
 
                 <div class="event-card">
-                    <img src="{{ asset('images/events/e1.png') }}">
+                    <img src="{{ asset('images/events/e1.png') }}"
+                        alt="People inside heart icon showing community gathering and support.">
                     <h3>Read Helpful Articles</h3>
                     <p>
                         Learn more about mental health, relationships, identity, and personal growth.
                     </p>
-                    <a href="#" class="btn-orange">Browse Articles →</a>
+                    <a href="{{ route('blogs') }}" class="btn-orange">Browse Articles →</a>
                 </div>
 
 
                 <div class="event-card">
-                    <img src="{{ asset('images/events/e2.png') }}">
+                    <img src="{{ asset('images/events/e2.png') }}"
+                        alt="Woman using laptop reading content with notes and light bulb.">
                     <h3>Connect in the Community</h3>
                     <p>
                         Engage in LGBTQ+ discussions and meet amazing people.
                     </p>
-                    <a href="#" class="btn-orange">Join Chat →</a>
+                    <a href="{{ route('chat') }}" class="btn-orange">Join Chat →</a>
                 </div>
 
 
                 <div class="event-card">
-                    <img src="{{ asset('images/events/e3.png') }}">
+                    <img src="{{ asset('images/events/e3.png') }}"
+                        alt="Two people talking during support session with conversation bubble.">
                     <h3>Find Support Resources</h3>
                     <p>
                         Get guidance from LGBTQ+ friendly professionals.
                     </p>
-                    <a href="#" class="btn-purple">Find Support →</a>
+                    <a href="{{ route('counselling') }}" class="btn-purple">Find Support →</a>
                 </div>
 
             </div>
@@ -368,7 +370,8 @@
             </div>
 
             <div class="cta-image">
-                <img src="{{ asset('images/events/eventfooter.png') }}">
+                <img src="{{ asset('images/events/eventfooter.png') }}"
+                    alt="Calendar with star icon and rocket launching beside it.">
             </div>
 
         </div>

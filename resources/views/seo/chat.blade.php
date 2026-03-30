@@ -211,7 +211,8 @@
                 </div>
 
                 <div class="hero-image">
-                    <img src="{{ asset('images/chat/Chat_Header_Banner.png') }}" alt="AffirmSpace Chat">
+                    <img src="{{ asset('images/chat/Chat_Header_Banner.png') }}"
+                        alt="Two people chatting on phones showing online connection and conversation.">
                 </div>
 
             </div>
@@ -228,28 +229,28 @@
 
                 <div class="feature-card">
                     <div class="icon"><img height="70" src="{{ asset('images/chat/Private_Chat.png') }}"
-                            alt=""></div>
+                            alt="Chat bubbles with lock showing private LGBTQ chat and messaging"></div>
                     <h3>Private & Secure</h3>
                     <p>Encrypted messaging for your privacy.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="icon"><img height="70" src="{{ asset('images/chat/Lgbt_Friendly.png') }}"
-                            alt=""></div>
+                            alt="Rainbow pride flag on pole representing LGBTQ community"></div>
                     <h3>LGBTQ+ Friendly</h3>
                     <p>A safe space to be yourself.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="icon"><img height="80" src="{{ asset('images/chat/Group_Chat.png') }}"
-                            alt=""></div>
+                            alt="Group of friends talking together showing community and connection"></div>
                     <h3>Group Chats</h3>
                     <p>Join communities and discussions.</p>
                 </div>
 
                 <div class="feature-card">
                     <div class="icon"><img height="80" src="{{ asset('images/chat/Real_Connections.png') }}"
-                            alt=""></div>
+                            alt="Two hearts together showing friends connection and support."></div>
                     <h3>Real Connections</h3>
                     <p>Build friendships and support.</p>
                 </div>
@@ -269,21 +270,22 @@
 
                 <div class="step">
                     <div class="step-number"><img height="60" src="{{ asset('images/chat/Browse_Connect.png') }}"
-                            alt=""></div>
+                            alt="Hands passing heart showing friends support and connection."></div>
                     <h3>Browse & Connect</h3>
                     <p>Find people to chat with.</p>
                 </div>
 
                 <div class="step">
                     <div class="step-number"><img height="60" src="{{ asset('images/chat/Start_Messaging.png') }}"
-                            alt=""></div>
+                            alt="Two people using phones showing messaging and online communication."></div>
                     <h3>Start Messaging</h3>
                     <p>Send text, emojis and media.</p>
                 </div>
 
                 <div class="step">
                     <div class="step-number"><img height="60"
-                            src="{{ asset('images/chat/Build_Relationships.png') }}" alt=""></div>
+                            src="{{ asset('images/chat/Build_Relationships.png') }}"
+                            alt="Two hands with heart showing support and connection between friends."></div>
                     <h3>Build Relationships</h3>
                     <p>Make meaningful connections.</p>
                 </div>

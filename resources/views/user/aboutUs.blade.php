@@ -14,50 +14,96 @@
 
 @section('css')
     <style>
-        section {
-            padding: 80px 8%;
-        }
-
-        section h2 {
-            font-size: 2.1rem;
-            margin-bottom: 15px;
-            text-align: center;
-        }
-
-        section p {
-            max-width: 900px;
-            margin: 0 auto;
-            text-align: center;
-            color: #555;
-        }
-
+        /* SECTION */
         .features {
             background: #ffffff;
+            padding: 90px 8%;
         }
 
+        /* GRID - FORCE 3 CARDS */
         .feature-grid {
-            margin-top: 50px;
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-            gap: 25px;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 50px;
         }
 
+        /* CARD DESIGN */
         .feature-card {
             background: #f9fafb;
-            padding: 28px;
+            padding: 30px 25px;
             border-radius: 18px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.05);
+            position: relative;
+            transition: all 0.35s ease;
+            border: 1px solid #e5e7eb;
         }
+
+        /* SUBTLE INNER GLOW */
+        .feature-card::before {
+            content: "";
+            position: absolute;
+            inset: 0;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #ff512f, #dd2476);
+            opacity: 0;
+            transition: 0.35s ease;
+            z-index: 0;
+        }
+
+        /* CONTENT ABOVE */
+        .feature-card * {
+            position: relative;
+            z-index: 1;
+        }
+
+        /* HOVER EFFECT (GRADIENT SHADOW ONLY) */
+        .feature-card:hover {
+            transform: translateY(-8px);
+            box-shadow:
+                0 15px 40px rgba(255, 65, 108, 0.25),
+                0 0 25px rgba(221, 36, 118, 0.25);
+        }
+
+        /* HEADING */
 
         .feature-card h3 {
+            font-size: 1.15rem;
             margin-bottom: 12px;
-            font-size: 1.1rem;
+            font-weight: 600;
+            color: #222;
+            /* normal text color */
         }
 
+        /* TEXT */
         .feature-card p {
-            text-align: left;
             color: #555;
-            margin-bottom: 10px;
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* LINKS */
+        .feature-link {
+            text-decoration: none;
+            color: #111;
+            font-weight: 600;
+            transition: 0.3s;
+        }
+
+        .feature-link:hover {
+            color: #dd2476;
+        }
+
+        /* RESPONSIVE */
+        @media (max-width: 992px) {
+            .feature-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 600px) {
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
         }
 
         .disclaimer {
@@ -136,7 +182,8 @@
     <!-- Hero Section -->
     <section class="about-parallax">
 
-        <img src="images/coursel.png" class="parallax-img" alt="AffirmSpace background">
+        <img src="images/coursel.png" class="parallax-img"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="about-content">
             <h2>More Than a Dating Platform 🌈</h2>
@@ -153,16 +200,17 @@
 
     <!-- About Content -->
     <section class="features">
+
         <div class="feature-grid">
 
             <div class="feature-card">
-                <h3>🛡️ A Safe LGBTQ+ Community </h3>
+                <h3>🛡️ A Safe LGBTQ+ Community</h3>
                 <p>
-                    <a href="{{ route('/') }}" style="text-decoration:none; color:black;"> <b>AffirmSpace</b></a> was
+                    <a href="{{ route('/') }}" class="feature-link"><b>AffirmSpace</b></a> was
                     created to provide a secure and inclusive environment where people can express their identity freely and
-                    connect without fear of judgment.<a href="{{ route('community') }}"
-                        style="text-decoration:none; color:black;"><b> As a safe LGBTQ+ community platform,</b></a> we
-                    prioritize respectful interaction, privacy, and meaningful conversations for individuals across the
+                    connect without fear of judgment.
+                    <a href="{{ route('community') }}" class="feature-link"><b>As a safe LGBTQ+ community platform,</b></a>
+                    we prioritize respectful interaction, privacy, and meaningful conversations for individuals across the
                     LGBTQ+ spectrum.
                 </p>
             </div>
@@ -171,41 +219,43 @@
                 <h3>💬 Meaningful LGBTQ+ Chat & Real Connections</h3>
                 <p>
                     Whether you're looking for casual conversations, friendships, or long-term relationships, AffirmSpace
-                    helps people connect through inclusive <a href="{{ route('chat') }}"
-                        style="text-decoration:none; color:black;"><b>LGBTQ+ chat and community</b></a> discussions in a
-                    safe environment.
+                    helps people connect through inclusive
+                    <a href="{{ route('chat') }}" class="feature-link"><b>LGBTQ+ chat and community</b></a>
+                    discussions in a safe environment.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>❤️ Beyond Traditional LGBTQ Dating Apps </h3>
+                <h3>❤️ Beyond Traditional LGBTQ Dating Apps</h3>
                 <p>
-                    Unlike many <a href="{{ route('chatAndDating') }}" style="text-decoration:none; color:black;"><b>LGBTQ
-                            dating apps</b></a> that focus only on swiping and quick matches, AffirmSpace promotes deeper
+                    Unlike many
+                    <a href="{{ route('chatAndDating') }}" class="feature-link"><b>LGBTQ dating apps</b></a>
+                    that focus only on swiping and quick matches, AffirmSpace promotes deeper
                     connections built on trust, shared experiences, and mutual understanding within the community.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>🧠 Built-In Counselling Support </h3>
+                <h3>🧠 Built-In Counselling Support</h3>
                 <p>
-                    AffirmSpace goes beyond social networking by integrating <a href="{{ route('counselling') }}"
-                        style="text-decoration:none; color:black;"><b>LGBTQ-friendly counselling support</b></a> directly
-                    into the platform. Users can access guidance for mental health, identity challenges, relationships, and
-                    personal growth through trained counsellors and supervised interns.
+                    AffirmSpace goes beyond social networking by integrating
+                    <a href="{{ route('counselling') }}" class="feature-link"><b>LGBTQ-friendly counselling support</b></a>
+                    directly into the platform. Users can access guidance for mental health, identity challenges,
+                    relationships,
+                    and personal growth through trained counsellors and supervised interns.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>🌈 Identity & Pronoun Respect </h3>
+                <h3>🌈 Identity & Pronoun Respect</h3>
                 <p>
                     We believe identity deserves recognition and respect. AffirmSpace allows members to express themselves
-                    through customizable profiles, pronoun options, and inclusive identity choices that cr
+                    through customizable profiles, pronoun options, and inclusive identity choices.
                 </p>
             </div>
 
             <div class="feature-card">
-                <h3>🚀 Our Vision </h3>
+                <h3>🚀 Our Vision</h3>
                 <p>
                     Our vision is to build a trusted global platform where LGBTQ+ individuals can connect, share
                     experiences, and find the understanding and support they deserve. AffirmSpace aims to create a space

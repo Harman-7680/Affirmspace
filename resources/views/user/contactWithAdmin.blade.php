@@ -181,7 +181,8 @@
     <!-- Hero -->
     <section class="contact-parallax">
 
-        <img src="images/coursel.png" class="contact-img" alt="Contact background">
+        <img src="images/coursel.png" class="contact-img"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="contact-content">
             <h2>Contact Us</h2>

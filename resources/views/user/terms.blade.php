@@ -155,7 +155,8 @@
     <!-- HERO -->
     <section class="terms-hero">
 
-        <img src="{{ asset('images/coursel.png') }}" class="terms-img" alt="Terms background">
+        <img src="{{ asset('images/coursel.png') }}" class="terms-img"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="terms-content">
             <h1>Terms & Conditions 📜</h1>

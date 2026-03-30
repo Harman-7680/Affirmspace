@@ -729,17 +729,17 @@
 @section('content')
     <!-- Splash screen -->
     <div id="splash-screen">
-        <img src="public/images/welcomepage.png" alt="AffirmSpace">
+        <img src="images/welcomepage.png" alt="AffirmSpace">
     </div>
 
     <!-- HERO SECTION – images stay fixed on desktop, smooth fade -->
     {{-- <section class="parallax-hero">
             <div class="fixed-bg-layer" id="bgLayer1" 
-            style="background-image: url('public/images/header1.png'); opacity: 1;
+            style="background-image: url('images/header1.png'); opacity: 1;
             ">
             </div>
             <div class="fixed-bg-layer" id="bgLayer2"
-                style="background-image: url('public/images/Consultant.png'); opacity: 0;
+                style="background-image: url('images/Consultant.png'); opacity: 0;
                 ">
             </div>
             <div class="parallax-overlay"></div>
@@ -883,7 +883,8 @@
 
     <section class="identity">
 
-        <div class="identity-bg" style="background-image:url('images/beyou.jpg');"></div>
+        <div class="identity-bg" style="background-image:url('images/beyou.jpg');"
+            alt="LGBTQ community celebrating pride with rainbow flags and joy"></div>
 
         <div class="identity-content">
             <h2>Be Yourself — On Your Terms</h2>
