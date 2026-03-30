@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>Server Error</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
 
     <style>
         .rainbow-bar {

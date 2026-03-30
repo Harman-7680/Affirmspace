@@ -125,4 +125,5 @@ return [
 
     'logo' => env('APP_LOGO_URL'),
 
+    'maintenance_mode' => env('MAINTENANCE_MODE', false),
 ];

@@ -5,6 +5,7 @@
     <meta charset="UTF-8">
     <title>403 Unauthorized</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
 
     <script src="https://cdn.tailwindcss.com"></script>
 

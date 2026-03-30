@@ -7,12 +7,7 @@ class MaintenanceMode
 {
     public function handle($request, Closure $next)
     {
-        if (env('MAINTENANCE_MODE') == true) {
-
-            // Admin bypass
-            if (auth()->check() && auth()->user()->role === 2) {
-                return $next($request);
-            }
+        if (config('app.maintenance_mode') === true) {
 
             // API request
             if ($request->is('api/*')) {
