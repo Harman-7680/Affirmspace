@@ -64,7 +64,7 @@
         </p>
 
         <!-- button -->
-        <div class="mt-8">
+        {{-- <div class="mt-8">
             <form method="POST" action="{{ route('logout') }}">
                 @csrf
                 <button type="submit"
@@ -72,7 +72,7 @@
                     Back To Home
                 </button>
             </form>
-        </div>
+        </div> --}}
 
     </div>
 

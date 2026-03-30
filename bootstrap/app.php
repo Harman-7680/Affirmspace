@@ -28,11 +28,13 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->web([
             \App\Http\Middleware\UpdateLastSeen::class,
             \App\Http\Middleware\CheckAccountStatus::class, // This check status on every request for web
+            \App\Http\Middleware\MaintenanceMode::class,
         ]);
 
         $middleware->api([
             \App\Http\Middleware\UpdateLastSeen::class,
             \App\Http\Middleware\CheckAccountStatus::class, // This check status on every request for mobile
+            \App\Http\Middleware\MaintenanceMode::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
