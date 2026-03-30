@@ -366,7 +366,7 @@ Route::post('/app/payment/success', [AppRegistrationPaymentController::class, 's
 Route::get('/payment/cancel', [AppRegistrationPaymentController::class, 'cancel'])->name('app.payment.cancel');
 
 Route::get('/terms', function () {return view('user.terms');})->name('terms');
-Route::get('/aboutus', function () {return view('user.aboutUs');})->name('aboutUs');
+Route::get('/about-affirmspace', function () {return view('user.aboutUs');})->name('aboutUs');
 Route::get('/privacy', function () {return view('user.privacy');})->name('privacy');
 Route::get('/refundpolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
 Route::get('/contactwithadmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
@@ -374,15 +374,15 @@ Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithA
 
 // seo related routes
 Route::group([], function () {
-    Route::get('/events', function () {return view('seo.events');})->name('events');
-    Route::get('/blogs', [HomeController::class, 'blogs'])->name('blogs');
+    Route::get('/lgbtq-events', function () {return view('seo.events');})->name('events');
+    Route::get('/lgbtq-blogs', [HomeController::class, 'blogs'])->name('blogs');
     Route::get('/blog/{category}/{slug}', [HomeController::class, 'showBlog'])->name('blog.detail');
     Route::post('/blog/{id}/comment', [HomeController::class, 'storeComment'])->name('blog.comment.store');
-    Route::get('/chat', function () {return view('seo.chat');})->name('chat');
-    Route::get('/dating', function () {return view('seo.dating');})->name('chatAndDating');
-    Route::get('/community', function () {return view('seo.community');})->name('community');
+    Route::get('/lgbtq-chat', function () {return view('seo.chat');})->name('chat');
+    Route::get('/lgbtq-dating-app', function () {return view('seo.dating');})->name('chatAndDating');
+    Route::get('/lgbtq-community', function () {return view('seo.community');})->name('community');
     Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
-    Route::get('/counselling', function () {return view('seo.counselling');})->name('counselling');
+    Route::get('/lgbtq-mental-health-counselling', function () {return view('seo.counselling');})->name('counselling');
 });
 
 Route::get('/sitemap.xml', [HomeController::class, 'sitemap']);
