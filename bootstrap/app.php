@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api([
             \App\Http\Middleware\UpdateLastSeen::class,
             \App\Http\Middleware\CheckAccountStatus::class, // This check status on every request for mobile
-            \App\Http\Middleware\MaintenanceMode::class,
+            // \App\Http\Middleware\MaintenanceMode::class, // to stop services of app
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
