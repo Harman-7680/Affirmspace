@@ -187,6 +187,10 @@ class ProfileController extends Controller
             $user->image = $path;
         }
 
+        if ($request->filled('password')) {
+            $user->password = bcrypt($request->password);
+        }
+
         $user->save();
 
         // Redirect based on role

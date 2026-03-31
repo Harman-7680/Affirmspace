@@ -25,24 +25,50 @@
                     <div class="form-group">
                         <label for="profile_image">Change Profile Image</label>
                         <input type="file" class="form-control-file" id="profile_image" name="image">
+                        @error('image')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="name">First Name</label>
                         <input type="text" class="form-control" id="name" name="first_name"
                             value="{{ Auth::user()->first_name }}">
+                        @error('first_name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="name">Last Name</label>
                         <input type="text" class="form-control" id="name" name="last_name"
                             value="{{ Auth::user()->last_name }}">
+                        @error('last_name')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
                     </div>
 
                     <div class="form-group">
                         <label for="email">Email</label>
                         <input type="email" class="form-control" id="email" name="email"
                             value="{{ Auth::user()->email }}">
+                        @error('email')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>New Password</label>
+                        <input type="password" class="form-control" name="password" placeholder="Enter new password">
+                        @error('password')
+                            <small class="text-danger">{{ $message }}</small>
+                        @enderror
+                    </div>
+
+                    <div class="form-group">
+                        <label>Confirm Password</label>
+                        <input type="password" class="form-control" name="password_confirmation"
+                            placeholder="Confirm password">
                     </div>
                 </div>
 
@@ -54,3 +80,16 @@
         </div>
     </div>
 </div>
+
+@if (
+    $errors->has('first_name') ||
+        $errors->has('last_name') ||
+        $errors->has('email') ||
+        $errors->has('password') ||
+        $errors->has('image'))
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            $('#editProfileModal').modal('show');
+        });
+    </script>
+@endif

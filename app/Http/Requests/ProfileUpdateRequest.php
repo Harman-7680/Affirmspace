@@ -3,6 +3,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
+use Illuminate\Validation\Rules\Password;
 
 class ProfileUpdateRequest extends FormRequest
 {
@@ -40,6 +41,7 @@ class ProfileUpdateRequest extends FormRequest
             'price'        => ['nullable', 'numeric'],
             'pronouns'     => ['nullable'],
             'address'      => ['nullable'],
+            'password'     => ['nullable', 'confirmed', Password::min(8)->mixedCase()->numbers()],
         ];
     }
 }
