@@ -35,29 +35,29 @@
     <!-- End Google Tag Manager -->
 
     @php
-        $current = url()->current();
+        $currentPath = request()->path();
+        $fullUrl = request()->fullUrl();
 
-        $staticUrls = [
-            url('/'),
-            url('/aboutus'),
-            url('/privacy'),
-            url('/refundpolicy'),
-            url('/contactwithadmin'),
-            url('/login'),
-            url('/register'),
-            url('/terms'),
-            url('/blogs'),
-            url('/community'),
-            url('/chat'),
-            url('/dating'),
-            url('/counselling'),
-            url('/events'),
+        $staticRoutes = [
+            '/',
+            'aboutUs',
+            'privacy',
+            'refundPolicy',
+            'contactWithAdmin',
+            'terms',
+            'blogs',
+            'community',
+            'chat',
+            'chatAndDating',
+            'counselling',
+            'events',
         ];
 
+        $isStatic = in_array($currentPath, $staticRoutes);
         $isBlog = request()->is('blog/*');
     @endphp
 
-    @if (in_array($current, $staticUrls) || $isBlog)
+    @if ($isStatic || $isBlog)
         <meta name="robots" content="index, follow">
     @else
         <meta name="robots" content="noindex, nofollow">
