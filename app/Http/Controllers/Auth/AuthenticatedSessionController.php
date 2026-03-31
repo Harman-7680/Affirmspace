@@ -60,6 +60,12 @@ class AuthenticatedSessionController extends Controller
             return back()->withErrors(['email' => $message]);
         }
 
+        if ($user->role == 2) {
+            return back()->withErrors([
+                'email' => 'Admin must login from admin panel.',
+            ]);
+        }
+
         // $request->authenticate(); // log in
         // Auth::logoutOtherDevices($request->password);
         // $request->session()->regenerate(); // regenerate session

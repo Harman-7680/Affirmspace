@@ -8,6 +8,7 @@ use App\Http\Controllers\AdminRegistrationSettingController;
 use App\Http\Controllers\AdminSpecializationController;
 use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
+use App\Http\Controllers\Auth\AdminAuthController;
 use App\Http\Controllers\BankDetailsController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\CounselorAvailabilityController;
@@ -105,6 +106,13 @@ Route::prefix('auth')->group(function () {
 });
 
 // admin related routes // middleware use because we need to show last seen or online status of user function in bootstrap/app.php
+
+Route::prefix('admin')->group(function () {
+    Route::get('/login', [AdminAuthController::class, 'create'])->name('admin.login');
+    Route::post('/login', [AdminAuthController::class, 'store'])->name('admin.login.submit');
+    Route::post('/logout', [AdminAuthController::class, 'destroy'])->name('admin.logout');
+});
+
 Route::middleware(['isAdmin', UpdateLastSeen::class])->group(function () {
     Route::get('/dashboard', [AdminController::class, 'dashboard'])->name('admin.dashboard');
     Route::get('/dashboard/counselee', [AdminController::class, 'counselee'])->name('admin.counselee');
