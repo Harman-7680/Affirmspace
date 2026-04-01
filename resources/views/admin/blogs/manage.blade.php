@@ -164,7 +164,7 @@
                         <input type="text" x-model="editBlog.slug" class="form-control mb-2">
                         <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
                         <input type="text" x-model="editBlog.long_description" class="form-control mb-2">
-                        <input type="text" x-model="editBlog.link" class="form-control mb-2">
+                        <input type="text" x-model="editBlog.link" class="form-control mb-2" placeholder="Link">
                         <input type="file" @change="handleEditImage" class="form-control mb-2">
                         <select x-model="editBlog.category" class="form-control mb-2">
                             <option value="LGBTQ Basics">LGBTQ Basics</option>
