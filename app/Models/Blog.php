@@ -16,6 +16,7 @@ class Blog extends Model
         'comment',
         'approved',
         'category',
+        'link',
     ];
 
     public function comments()

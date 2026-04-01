@@ -12,16 +12,19 @@
             <div class="d-flex align-items-center gap-3 flex-nowrap w-100">
 
                 <input type="text" x-model="slug" placeholder="Slug" class="form-control"
-                    style="width:15%; height:40px; margin-right:10px;">
+                    style="width:12%; height:40px; margin-right:10px;">
 
                 <input type="text" x-model="short_description" placeholder="Title" class="form-control"
-                    style="width:15%; height:40px; margin-right:10px;">
+                    style="width:12%; height:40px; margin-right:10px;">
 
                 <input type="text" x-model="long_description" placeholder="Description" class="form-control"
-                    style="width:15%; height:40px; margin-right:10px;">
+                    style="width:12%; height:40px; margin-right:10px;">
+
+                <input type="text" x-model="link" placeholder="Link" class="form-control"
+                    style="width:12%; height:40px; margin-right:10px;">
 
                 <input type="file" @change="handleImage" class="form-control"
-                    style="width:20%; height:40px; margin-right:10px;">
+                    style="width:15%; height:40px; margin-right:10px;">
 
                 <select x-model="category" class="form-control" style="width:15%; height:40px; margin-right:10px;">
                     <option value="">Select Category</option>
@@ -161,6 +164,7 @@
                         <input type="text" x-model="editBlog.slug" class="form-control mb-2">
                         <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
                         <input type="text" x-model="editBlog.long_description" class="form-control mb-2">
+                        <input type="text" x-model="editBlog.link" class="form-control mb-2">
                         <input type="file" @change="handleEditImage" class="form-control mb-2">
                         <select x-model="editBlog.category" class="form-control mb-2">
                             <option value="LGBTQ Basics">LGBTQ Basics</option>
@@ -202,6 +206,7 @@
                 showModal: false,
                 editBlog: {},
                 editImage: null,
+                link: '',
 
                 /* pagination */
 
@@ -260,6 +265,7 @@
                     formData.append('short_description', this.short_description)
                     formData.append('long_description', this.long_description)
                     formData.append('image', this.image)
+                    formData.append('link', this.link)
 
                     fetch("/manage/blog/store", {
                             method: 'POST',
@@ -293,6 +299,7 @@
                                 this.category = ''
                                 this.short_description = ''
                                 this.long_description = ''
+                                this.link = ''
 
                                 this.currentPage = 1
                             }
@@ -366,6 +373,7 @@
                     formData.append('category', this.editBlog.category)
                     formData.append('short_description', this.editBlog.short_description)
                     formData.append('long_description', this.editBlog.long_description)
+                    formData.append('link', this.editBlog.link)
 
                     if (this.editImage) {
                         formData.append('image', this.editImage)

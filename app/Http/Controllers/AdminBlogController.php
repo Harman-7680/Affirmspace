@@ -38,6 +38,7 @@ class AdminBlogController extends Controller
                 'short_description' => 'required',
                 'long_description'  => 'required',
                 'category'          => 'required',
+                'link'              => 'nullable|url',
             ]);
 
             $image = null;
@@ -53,6 +54,7 @@ class AdminBlogController extends Controller
                 'parent_id'         => null,
                 'approved'          => 1,
                 'category'          => $category,
+                'link'              => $request->link,
             ]);
 
             return response()->json([
@@ -93,6 +95,7 @@ class AdminBlogController extends Controller
         $blog->category          = Str::slug($request->category);
         $blog->short_description = $request->short_description;
         $blog->long_description  = $request->long_description;
+        $blog->link              = $request->link;
 
         if ($request->hasFile('image')) {
             $blog->image = $request->file('image')->store('blogs', 'public');

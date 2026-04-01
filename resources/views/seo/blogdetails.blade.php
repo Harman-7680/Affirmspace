@@ -30,6 +30,12 @@
 
                 <p class="desc">{{ $blog->long_description }}</p>
 
+                @if ($blog->link)
+                    <a href="{{ $blog->link }}" target="_blank" class="read-more-btn">
+                        Read More →
+                    </a>
+                @endif
+
             </div>
 
         </div>
