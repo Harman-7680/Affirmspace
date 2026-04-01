@@ -13,6 +13,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rules\Password;
 
@@ -520,8 +521,13 @@ class AuthController extends Controller
         // Get validated data
         $validated = $request->validated();
 
+        $newEmail = $validated['email'] ?? null;
+        unset($validated['email']);
+
         // Handle password if provided
-        if (! empty($validated['password'])) {
+        if (empty($validated['password'])) {
+            unset($validated['password']);
+        } else {
             $validated['password'] = Hash::make($validated['password']);
         }
 
@@ -537,10 +543,59 @@ class AuthController extends Controller
         // Update user
         $user->update($validated);
 
+        $emailSent = false;
+
+        if ($newEmail && $newEmail !== $user->email) {
+
+            if (User::where('email', $newEmail)->exists()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Email already exists.',
+                ], 422);
+            }
+
+            if ($newEmail === $user->pending_email) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Verification already sent to this email.',
+                ], 422);
+            }
+
+            // Store pending email
+            $user->pending_email = $newEmail;
+            $user->save();
+
+            // Send verification mail
+            $url = URL::temporarySignedRoute(
+                'verify.new.email',
+                now()->addMinutes(30),
+                ['user' => $user->id]
+            );
+
+            \Mail::send('emails.verify-new-email', [
+                'user' => $user,
+                'url'  => $url,
+            ], function ($message) use ($newEmail) {
+                $message->to($newEmail)
+                    ->subject('Verify Your New Email Address');
+            });
+
+            $emailSent = true;
+        }
+
         return response()->json([
-            'message' => 'Profile updated successfully',
-            'user'    => $user,
+            'success'                 => true,
+            'message'                 => $emailSent
+                ? 'Profile updated. Verification link sent to new email.'
+                : 'Profile updated successfully',
+            'email_verification_sent' => $emailSent,
+            'user'                    => $user,
         ]);
+
+        // return response()->json([
+        //     'message' => 'Profile updated successfully',
+        //     'user'    => $user,
+        // ]);
     }
 
     public function logout(Request $request)

@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\URL;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -170,13 +171,17 @@ class ProfileController extends Controller
         $user      = $request->user();
         $validated = $request->validated();
 
+        $newEmail = $validated['email'] ?? null;
+        unset($validated['email']);
+        unset($validated['password']);
+
         // Fill other profile fields
         $user->fill($validated);
 
         // If email is updated, reset verification
-        if ($user->isDirty('email')) {
-            $user->email_verified_at = null;
-        }
+        // if ($user->isDirty('email')) {
+        //     $user->email_verified_at = null;
+        // }
 
         // Handle image upload if exists
         if ($request->hasFile('image')) {
@@ -191,18 +196,75 @@ class ProfileController extends Controller
             $user->password = bcrypt($request->password);
         }
 
-        $user->save();
+        $message      = 'Profile Updated';
+        $emailMessage = null;
+        if ($newEmail && $newEmail !== $user->email) {
+            
+             if (User::where('email', $newEmail)->exists()) {
+                return back()->withErrors([
+                    'email' => 'This email is already in use.',
+                ]);
+            }
 
+            if ($newEmail === $user->pending_email) {
+                return back()->withErrors([
+                    'email' => 'Verification already sent to this email.',
+                ]);
+            }
+
+            $user->pending_email = $newEmail;
+            $user->save();
+            $url = URL::temporarySignedRoute(
+                'verify.new.email',
+                now()->addMinutes(30),
+                ['user' => $user->id]
+            );
+            \Mail::send('emails.verify-new-email', [
+                'user' => $user,
+                'url'  => $url,
+            ], function ($message) use ($newEmail) {
+                $message->to($newEmail)
+                    ->subject('Verify Your New Email Address');
+            });
+            $emailMessage = 'Verification link sent to your new email.';
+        } else {
+            $user->save();
+        }
+
+        if ($emailMessage) {
+            $message .= ' | ' . $emailMessage;
+        }
         // Redirect based on role
         if ($user->role == 0) {
-            return Redirect::route('profile.edit')->with('success', 'Profile Updated');
+            return Redirect::route('profile.edit')->with('success', $message);
         } elseif ($user->role == 1) {
-            return Redirect::route('counseler')->with('success', 'Profile Updated');
+            return Redirect::route('counseler')->with('success', $message);
         } elseif ($user->role == 2) {
-            return redirect()->back()->with('status', 'Profile Updated');
+            return redirect()->back()->with('status', $message);
         } else {
-            return redirect()->back()->with('success', 'Profile Updated');
+            return redirect()->back()->with('success', $message);
         }
+    }
+
+    public function verifyNewEmail(Request $request)
+    {
+        if (! $request->hasValidSignature()) {
+            abort(403);
+        }
+        $user = \App\Models\User::findOrFail($request->user);
+
+        if (auth()->check() && $request->user != auth()->id()) {
+            abort(403);
+        }
+
+        if (! $user->pending_email) {
+            return view('auth.email-updated');
+        }
+        $user->email             = $user->pending_email;
+        $user->pending_email     = null;
+        $user->email_verified_at = now();
+        $user->save();
+        return view('auth.email-updated');
     }
 
     /**

@@ -41,6 +41,36 @@
     @include('admin.admin_navbar')
     @include('admin.sidebar')
 
+    @if (session('status'))
+        <div id="flash-success"
+            style="
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #dcfce7;
+            border: 1px solid #22c55e;
+            color: #166534;
+            padding: 12px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,.15);
+            text-align: center;
+            min-width: 260px;
+        ">
+            {{ session('status') }}
+        </div>
+
+        <script>
+            setTimeout(() => {
+                const el = document.getElementById('flash-success');
+                if (el) el.style.display = 'none';
+            }, 5000);
+        </script>
+    @endif
+
     <main>
         @yield('content')
     </main>

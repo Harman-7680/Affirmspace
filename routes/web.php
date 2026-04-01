@@ -32,6 +32,10 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Response;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/verify-new-email', [ProfileController::class, 'verifyNewEmail'])
+    ->name('verify.new.email')
+    ->middleware('signed');
+
 // Route::get('/email/verify', function () {
 //     return view('auth.verify-email');
 // })->middleware('auth')->name('verification.notice');

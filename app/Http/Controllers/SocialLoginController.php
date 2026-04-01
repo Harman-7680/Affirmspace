@@ -32,15 +32,33 @@ class SocialLoginController extends Controller
         $email    = $socialUser->getEmail();
 
         // Check if social_id exists → login directly
-        $user = User::where('social_id', $socialId)->first();
+        // $user = User::where('social_id', $socialId)->first();
 
         // If no social_id, check by email if available
+        // if (! $user && $email) {
+        //     $user = User::where('email', $email)->first();
+        // }
+
+        $user = User::where('social_id', $socialId)->first();
+
         if (! $user && $email) {
+            // check main email
             $user = User::where('email', $email)->first();
+            // check pending email (IMPORTANT)
+            if (! $user) {
+                $user = User::where('pending_email', $email)->first();
+            }
         }
 
         // If user found → login directly (attach social_id if missing)
         if ($user) {
+            if ($email && $user->pending_email === $email) {
+                $user->email             = $user->pending_email;
+                $user->pending_email     = null;
+                $user->email_verified_at = now();
+                $user->save();
+            }
+
             if ($user->status == 0) {
                 return redirect()->route('login')->withErrors(['email' => 'Sorry, your account is deactivated.']);
             }
@@ -199,15 +217,31 @@ class SocialLoginController extends Controller
         }
 
         // If email exists → require OTP
-        $existingUser = $email ? User::where('email', $email)->first() : null;
+        // $existingUser = $email ? User::where('email', $email)->first() : null;
+        $existingUser = null;
+
+        if ($email) {
+            $existingUser = User::where('email', $email)
+                ->orWhere('pending_email', $email)
+                ->first();
+        }
 
         if ($existingUser) {
             // validate OTP
             $request->validate(['otp_verified' => 'required|in:1']);
-            $existingUser->update([
-                'social_id'         => $socialId,
-                'email_verified_at' => now(),
-            ]);
+            // $existingUser->update([
+            //     'social_id'         => $socialId,
+            //     'email_verified_at' => now(),
+            // ]);
+
+            if ($existingUser->pending_email === $email) {
+                $existingUser->email         = $existingUser->pending_email;
+                $existingUser->pending_email = null;
+            }
+
+            $existingUser->social_id         = $socialId;
+            $existingUser->email_verified_at = now();
+            $existingUser->save();
 
             $existingUser->tokens()->delete();
             \DB::table('sessions')->where('user_id', $existingUser->id)->delete();
@@ -248,6 +282,14 @@ class SocialLoginController extends Controller
         } while (User::where('refer_code', $referCode)->exists());
 
         $referrer = $request->filled('refer_code') ? User::where('refer_code', $request->refer_code)->first() : null;
+
+        $alreadyExists = User::where('email', $request->email)
+            ->orWhere('pending_email', $request->email)
+            ->exists();
+
+        if ($alreadyExists) {
+            return back()->withErrors(['email' => 'Email already exists. Please login instead.']);
+        }
 
         $user = User::create([
             'first_name'        => $request->first_name,
@@ -292,7 +334,10 @@ class SocialLoginController extends Controller
     public function checkEmail(Request $request)
     {
         $request->validate(['email' => 'required|email']);
-        $exists = User::where('email', $request->email)->exists();
+        // $exists = User::where('email', $request->email)->exists();
+        $exists = User::where('email', $request->email)
+            ->orWhere('pending_email', $request->email)
+            ->exists();
         return response()->json(['exists' => $exists]);
     }
 
@@ -306,7 +351,9 @@ class SocialLoginController extends Controller
         Session::put('otp_code', $otp);
         Session::put('otp_expires', now()->addMinutes(5));
 
-        $exists = \App\Models\User::where('email', $email)->exists();
+        $exists = \App\Models\User::where('email', $email)
+            ->orWhere('pending_email', $email)
+            ->exists();
 
         // Mail::to($email)->queue(new OtpMail($otp)); queue mail
         Mail::to($email)->send(new OtpMail($otp));

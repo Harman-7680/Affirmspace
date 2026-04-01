@@ -4,6 +4,15 @@
     Dashboard
 @endsection
 
+@section('css')
+    <style>
+        .mx-auto {
+            margin-left: auto;
+            margin-right: 2%;
+        }
+    </style>
+@endsection
+
 @section('content')
     {{-- SUCCESS ALERT --}}
     @if (session('success'))
@@ -72,7 +81,11 @@
     <main class="max-w-8xl mx-auto mt-[--m-top] p-4">
         <div class="max-w-6xl mx-auto">
             <div class="box relative rounded-lg shadow-md">
-                <div class="flex md:gap-8 gap-4 items-center md:p-8 p-6 md:pb-4">
+                <div style="
+  background: url('{{ asset('images/edit_profile/edit_bg.jpeg') }}') no-repeat center center;
+  background-size: cover;
+"
+                    {{-- style="background: linear-gradient(90deg, #ff512f, #dd2476);" --}} class="flex md:gap-8 gap-4 items-center md:p-8 p-6 md:pb-4">
                     <div class="relative md:w-20 md:h-20 w-12 h-12 shrink-0">
                         <label for="file" class="cursor-pointer">
                             <div class="mb-4 w-16 h-16 mx-auto">
@@ -192,7 +205,8 @@
                                     <div class="md:flex items-center gap-10">
                                         <label class="md:w-32 text-right">Email</label>
                                         <div class="flex-1 max-md:mt-4">
-                                            <input type="email" name="email" value="{{ old('email', $user->email) }}"
+                                            <input type="email" name="email"
+                                                value="{{ old('email', $user->email) }}"
                                                 class="w-full border rounded-md p-2" required>
                                             <x-input-error class="mt-2" :messages="$errors->get('email')" />
                                         </div>
@@ -511,7 +525,7 @@
                     <div class="space-y-6 w-full mx-auto">
                         <div class="md:flex items-center gap-16 justify-between max-md:space-y-3">
                             <label class="md:w-40 text-right" for="current_password">Current Password</label>
-                                <div class="flex-1 max-md:mt-4">
+                            <div class="flex-1 max-md:mt-4">
                                 <input id="current_password" name="current_password" type="password"
                                     placeholder="******" class="w-full border rounded px-3 py-2"
                                     autocomplete="current-password">
