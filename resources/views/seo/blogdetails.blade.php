@@ -31,7 +31,8 @@
                 <p class="desc">{{ $blog->long_description }}</p>
 
                 @if ($blog->link)
-                    <a href="{{ $blog->link }}" target="_blank" class="read-more-btn">
+                    <a href="{{ $blog->link }}" target="_blank" class="read-more-btn"
+                        style="color: #ff416c; font-weight: 600; text-decoration:none;">
                         Read More →
                     </a>
                 @endif
