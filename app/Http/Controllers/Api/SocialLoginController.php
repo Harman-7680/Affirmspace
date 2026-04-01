@@ -54,6 +54,12 @@ class SocialLoginController extends Controller
 
         // User exists → attach social_id if missing
         if ($user) {
+            if ($user->role == 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Social login not allowed for this role.',
+                ], 403);
+            }
 
             if ($user && $user->pending_email === $email) {
                 $user->email             = $user->pending_email;
@@ -145,6 +151,13 @@ class SocialLoginController extends Controller
         // Check if social_id exists → login
         $user = User::where('social_id', $socialId)->first();
         if ($user) {
+            if ($user->role == 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Social login not allowed for this role.',
+                ], 403);
+            }
+
             $user->tokens()->delete();
             \DB::table('sessions')->where('user_id', $user->id)->delete();
 
