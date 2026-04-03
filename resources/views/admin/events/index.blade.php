@@ -72,7 +72,7 @@
                                 </td>
 
                                 <td x-text="event.name"></td>
-                                <td x-text="event.city"></td>
+                                <td x-text="(JSON.parse(event.city || '{}').address) ?? 'N/A'"></td>
                                 <td
                                     x-text="
     new Date(event.timing).toLocaleString('en-IN', {

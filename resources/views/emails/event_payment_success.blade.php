@@ -34,7 +34,7 @@
                 style="background: #f3f4f6; border-left: 4px solid #2563eb; padding: 15px; border-radius: 4px; margin: 20px 0;">
 
                 <p><strong>Event Name:</strong> {{ $event->name }}</p>
-                <p><strong>City:</strong> {{ $event->city }}</p>
+                <p><strong>City:</strong> {{ optional(json_decode($event->city))->address ?? 'N/A' }}</p>
                 <p><strong>Created By:</strong> {{ $event->user->first_name }} ({{ $event->user->email }})</p>
 
                 <p><strong>Area Range:</strong>
