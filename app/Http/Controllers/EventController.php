@@ -43,10 +43,21 @@ class EventController extends Controller
         /** Fetch price from DB */
         $areaPrice = AreaPrice::findOrFail($request->area_price_id);
 
+        $location = $this->getLatLng($request->city);
+        if (! $location || empty($location['lat']) || empty($location['lng'])) {
+            return back()->withErrors(['city' => 'Invalid city. Please enter a valid location.'])->withInput();
+        }
+
         $event = Event::create([
             'user_id'    => Auth::id(),
             'name'       => $request->name,
-            'city'       => $request->city,
+            // 'city'       => $request->city,
+            // city me hi JSON store
+            'city'       => json_encode([
+                'address' => $request->city,
+                'lat'     => $location['lat'] ?? null,
+                'lng'     => $location['lng'] ?? null,
+            ]),
             'timing'     => $timing,
             'image'      => $imagePath,
             'area_range' => $areaPrice->area_range,
@@ -193,5 +204,26 @@ class EventController extends Controller
             return redirect()->route('notifications')
                 ->with('error', 'Payment cancelled.');
         }
+    }
+
+    public function getLatLng($city)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        $response = \Http::get("https://us1.locationiq.com/v1/search.php", [
+            'key'    => $apiKey,
+            'q'      => $city,
+            'format' => 'json',
+            'limit'  => 1,
+        ]);
+
+        if ($response->successful() && isset($response[0])) {
+            return [
+                'lat' => $response[0]['lat'],
+                'lng' => $response[0]['lon'],
+            ];
+        }
+
+        return null;
     }
 }

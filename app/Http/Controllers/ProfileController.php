@@ -199,8 +199,8 @@ class ProfileController extends Controller
         $message      = 'Profile Updated';
         $emailMessage = null;
         if ($newEmail && $newEmail !== $user->email) {
-            
-             if (User::where('email', $newEmail)->exists()) {
+
+            if (User::where('email', $newEmail)->exists()) {
                 return back()->withErrors([
                     'email' => 'This email is already in use.',
                 ]);
@@ -804,6 +804,125 @@ class ProfileController extends Controller
             'events'        => $events,
         ]);
     }
+
+    public function getEventsByLocation(Request $request)
+    {
+        $request->validate([
+            'lat' => 'required',
+            'lng' => 'required',
+        ]);
+
+        $userLat = $request->lat;
+        $userLng = $request->lng;
+
+        $now = \Carbon\Carbon::now();
+
+        $events = Event::where('status', 'approved')->get()->filter(function ($event) use ($userLat, $userLng, $now) {
+
+            $city = json_decode($event->city, true);
+
+            if (! $city || ! isset($city['lat']) || ! isset($city['lng'])) {
+                return false;
+            }
+
+            $eventLat = (float) $city['lat'];
+            $eventLng = (float) $city['lng'];
+
+            // distance calc
+            $distance = 6371 * acos(
+                cos(deg2rad($userLat)) *
+                cos(deg2rad($eventLat)) *
+                cos(deg2rad($eventLng) - deg2rad($userLng)) +
+                sin(deg2rad($userLat)) *
+                sin(deg2rad($eventLat))
+            );
+
+            // FIX HERE
+            $eventRangeKm = (int) $event->area_range;
+
+            if ($distance > $eventRangeKm) {
+                return false;
+            }
+
+            \Log::info([
+                'event'    => $event->name,
+                'userLat'  => $userLat,
+                'userLng'  => $userLng,
+                'eventLat' => $eventLat,
+                'eventLng' => $eventLng,
+                'distance' => $distance,
+                'range'    => $eventRangeKm,
+            ]);
+
+            // upcoming check
+            $eventTime = \Carbon\Carbon::parse($event->timing);
+            if ($eventTime->lt($now)) {
+                return false;
+            }
+
+            return true;
+        })->values();
+
+        return response()->json([
+            'success' => true,
+            'events'  => $events,
+        ]);
+    }
+
+    // public function getEventsByAddress(Request $request)
+    // {
+    //     $inputAddress = $request->address ?? '';
+    //     $now          = Carbon::now();
+
+    //     $eventsQuery = Event::where('status', 'approved');
+
+    //     if (! empty($inputAddress)) {
+
+    //         // STEP 1: normalize (lowercase + remove commas)
+    //         $cleanAddress = strtolower(str_replace(',', ' ', $inputAddress));
+
+    //         // STEP 2: split words
+    //         $parts = array_filter(array_map('trim', explode(' ', $cleanAddress)));
+
+    //         // STEP 3: remove numbers (only keep words like city names)
+    //         $addressParts = array_filter($parts, function ($part) {
+    //             return preg_match('/[a-z]/', $part); // keep only words
+    //         });
+
+    //         if (! empty($addressParts)) {
+    //             $eventsQuery->where(function ($query) use ($addressParts) {
+    //                 foreach ($addressParts as $part) {
+    //                     $query->orWhereRaw('LOWER(city) LIKE ?', ['%' . $part . '%']);
+    //                 }
+    //             });
+    //         } else {
+    //             $eventsQuery->whereRaw('0=1'); // no valid word → no result
+    //         }
+
+    //     } else {
+    //         $eventsQuery->whereRaw('0=1');
+    //     }
+
+    //     // UPCOMING EVENTS LOGIC (same as tera)
+    //     $eventsQuery->where(function ($query) use ($now) {
+    //         $query->whereDate('timing', '>', $now->toDateString())
+    //             ->orWhere(function ($q) use ($now) {
+    //                 $q->whereDate('timing', '=', $now->toDateString())
+    //                     ->whereTime('timing', '>=', $now->toTimeString());
+    //             });
+    //     });
+
+    //     $events = $eventsQuery->get()->map(function ($e) {
+    //         $e->formatted_timing = Carbon::parse($e->timing)->format('d M Y h:i A');
+    //         return $e;
+    //     });
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'count'   => $events->count(),
+    //         'data'    => $events,
+    //     ]);
+    // }
 
     // public function markAllNotificationsRead()
     // {

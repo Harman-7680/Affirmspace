@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostActionController;
+use App\Http\Controllers\ProfileController;
 use Illuminate\Support\Facades\Route;
 
 Route::post('/login', [AuthController::class, 'login']);
@@ -149,6 +150,8 @@ Route::prefix('social')->group(function () {
     Route::get('complete-profile', [SocialLoginController::class, 'showCompleteProfileForm']);
     Route::post('complete-profile', [SocialLoginController::class, 'completeProfile']);
 });
+
+Route::post('/events/by-location', [ProfileController::class, 'getEventsByLocation']);
 
 // Get Authenticated User
 Route::middleware('auth:sanctum')->get('/user', function ($request) {

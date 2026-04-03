@@ -64,10 +64,21 @@ class ApiEventController extends Controller
 
         $areaPrice = AreaPrice::findOrFail($request->area_price_id);
 
+        $location = $this->getLatLng($request->city);
+        if (! $location || empty($location['lat']) || empty($location['lng'])) {
+            return back()->withErrors(['city' => 'Invalid city. Please enter a valid location.'])->withInput();
+        }
+
         $event = Event::create([
             'user_id'    => Auth::id(),
             'name'       => $request->name,
-            'city'       => $request->city,
+            // 'city'       => $request->city,
+            // city me hi JSON store
+            'city'       => json_encode([
+                'address' => $request->city,
+                'lat'     => $location['lat'] ?? null,
+                'lng'     => $location['lng'] ?? null,
+            ]),
             'timing'     => $timing,
             'image'      => $imagePath,
             'area_range' => $areaPrice->area_range,
@@ -90,7 +101,7 @@ class ApiEventController extends Controller
 
         $order = $api->order->create([
             'receipt'  => 'event_' . $event->id,
-            'amount'          => (int) round($totalAmount * 100),
+            'amount'   => (int) round($totalAmount * 100),
             'currency' => 'INR',
             'notes'    => [
                 'event_id'     => $event->id,
@@ -186,5 +197,26 @@ class ApiEventController extends Controller
 
             return response()->json(['success' => false], 400);
         }
+    }
+
+    public function getLatLng($city)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        $response = \Http::get("https://us1.locationiq.com/v1/search.php", [
+            'key'    => $apiKey,
+            'q'      => $city,
+            'format' => 'json',
+            'limit'  => 1,
+        ]);
+
+        if ($response->successful() && isset($response[0])) {
+            return [
+                'lat' => $response[0]['lat'],
+                'lng' => $response[0]['lon'],
+            ];
+        }
+
+        return null;
     }
 }

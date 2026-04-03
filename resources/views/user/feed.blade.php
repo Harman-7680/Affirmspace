@@ -760,7 +760,7 @@
                             </div>
                         </div>
 
-                        <div class="box p-5 px-6 mt-4 inner-scroll" x-data="{
+                        {{-- <div class="box p-5 px-6 mt-4 inner-scroll" x-data="{
                             showAll: false,
                             events: {{ $events->map(function ($e) {
                                     return [
@@ -779,7 +779,7 @@
                             x-cloak>
 
                             <div class="flex items-center gap-2 mb-3 text-black dark:text-white">
-                                {{-- <i data-lucide="party-popper" class="w-6 h-6"></i> --}}
+                                <i data-lucide="party-popper" class="w-6 h-6"></i>
                                 <h3 class="font-bold text-base trending-text">
                                     Trending Nearby Events
                                 </h3>
@@ -789,7 +789,7 @@
                                 <template x-for="(event, index) in filteredEvents()" :key="event.id">
                                     <div class="side-list-item flex items-center justify-between mb-3"
                                         x-show="(!showAll && index < 3) || showAll" x-cloak>
-                                        {{-- <a :href="event.detailsUrl"> --}}
+                                        <a :href="event.detailsUrl">
                                         <a>
                                             <img :src="event.image" alt=""
                                                 class="side-list-image rounded w-64 h-32 object-cover">
@@ -813,6 +813,63 @@
                                     </button>
                                 </div>
                             </div>
+                        </div> --}}
+
+                        <div class="box p-5 px-6 mt-4 inner-scroll" x-data="eventManager()" x-init="init()"
+                            x-cloak>
+
+                            <!-- HEADING -->
+                            <div class="flex items-center gap-2 mb-3 text-black dark:text-white">
+                                <h3 class="font-bold text-base trending-text">
+                                    Trending Nearby Events
+                                </h3>
+                            </div>
+
+                            <!-- LOADING -->
+                            <div x-show="loading" class="text-center py-4 text-gray-500">
+                                Loading nearby events...
+                            </div>
+
+                            <!-- EVENTS LIST -->
+                            <div class="side-list" x-show="!loading && events.length > 0">
+
+                                <template x-for="(event, index) in events" :key="event.id">
+                                    <div class="side-list-item flex items-center justify-between mb-3"
+                                        x-show="(!showAll && index < 3) || showAll" x-cloak>
+
+                                        <a>
+                                            <img :src="event.image" alt=""
+                                                class="side-list-image rounded w-64 h-32 object-cover">
+                                        </a>
+
+                                        <div class="flex-1 ml-3">
+                                            <a>
+                                                <h4 class="side-list-title font-semibold text-gray-800 dark:text-white"
+                                                    x-text="event.name"></h4>
+                                            </a>
+
+                                            <div class="side-list-info text-sm text-gray-600 dark:text-gray-300">
+                                                <span x-text="event.city"></span> <br>
+                                                <span x-text="event.timing"></span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </template>
+
+                                <!-- SEE MORE -->
+                                <div class="text-center mt-3" x-show="!showAll && events.length > 3">
+                                    <button @click="showAll = true" class="text-blue-500 hover:underline text-sm">
+                                        See More
+                                    </button>
+                                </div>
+
+                            </div>
+
+                            <!-- NO EVENTS -->
+                            <div x-show="!loading && events.length === 0" class="text-center py-4 text-gray-400">
+                                No nearby events found
+                            </div>
+
                         </div>
                     </div>
                 </div>
@@ -1555,6 +1612,86 @@
             }).catch(function(err) {
                 alert("Failed to copy link");
             });
+        }
+    </script>
+
+    <script>
+        function eventManager() {
+            return {
+                showAll: false,
+                events: [],
+                loading: true,
+                initialized: false,
+
+                async init() {
+
+                    if (this.initialized) return;
+                    this.initialized = true;
+
+                    if (!navigator.geolocation) {
+                        this.loading = false;
+                        return;
+                    }
+
+                    navigator.geolocation.getCurrentPosition(async (position) => {
+
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+
+                        try {
+
+                            const csrf = document.querySelector('meta[name="csrf-token"]').getAttribute(
+                                'content');
+
+                            // API CALL (ONLY ONCE)
+                            const eventRes = await fetch('/api/events/by-location', {
+                                method: 'POST',
+                                headers: {
+                                    'Content-Type': 'application/json',
+                                    'Accept': 'application/json',
+                                    'X-CSRF-TOKEN': csrf
+                                },
+                                body: JSON.stringify({
+                                    lat: lat,
+                                    lng: lng
+                                })
+                            });
+
+                            const eventData = await eventRes.json();
+                            console.log(eventData);
+
+                            if (eventData.success) {
+
+                                this.events = eventData.events.map(e => {
+                                    let cityData = {};
+
+                                    try {
+                                        cityData = JSON.parse(e.city);
+                                    } catch {}
+
+                                    return {
+                                        id: e.id,
+                                        name: e.name,
+                                        city: cityData.address ?? 'N/A',
+                                        timing: e.formatted_timing ?? e.timing,
+                                        image: e.image ?
+                                            `/storage/${e.image}` : `/images/default-event.jpg`
+                                    };
+                                });
+                            }
+
+                        } catch (err) {
+                            console.error('Event fetch error:', err);
+                        }
+
+                        this.loading = false;
+
+                    }, () => {
+                        console.warn('Location denied');
+                        this.loading = false;
+                    });
+                }
+            }
         }
     </script>
 @endsection
