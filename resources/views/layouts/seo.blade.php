@@ -35,36 +35,35 @@
     <!-- End Google Tag Manager -->
 
     @php
-        $currentPath = request()->path();
-        $fullUrl = request()->fullUrl();
+        $routeName = request()->route()->getName();
 
-        $staticRoutes = [
+        $indexRoutes = [
             '/',
+            'terms',
             'aboutUs',
             'privacy',
             'refundPolicy',
             'contactWithAdmin',
-            'terms',
             'blogs',
             'community',
             'chat',
             'chatAndDating',
             'counselling',
             'events',
+            'blog.detail',
         ];
 
-        $isStatic = in_array($currentPath, $staticRoutes);
-        $isBlog = request()->is('blog/*');
+        $isIndex = in_array($routeName, $indexRoutes);
     @endphp
 
-    @if ($isStatic || $isBlog)
+    @if ($isIndex)
         <meta name="robots" content="index, follow">
     @else
         <meta name="robots" content="noindex, nofollow">
     @endif
 
     @yield('meta')
-
+    <meta name="p:domain_verify" content="3a38221ab36dc5451f9667240b53b17f"/>
     @yield('css')
 
     <style>
