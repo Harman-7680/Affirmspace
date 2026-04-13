@@ -151,6 +151,7 @@ Route::prefix('social')->group(function () {
     Route::post('complete-profile', [SocialLoginController::class, 'completeProfile']);
 });
 
+// this route for both app and website
 Route::post('/events/by-location', [ProfileController::class, 'getEventsByLocation']);
 
 // Get Authenticated User
