@@ -14,7 +14,7 @@ class EnsureProfileComplete
 
         $user = auth()->user();
 
-        if ($user->role !== 0) {
+        if ((int) $user->role !== 0) {
             return $next($request);
         }
 
@@ -31,26 +31,56 @@ class EnsureProfileComplete
             'relationship',
         ];
 
-        foreach ($requiredFields as $field) {
-            if (empty($user->$field)) {
+        // foreach ($requiredFields as $field) {
+        //     if (empty($user->$field)) {
 
-                // Allow profile edit/update routes
-                if ($request->routeIs('profile.*')) {
-                    return $next($request);
-                }
+        //         // Allow profile edit/update routes
+        //         if ($request->routeIs('profile.*')) {
+        //             return $next($request);
+        //         }
 
-                // AJAX / API
-                if ($request->ajax() || $request->wantsJson()) {
-                    return response()->json([
-                        'profile_incomplete' => true,
-                        'message'            => 'Please complete your profile first',
-                    ], 403);
-                }
+        //         // AJAX / API
+        //         if ($request->ajax() || $request->wantsJson()) {
+        //             return response()->json([
+        //                 'profile_incomplete' => true,
+        //                 'message'            => 'Please complete your profile first',
+        //             ], 403);
+        //         }
 
-                // DO NOT use redirect()->back() (causes loop)
-                return redirect()->route('profile.edit')
-                    ->with('error', 'Please complete your profile first.');
+        //         // DO NOT use redirect()->back() (causes loop)
+        //         return redirect()->route('profile.edit')
+        //             ->with('error', 'Please complete your profile first.');
+        //     }
+        // }
+
+        $image        = trim((string) $user->image);
+        $relationship = strtolower(trim((string) $user->relationship));
+        $bio          = trim((string) $user->bio);
+        $pronouns     = trim((string) $user->pronouns);
+
+        if (
+            $image === '' || $image === '0' ||
+
+            $relationship === '' || $relationship === 'none' ||
+
+            $bio === '' ||
+
+            $pronouns === ''
+        ) {
+
+            if ($request->routeIs('profile.*')) {
+                return $next($request);
             }
+
+            if ($request->ajax() || $request->wantsJson()) {
+                return response()->json([
+                    'profile_incomplete' => true,
+                    'message'            => 'Please complete your profile first',
+                ], 403);
+            }
+
+            return redirect()->route('profile.edit')
+                ->with('error', 'Please complete your profile first.');
         }
 
         return $next($request);
