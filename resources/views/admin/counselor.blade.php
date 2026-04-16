@@ -142,7 +142,7 @@
                                         <div>
                                             <template x-if="user.document1.toLowerCase().endsWith('.pdf')">
                                                 <a :href="'/storage/' + user.document1" target="_blank"
-                                                    class="btn btn-sm btn-outline-primary">
+                                                    class="btn btn-sm btn-outline-primary" style="color:black;">
                                                     PDF
                                                 </a>
                                             </template>
@@ -159,7 +159,7 @@
                                         <div>
                                             <template x-if="user.document2.toLowerCase().endsWith('.pdf')">
                                                 <a :href="'/storage/' + user.document2" target="_blank"
-                                                    class="btn btn-sm btn-outline-primary">
+                                                    class="btn btn-sm btn-outline-primary" style="color:black;">
                                                     PDF
                                                 </a>
                                             </template>
@@ -176,7 +176,7 @@
                                         <div>
                                             <template x-if="user.document3.toLowerCase().endsWith('.pdf')">
                                                 <a :href="'/storage/' + user.document3" target="_blank"
-                                                    class="btn btn-sm btn-outline-primary">
+                                                    class="btn btn-sm btn-outline-primary" style="color:black;">
                                                     PDF
                                                 </a>
                                             </template>
