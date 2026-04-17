@@ -73,8 +73,8 @@
                 <!-- logo image-->
                 <a href="{{ route('/') }}"> <img src="{{ asset('images/new_logo.png') }}"
                         class="w-16 absolute top-10 left-10 dark:hidden" alt=""></a>
-                <a href="#"> <img src="{{ asset('images/logo-light.png') }}"
-                        class="w-28 absolute top-10 left-10 hidden dark:!block" alt=""></a>
+                <a href="{{ route('/') }}"> <img src="{{ asset('images/new_logo.png') }}"
+                        class="w-16 absolute top-10 left-10 hidden dark:!block" alt=""></a>
 
                 <!-- logo icon optional -->
                 <div class="hidden">

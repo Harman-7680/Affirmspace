@@ -72,8 +72,8 @@
                 <!-- logo image-->
                 <a href="{{ route('/') }}"> <img src="{{ asset('images/new_logo.png') }}"
                         class="w-16 absolute top-10 left-10 dark:hidden" alt=""></a>
-                <a href="#"> <img src="{{ asset('images/logo-light.png') }}"
-                        class="w-28 absolute top-10 left-10 hidden dark:!block" alt=""></a>
+                <a href="{{ route('/') }}"> <img src="{{ asset('images/new_logo.png') }}"
+                        class="w-16 absolute top-10 left-10 hidden dark:!block" alt=""></a>
                 <h1
                     style="font-family: 'Times New Roman', serif; font-weight: 900; font-size: 2.5rem; text-align: center; color: #ff512f;">
                     AffirmSpace
