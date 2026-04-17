@@ -298,4 +298,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(CounselorDocument::class, 'user_id');
     }
+
+    public function bankDetail()
+    {
+        return $this->hasOne(BankDetail::class);
+    }
 }

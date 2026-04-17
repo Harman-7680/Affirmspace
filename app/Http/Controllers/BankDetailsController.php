@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\BankDetail;
 use Illuminate\Http\Request;
 
 class BankDetailsController extends Controller
@@ -21,6 +22,19 @@ class BankDetailsController extends Controller
         if (in_array($user->bank_status, ['pending', 'verified'])) {
             return back()->with('error', 'Bank details already submitted.');
         }
+
+        // updateOrCreate
+        BankDetail::updateOrCreate(
+            ['user_id' => $user->id], // condition
+            [
+                'account_holder_name' => $request->account_holder_name,
+                'account_number'      => $request->account_number,
+                'ifsc'                => $request->ifsc,
+                'pan'                 => $request->pan,
+                'phone'               => $request->phone,
+                'email'               => $request->email,
+            ]
+        );
 
         // ❗ Abhi Razorpay nahi hai — to sirf status update
         $user->bank_status           = 'pending';

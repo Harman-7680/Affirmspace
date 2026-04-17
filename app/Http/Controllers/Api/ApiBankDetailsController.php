@@ -2,6 +2,7 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+use App\Models\BankDetail;
 use Illuminate\Http\Request;
 
 class ApiBankDetailsController extends Controller
@@ -25,6 +26,19 @@ class ApiBankDetailsController extends Controller
                 'message' => 'Bank details already submitted.',
             ], 400);
         }
+
+        // updateOrCreate
+        BankDetail::updateOrCreate(
+            ['user_id' => $user->id], // condition
+            [
+                'account_holder_name' => $request->account_holder_name,
+                'account_number'      => $request->account_number,
+                'ifsc'                => $request->ifsc,
+                'pan'                 => $request->pan,
+                'phone'               => $request->phone,
+                'email'               => $request->email,
+            ]
+        );
 
         $user->bank_status           = 'pending';
         $user->bank_rejection_reason = null;
