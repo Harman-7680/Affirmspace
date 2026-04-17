@@ -45,15 +45,15 @@
             @php $status = auth()->user()->bank_status; @endphp
 
             @if ($status === 'not_added')
-                <span class="text-yellow-600 font-semibold">
+                <span class="text-yellow-600 font-semibold text-dark-jj">
                     ⚠️ Bank details not added
                 </span>
             @elseif ($status === 'pending')
-                <span class="text-blue-600 font-semibold">
+                <span class="text-blue-600 font-semibold text-dark-jj">
                     🕒 Verification Pending
                 </span>
             @elseif ($status === 'verified')
-                <span class="text-green-600 font-semibold block">
+                <span class="text-green-600 font-semibold block text-dark-jj">
                     ✅ Bank Verified
                 </span>
 
@@ -85,7 +85,7 @@
 
                     {{-- NAME --}}
                     <div>
-                        <label>Account Holder Name</label>
+                        <label class="text-dark-jj">Account Holder Name</label>
                         <input type="text" name="account_holder_name" value="{{ old('account_holder_name') }}"
                             class="w-full border rounded-lg p-3">
                         @error('account_holder_name')
@@ -95,7 +95,7 @@
 
                     {{-- ACCOUNT --}}
                     <div>
-                        <label>Account Number</label>
+                        <label class="text-dark-jj">Account Number</label>
                         <input type="text" name="account_number" value="{{ old('account_number') }}" maxlength="18"
                             oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full border rounded-lg p-3">
                         @error('account_number')
@@ -105,7 +105,7 @@
 
                     {{-- IFSC --}}
                     <div>
-                        <label>IFSC Code</label>
+                        <label class="text-dark-jj">IFSC Code</label>
                         <input type="text" name="ifsc" value="{{ old('ifsc') }}" maxlength="11"
                             oninput="this.value=this.value.toUpperCase()" class="w-full border rounded-lg p-3">
                         @error('ifsc')
@@ -115,7 +115,7 @@
 
                     {{-- PAN --}}
                     <div>
-                        <label>PAN Number</label>
+                        <label class="text-dark-jj">PAN Number</label>
                         <input type="text" name="pan" value="{{ old('pan') }}" maxlength="10"
                             oninput="this.value=this.value.toUpperCase()" class="w-full border rounded-lg p-3">
                         @error('pan')
@@ -125,7 +125,7 @@
 
                     {{-- EMAIL --}}
                     <div>
-                        <label>Email</label>
+                        <label class="text-dark-jj">Email</label>
                         <input type="email" name="email" value="{{ old('email', auth()->user()->email) }}"
                             class="w-full border rounded-lg p-3">
                         @error('email')
@@ -135,7 +135,7 @@
 
                     {{-- PHONE --}}
                     <div>
-                        <label>Phone</label>
+                        <label class="text-dark-jj">Phone</label>
                         <input type="text" name="phone" value="{{ old('phone') }}" maxlength="10"
                             oninput="this.value=this.value.replace(/[^0-9]/g,'')" class="w-full border rounded-lg p-3">
                         @error('phone')
@@ -156,6 +156,10 @@
 
 @section('css')
     <style>
+        .text-dark-jj {
+            color: black !important;
+        }
+
         .create_room_button {
             background: linear-gradient(90deg, #ff512f, #dd2476);
             border-radius: 15px;

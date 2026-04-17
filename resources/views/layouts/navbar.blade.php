@@ -19,7 +19,7 @@
                         href="{{ auth()->user()->role == 1 ? route('profile') : route('feed') }}">
                         <img src="{{ asset('images/new_logo.png') }}" alt=""
                             class="w-16 md:block hidden dark:!hidden">
-                        <img src="{{ asset('images/new_logo.png') }}" alt="" class="dark:md:block hidden">
+                        <img src="{{ asset('images/new_logo.png') }}" alt="" class="w-16 dark:md:block hidden">
                         <img src="{{ asset('images/new_logo.png') }}" class="hidden max-md:block w-20 dark:!hidden"
                             alt="">
                         <img src="{{ asset('images/new_logo.png') }}" class="hidden dark:max-md:block w-20"
