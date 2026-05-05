@@ -13,6 +13,7 @@ use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class ApiProfileController extends Controller
 {
@@ -1222,7 +1223,11 @@ class ApiProfileController extends Controller
                 $receiver = User::with('details')->findOrFail($receiver_id);
 
                 // dating profile image
-                $receiver->chat_image = optional($receiver->details)->photo1;
+                $receiver->chat_image         = optional($receiver->details)->photo1;
+                $receiver->has_details        = $receiver->details ? true : false;
+                $receiver->sender_has_details = DB::table('user_details')
+                    ->where('user_id', $user->id)
+                    ->exists();
 
                 /* ================= FETCH DATING CHAT ================= */
                 $chatMessages = \App\Models\DatingMessage::where(function ($q) use ($user, $receiver_id) {
