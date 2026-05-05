@@ -7,14 +7,20 @@
             {{ $receiver->first_name }} {{ $receiver->last_name }}
         </a>
     </div>
-
-    <div class="mt-3.5">
-        {{-- Dating profile --}}
-        <a href="{{ url('/dating/profile/' . $receiver->id) }}"
-            class="inline-block rounded-lg px-4 py-1.5 text-sm font-semibold bg-secondery">
-            View profile
-        </a>
-    </div>
+    
+    @if ($receiver->has_details && $receiver->sender_has_details)
+        <div class="mt-3.5">
+            {{-- Dating profile --}}
+            <a href="{{ url('/dating/profile/' . $receiver->id) }}"
+                class="inline-block rounded-lg px-4 py-1.5 text-sm font-semibold bg-secondery">
+                View profile
+            </a>
+            <p
+                class="text-gray-700 text-sm leading-relaxed px-3 py-2 rounded-lg bg-gradient-to-r from-pink-50 to-blue-50">
+                Connect as friends to enable real-time messaging.
+            </p>
+        </div>
+    @endif
 </div>
 
 <div id="dating-messages" class="space-y-4"></div>
