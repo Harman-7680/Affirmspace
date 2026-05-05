@@ -35,7 +35,7 @@
                         <th>Full Name</th>
                         <th>Email</th>
                         <th>Gender</th>
-                        <th>Bio</th>
+                        {{-- <th>Bio</th> --}}
                         <th>Joined</th>
                         <th>Status</th>
                         <th>Payment Status</th>
@@ -60,7 +60,7 @@
                             <td x-text="user.first_name + ' ' + user.last_name"></td>
                             <td x-text="user.email"></td>
                             <td x-text="user.gender"></td>
-                            <td x-text="user.bio"></td>
+                            {{-- <td x-text="user.bio"></td> --}}
                             <td x-text="user.created_at"></td>
                             <td>
                                 <span :class="user.is_online ? 'text-success fw-bold' : 'text-secondary'">
