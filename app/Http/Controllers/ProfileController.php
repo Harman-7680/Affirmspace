@@ -16,6 +16,7 @@ use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
@@ -1128,8 +1129,12 @@ class ProfileController extends Controller
 
             // load receiver properly
             if ($receiverType === 'dating') {
-                $receiver             = User::with('details')->findOrFail($receiver_id);
-                $receiver->chat_image = optional($receiver->details)->photo1;
+                $receiver                     = User::with('details')->findOrFail($receiver_id);
+                $receiver->chat_image         = optional($receiver->details)->photo1;
+                $receiver->has_details        = $receiver->details ? true : false;
+                $receiver->sender_has_details = DB::table('user_details')
+                    ->where('user_id', $user->id)
+                    ->exists();
             } else {
                 $receiver             = User::findOrFail($receiver_id);
                 $receiver->chat_image = $receiver->image;
