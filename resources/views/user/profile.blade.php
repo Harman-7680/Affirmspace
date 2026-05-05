@@ -8,13 +8,13 @@
     <br><br><br><br>
     <div class="max-w-3xl mx-auto p-4">
         <div class="bg-white rounded shadow p-4 mb-6 flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <div class="relative inline-block">
-                    <!-- User Image -->
-                    <img src="{{ $userProfile->image && $userProfile->image !== '0' ? asset('storage/' . $userProfile->image) : asset('images/avatars/avatar-1.jpg') }}"
-                        class="w-16 h-16 rounded-full object-cover" alt="User Image">
+            <!-- LEFT SIDE -->
+            <div class="flex items-start space-x-4 flex-1">
 
-                    <!-- Bow Icon (only if UserStatus == 1) -->
+                <div class="relative inline-block">
+                    <img src="{{ $userProfile->image && $userProfile->image !== '0' ? asset('storage/' . $userProfile->image) : asset('images/avatars/avatar-1.jpg') }}"
+                        class="w-16 h-16 rounded-full object-cover">
+
                     @if ($userProfile->UserStatus == 1)
                         <div class="user-status-icon text-blue-600 text-sm">
                             🎀
@@ -22,15 +22,39 @@
                     @endif
                 </div>
 
-                <div>
-                    <h2 class="text-xl font-bold">{{ $userProfile->first_name }} {{ $userProfile->last_name }}</h2>
+                <div class="min-w-0 max-w-md">
+                    <h2 class="text-xl font-bold">
+                        {{ $userProfile->first_name }} {{ $userProfile->last_name }}
+                    </h2>
+
                     <p class="text-sm text-gray-500">{{ $userProfile->pronouns }}</p>
-                    <p class="text-sm text-gray-500">{{ $userProfile->bio }}</p>
+
+                    <!-- IMPORTANT -->
+                    <div x-data="{ open: true }" class="max-w-md">
+
+                        <!-- BIO TEXT -->
+                        <p :class="open ? '' : 'max-h-5 overflow-hidden relative'"
+                            class="text-sm text-gray-500 transition-all duration-300">
+
+                            {{ $userProfile->bio }}
+
+                            <!-- Fade effect (only when closed) -->
+                            <span x-show="!open"
+                                class="absolute bottom-0 right-0 w-16 h-full bg-gradient-to-l from-white via-white/70 to-transparent">
+                            </span>
+                        </p>
+
+                        <!-- READ MORE BUTTON -->
+                        <button x-show="!open" @click="open = true" class="text-blue-500 text-xs mt-1">
+                            Read more
+                        </button>
+
+                    </div>
                 </div>
             </div>
 
             {{-- Friendship Status --}}
-            <div>
+            <div class="flex flex-col items-end gap-2 ml-4">
                 @php
                     $auth = auth()->user();
                     $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $userProfile) {
