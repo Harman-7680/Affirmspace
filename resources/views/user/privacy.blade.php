@@ -141,8 +141,7 @@
     <!-- Hero Section -->
     <section class="privacy-parallax">
 
-        <img src="images/coursel.png" class="privacy-img"
-            alt="LGBTQ community celebrating pride with rainbow flags and joy">
+        <img src="images/coursel.png" class="privacy-img" alt="LGBTQ community celebrating pride with rainbow flags and joy">
 
         <div class="privacy-content">
             <h2>Your Privacy Matters 🔐</h2>
@@ -220,6 +219,30 @@
                 <p>
                     Your data may be processed on servers located outside your country.
                     By using AffirmSpace, you consent to such transfers.
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>7. Child Safety Standards</h3>
+                <p>
+                    AffirmSpace has a strict zero-tolerance policy against child sexual abuse, exploitation, grooming, or
+                    harmful behavior
+                    involving minors. Violating accounts may be suspended, removed, and reported to relevant authorities.
+                </p>
+
+                <p>
+                    Users can report harmful content or behavior at:info@affirmspace.com
+                </p>
+            </div>
+
+            <div class="feature-card">
+                <h3>8. Data Deletion & User Control</h3>
+                <p>
+                    If a user deletes their account or removes personal content from AffirmSpace, the associated data is
+                    also deleted from
+                    our systems and is not permanently retained on our servers, except where required for legal, security,
+                    or compliance
+                    purposes.
                 </p>
             </div>
 
