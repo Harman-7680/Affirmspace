@@ -20,40 +20,6 @@
             padding: 60px 20px;
         }
 
-        .chat-hero {
-            background: #f8f9ff;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            align-items: center;
-            gap: 40px;
-        }
-
-        .hero-text h1 {
-            font-size: 48px;
-            font-weight: 700;
-            color: #222;
-        }
-
-        .hero-text span {
-            color: #ff4d7e;
-        }
-
-        .hero-text p {
-            margin-top: 20px;
-            font-size: 18px;
-            color: #555;
-            line-height: 1.6;
-        }
-
-        .hero-buttons {
-            margin-top: 30px;
-            display: flex;
-            gap: 15px;
-        }
-
         .btn-primary {
             background: linear-gradient(90deg, #ff4d7e, #ff7a5c);
             color: #fff;
@@ -143,7 +109,6 @@
             font-weight: 600;
         }
 
-
         /* CTA */
 
         .cta-section {
@@ -187,38 +152,124 @@
 
         }
     </style>
+
+    <style>
+        .hero-banner {
+            position: relative;
+            height: 620px;
+            width: 100%;
+            background-image: url('images/chat/Chat_Header_Banner.jpeg');
+            background-size: cover;
+            /* background-position: center; */
+            display: flex;
+            align-items: center;
+            border-radius: 24px;
+            overflow: hidden;
+            font-family: 'Inter', system-ui, sans-serif;
+        }
+
+        /* Dark overlay for better text readability */
+        .hero-banner::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg,
+                    rgba(124, 58, 237, 0.85) 0%,
+                    rgba(124, 58, 237, 0.75) 40%,
+                    rgba(0, 0, 0, 0.4) 100%);
+            z-index: 1;
+        }
+
+        .content-overlay {
+            position: relative;
+            z-index: 2;
+            width: 50%;
+            padding-left: 70px;
+            color: white;
+        }
+
+        .main-heading {
+            font-size: 4.5rem;
+            font-weight: 700;
+            line-height: 1.05;
+            margin-bottom: 24px;
+        }
+
+        .gradient-text {
+            background: linear-gradient(to right, #ffffff, #E0BBFF);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .sub-text {
+            font-size: 1.9rem;
+            font-weight: 500;
+            line-height: 1.25;
+            margin-bottom: 50px;
+        }
+
+        .brand-badge {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(12px);
+            padding: 18px 28px;
+            border-radius: 9999px;
+            width: fit-content;
+        }
+
+        .heart-icon {
+            width: 54px;
+            height: 54px;
+            background: white;
+            border-radius: 9999px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .brand-name {
+            color: white;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+
+        .brand-tagline {
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 1rem;
+        }
+    </style>
 @endsection
 
 @section('content')
-    <section class="chat-hero">
-        <div class="container">
+    <section class="hero-banner">
 
-            <div class="hero-grid">
+        <!-- Left Content -->
+        <div class="content-overlay">
+            <h1 class="main-heading">
+                Chat<br><span class="gradient-text">Freely.</span>
+            </h1>
 
-                <div class="hero-text">
-                    <h1>Start Conversations <br> <span>That Matter</span></h1>
+            <p class="sub-text">
+                Real conversations.<br>
+                Real connections.
+            </p>
 
-                    <p>
-                        Connect with people in a safe and supportive LGBTQ+ community.
-                        Chat freely, share your experiences, and build meaningful friendships
-                        with people who truly understand you.
-                    </p>
-
-                    <div class="hero-buttons">
-                        <a href="{{ 'register' }}?role=0" class="btn-primary">Start Chatting</a>
-                        <a href="{{ 'login' }}" class="btn-outline">Open Messages</a>
-                    </div>
+            <div class="brand-badge">
+                <div class="heart-icon">❤️</div>
+                <div>
+                    <div class="brand-name">affirmspace</div>
+                    <div class="brand-tagline">Safe • Inclusive • Real</div>
                 </div>
-
-                <div class="hero-image">
-                    <img src="{{ asset('images/chat/Chat_Header_Banner.png') }}"
-                        alt="Two people chatting on phones showing online connection and conversation.">
-                </div>
-
             </div>
         </div>
-    </section>
 
+    </section>
 
     <section class="why-chat">
         <div class="container">
@@ -260,7 +311,6 @@
         </div>
     </section>
 
-
     <section class="how-it-works">
         <div class="container">
 
@@ -294,7 +344,6 @@
 
         </div>
     </section>
-
 
     <section class="cta-section">
         <div class="container cta-box">
