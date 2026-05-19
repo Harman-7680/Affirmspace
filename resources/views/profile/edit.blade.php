@@ -674,76 +674,79 @@
                 {{-- its js on bottom of this file --}}
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                     @foreach ($uploaded_post as $post)
-                        <form method="POST" action="{{ route('posts.update', $post->id) }}"
-                            enctype="multipart/form-data"
-                            class="bg-white shadow-md rounded-lg p-4 border border-gray-200 space-y-4">
-                            @csrf
-                            @method('PUT')
+                        <div style="display: flex; flex-direction:column;">
+                            <form method="POST" action="{{ route('posts.update', $post->id) }}"
+                                enctype="multipart/form-data"
+                                class="bg-white shadow-md rounded-lg p-4 border border-gray-200 space-y-4">
+                                @csrf
+                                @method('PUT')
 
-                            <!-- Post Media -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Current Media</label>
-                                @php
-                                    $file = $post->post_image;
-                                    $isVideo = \Illuminate\Support\Str::endsWith($file, [
-                                        '.mp4',
-                                        '.mov',
-                                        '.avi',
-                                        '.webm',
-                                    ]);
-                                @endphp
+                                <!-- Post Media -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Current Media</label>
+                                    @php
+                                        $file = $post->post_image;
+                                        $isVideo = \Illuminate\Support\Str::endsWith($file, [
+                                            '.mp4',
+                                            '.mov',
+                                            '.avi',
+                                            '.webm',
+                                        ]);
+                                    @endphp
 
-                                @if ($isVideo)
-                                    <video autoplay muted loop playsinline
-                                        class="w-full h-48 object-cover rounded-md border">
-                                        <source src="{{ asset('storage/' . $file) }}"
-                                            type="video/{{ pathinfo($file, PATHINFO_EXTENSION) }}">
-                                        Your browser does not support the video tag.
-                                    </video>
-                                @else
-                                    <img src="{{ asset('storage/' . $file) }}" alt="Post Media"
-                                        class="w-full h-48 object-cover rounded-md border">
-                                @endif
-                            </div>
+                                    @if ($isVideo)
+                                        <video autoplay muted loop playsinline
+                                            class="w-full h-48 object-cover rounded-md border">
+                                            <source src="{{ asset('storage/' . $file) }}"
+                                                type="video/{{ pathinfo($file, PATHINFO_EXTENSION) }}">
+                                            Your browser does not support the video tag.
+                                        </video>
+                                    @else
+                                        <img src="{{ asset('storage/' . $file) }}" alt="Post Media"
+                                            class="w-full h-48 object-cover rounded-md border">
+                                    @endif
+                                </div>
 
-                            <!-- Caption Input -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Caption</label>
-                                <input type="text" name="caption" value="{{ old('caption', $post->caption) }}"
-                                    class="w-full px-3 py-2 border @error('caption') border-red-500 @else border-gray-300 @enderror rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                @error('caption')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                                <!-- Caption Input -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Caption</label>
+                                    <input type="text" name="caption" value="{{ old('caption', $post->caption) }}"
+                                        class="w-full px-3 py-2 border @error('caption') border-red-500 @else border-gray-300 @enderror rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    @error('caption')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-                            <!-- Upload New Image -->
-                            <div>
-                                <label class="block text-sm font-medium text-gray-700 mb-1">Upload New Image</label>
-                                <input type="file" name="image"
-                                    class="w-full px-3 py-2 border @error('image') border-red-500 @else border-gray-300 @enderror rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                @error('image')
-                                    <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
-                                @enderror
-                            </div>
+                                <!-- Upload New Image -->
+                                <div>
+                                    <label class="block text-sm font-medium text-gray-700 mb-1">Upload New Image</label>
+                                    <input type="file" name="image"
+                                        class="w-full px-3 py-2 border @error('image') border-red-500 @else border-gray-300 @enderror rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                    @error('image')
+                                        <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                                    @enderror
+                                </div>
 
-                            <!-- Submit Button -->
-                            <div class="text-right">
+                                <!-- Submit Button -->
+                                <div class="text-right">
+                                    <button type="submit"
+                                        class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
+                                        Update Post
+                                    </button>
+                                </div>
+                            </form>
+
+                            <!-- Delete Form -->
+                            <form method="POST" action="{{ route('posts.destroy', $post->id) }}" class="mt-2">
+                                @csrf
+                                @method('DELETE')
                                 <button type="submit"
-                                    class="bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                                    Update Post
+                                    onclick="return confirm('Are you sure you want to delete this post?')"
+                                    class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition w-full">
+                                    Delete Post
                                 </button>
-                            </div>
-                        </form>
-
-                        <!-- Delete Form -->
-                        {{-- <form method="POST" action="{{ route('posts.destroy', $post->id) }}" class="mt-2">
-                            @csrf
-                            @method('DELETE')
-                            <button type="submit" onclick="return confirm('Are you sure you want to delete this post?')"
-                                class="bg-red-600 text-white px-4 py-2 rounded-md hover:bg-red-700 transition w-full">
-                                Delete Post
-                            </button>
-                        </form> --}}
+                            </form>
+                        </div>
                     @endforeach
                 </div>
 
