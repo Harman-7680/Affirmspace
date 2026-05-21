@@ -59,7 +59,7 @@ class EnsureProfileComplete
         $pronouns     = trim((string) $user->pronouns);
 
         if (
-            $image === '' || $image === '0' ||
+            // $image === '' || $image === '0' ||
 
             $relationship === '' || $relationship === 'none' ||
 
