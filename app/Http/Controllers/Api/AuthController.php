@@ -214,7 +214,7 @@ class AuthController extends Controller
         $deviceName  = $request->device_name ?? 'unknown';
 
         // Delete all old device tokens of this user
-        \App\Models\UserDevice::where('user_id', $user->id)->delete();
+        \App\Models\UserDevice::where('user_id', $user->id)->where('device_type', 'android')->delete();
 
         // Reassign device token logic (same as in register)
         $existingDevice = \App\Models\UserDevice::where('device_token', $deviceToken)->first();
@@ -613,6 +613,7 @@ class AuthController extends Controller
         // Delete device tokens
         \DB::table('user_devices')
             ->where('user_id', $user->id)
+            ->where('device_type', 'android')
             ->delete();
 
         $request->user()->currentAccessToken()->delete();
