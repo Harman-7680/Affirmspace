@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use DB;
-use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
 use Razorpay\Api\Api;
 use Razorpay\Api\Errors\SignatureVerificationError;
@@ -43,6 +42,10 @@ class AppRegistrationPaymentController extends Controller
         }
 
         $base = DB::table('registration_settings')->value('registration_fee');
+
+        if (! $base || $base <= 0) {
+            return;
+        }
 
         $extra30  = round($base * 0.30, 2);
         $subTotal = $base + $extra30;
