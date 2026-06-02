@@ -84,6 +84,8 @@ class AuthenticatedSessionController extends Controller
             ->where('tokenable_id', $user->id)
             ->delete();
 
+        \App\Models\UserDevice::where('user_id', $user->id)->delete();
+
         // 3. Now regenerate the session id
         $request->session()->regenerate();
 
