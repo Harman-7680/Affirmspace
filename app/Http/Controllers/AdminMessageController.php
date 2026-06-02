@@ -19,6 +19,8 @@ class AdminMessageController extends Controller
 
     public function sendMessage(Request $request)
     {
+        set_time_limit(300);
+
         $request->validate([
             'message'   => 'required|string',
             'user_type' => 'required|in:counselor,counselee',
@@ -27,34 +29,48 @@ class AdminMessageController extends Controller
         $message = $request->message;
         $role    = $request->user_type === 'counselor' ? 1 : 0;
 
-        // Get users by role
-        $users = User::where('role', $role)->get();
+        User::where('role', $role)
+            ->whereNotNull('email')
+            ->chunk(5, function ($users) use ($message) {
 
-        foreach ($users as $user) {
+                foreach ($users as $user) {
 
-            // SAFE Firebase push (won't crash)
-            $this->sendFirebaseSafe(
-                $user->id,
-                'Message from Admin',
-                $message,
-                [
-                    'type' => 'admin_message',
-                ]
-            );
+                    // SAFE Firebase push (won't crash)
+                    $this->sendFirebaseSafe(
+                        $user->id,
+                        'Message from Admin',
+                        $message,
+                        [
+                            'type' => 'admin_message',
+                        ]
+                    );
 
-            // Email ALWAYS works
-            try {
-                Mail::to($user->email)->send(
-                    new AdminBroadcastMail($message, $user->first_name ?? 'User')
-                );
-            } catch (\Throwable $e) {
-                Log::error("Admin email failed for user {$user->id}: " . $e->getMessage());
-            }
-        }
+                    try {
+
+                        Mail::to($user->email)->send(
+                            new AdminBroadcastMail(
+                                $message,
+                                $user->first_name ?? 'User'
+                            )
+                        );
+
+                        // optional delay
+                        sleep(1);
+
+                    } catch (\Throwable $e) {
+
+                        \Log::error([
+                            'user_id' => $user->id,
+                            'email'   => $user->email,
+                            'error'   => $e->getMessage(),
+                        ]);
+                    }
+                }
+            });
 
         return response()->json([
             'success' => true,
-            'message' => 'Message sent successfully',
+            'message' => 'Messages sent successfully',
         ]);
     }
 

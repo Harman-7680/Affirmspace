@@ -20,7 +20,7 @@ class AdminBroadcastMail extends Mailable
 
     public function build()
     {
-        return $this->subject('📢 Message from Admin')
+        return $this->subject('Message from AffirmSpace')
             ->view('emails.admin_broadcast');
     }
 }

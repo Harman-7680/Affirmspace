@@ -602,6 +602,16 @@ class AuthController extends Controller
     {
         $user = $request->user();
 
+        // Delete sanctum tokens
+        \DB::table('personal_access_tokens')
+            ->where('tokenable_id', $user->id)
+            ->delete();
+
+        // Delete device tokens
+        \DB::table('user_devices')
+            ->where('user_id', $user->id)
+            ->delete();
+
         $request->user()->currentAccessToken()->delete();
 
         return response()->json([

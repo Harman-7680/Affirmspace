@@ -406,6 +406,7 @@ class ApiProfileController extends Controller
         // Get all counselors (role = 1) except the logged-in user
         $all_users = User::where('id', '!=', $auth->id)
             ->where('role', 1)
+            ->where('documents_status', 3)
             ->with('specialization:id,name')
             ->get();
 
