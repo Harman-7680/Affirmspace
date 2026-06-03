@@ -639,7 +639,7 @@
                             selectedRating: '',
                             selectedSpecialization: '',
                             specializations: [],
-                            counselors: {{ $all_users->where('role', 1)->values()->map(function ($u) {
+                            counselors: {{ $all_users->where('role', 1)->where('documents_status', 3)->values()->map(function ($u) {
                                     return [
                                         'id' => $u->id,
                                         'first_name' => $u->first_name,

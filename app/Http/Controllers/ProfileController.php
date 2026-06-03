@@ -1166,6 +1166,7 @@ class ProfileController extends Controller
         // Get all counselors (role = 1)
         $all_users = \App\Models\User::where('id', '!=', $auth->id)
             ->where('role', 1)
+            ->where('documents_status', 3)
             ->get();
 
         // Attach friend count, friendship status, and rating
