@@ -10,9 +10,11 @@ class JitsiRoom extends Model
 
     protected $fillable = [
         'room_name',
+        'room_code',
         'created_by',
         'description',
         'max_users',
+        'jitsi_link',
         'duration_minutes',
         'start_time',
         'end_time',

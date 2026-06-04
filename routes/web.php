@@ -19,6 +19,7 @@ use App\Http\Controllers\EventController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JitsiRoomController;
+use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
 use App\Http\Controllers\ProfileController;
@@ -343,7 +344,7 @@ Route::middleware('auth', 'profile.complete')->group(function () {
     Route::get('/groups', [JitsiRoomController::class, 'groups'])->name('groups');
     Route::get('/upgrade', [JitsiRoomController::class, 'upgrade'])->name('upgrade');
     Route::post('/jitsi/store', [JitsiRoomController::class, 'store'])->name('jitsi.store');
-    Route::get('/jitsi/join/{room}', [JitsiRoomController::class, 'join'])->name('jitsi.join');
+    Route::post('/jitsi/join/{room}', [JitsiRoomController::class, 'join'])->name('jitsi.join');
 });
 
 // event related routes
@@ -395,6 +396,11 @@ Route::group([], function () {
     Route::get('/lgbtq-community', function () {return view('seo.community');})->name('community');
     Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
     Route::get('/lgbtq-mental-health-counselling', function () {return view('seo.counselling');})->name('counselling');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::post('/chat/send', [LiveChatController::class, 'send']);
+    Route::get('/fetch-messages/{id}', [LiveChatController::class, 'fetch']);
 });
 
 Route::get('/sitemap.xml', [HomeController::class, 'sitemap']);
