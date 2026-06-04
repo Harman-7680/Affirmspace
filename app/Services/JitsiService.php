@@ -6,7 +6,7 @@ use Firebase\JWT\JWT;
 
 class JitsiService
 {
-    public static function generateToken(string $room, $user): string
+    public static function generateToken(string $room, $user, $displayName = null): string
     {
         $appId      = config('services.jitsi.app_id');
         $keyId      = config('services.jitsi.key_id');
@@ -31,7 +31,8 @@ class JitsiService
             'context' => [
                 'user'     => [
                     'id'        => (string) $user->id,
-                    'name'      => $user->first_name,
+                    // 'name'      => $user->first_name,
+                    'name'      => $displayName ?? $user->first_name,
                     'email'     => $user->email,
                     'moderator' => true,
                 ],
