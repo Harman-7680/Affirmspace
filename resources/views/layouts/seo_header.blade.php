@@ -8,7 +8,7 @@
     }
 
     .primary-btn {
-        color: white;
+        color: white !important;
         background: linear-gradient(90deg, #ff512f, #dd2476);
     }
 
