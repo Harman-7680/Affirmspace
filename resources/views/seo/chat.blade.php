@@ -66,6 +66,7 @@
             padding: 30px;
             border-radius: 14px;
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.05);
+            margin-top: 30px;
         }
 
         .feature-card .icon {
@@ -73,6 +74,155 @@
             margin-bottom: 10px;
         }
 
+        /* SECTION */
+
+        .chat-features {
+            background: linear-gradient(180deg, #eef5ff 0%, #e8f1ff 100%);
+            padding: 90px 8%;
+            overflow: hidden;
+        }
+
+        /* HEADING */
+
+        .section-heading {
+            text-align: center;
+            max-width: 850px;
+            margin: auto;
+            margin-bottom: 80px;
+        }
+
+        .small-title {
+            display: inline-block;
+            font-size: 15px;
+            font-weight: 700;
+            color: #1d7cff;
+            margin-bottom: 14px;
+            letter-spacing: .5px;
+        }
+
+        .section-heading h2 {
+            font-size: 48px;
+            line-height: 1.25;
+            color: #111827;
+            font-weight: 800;
+            margin-bottom: 22px;
+        }
+
+        .section-heading p {
+            font-size: 17px;
+            line-height: 1.8;
+            color: #4b5563;
+        }
+
+        /* FEATURES */
+
+        .features-wrapper {
+            max-width: 1100px;
+            margin: auto;
+        }
+
+        .feature-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 80px;
+            padding: 55px 0;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .feature-row:last-child {
+            border-bottom: none;
+        }
+
+        .feature-row.reverse {
+            flex-direction: row-reverse;
+        }
+
+        /* IMAGE */
+
+        .feature-image {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+        }
+
+        .feature-image img {
+            width: 240px;
+            max-width: 100%;
+            border-radius: 30px;
+            filter: drop-shadow(0 14px 35px rgba(0, 119, 255, 0.20));
+            transition: 0.3s ease;
+        }
+
+        .feature-image img:hover {
+            transform: translateY(-6px);
+        }
+
+        /* CONTENT */
+
+        .feature-content {
+            flex: 1;
+        }
+
+        .feature-content h3 {
+            font-size: 38px;
+            line-height: 1.3;
+            color: #111827;
+            font-weight: 800;
+            max-width: 500px;
+        }
+
+        /* RESPONSIVE */
+
+        @media(max-width: 991px) {
+
+            .feature-row,
+            .feature-row.reverse {
+                flex-direction: column;
+                text-align: center;
+                gap: 35px;
+            }
+
+            .feature-content h3 {
+                max-width: 100%;
+                font-size: 30px;
+            }
+
+            .section-heading h2 {
+                font-size: 38px;
+            }
+
+            .feature-image img {
+                width: 200px;
+            }
+        }
+
+        @media(max-width: 600px) {
+
+            .chat-features {
+                padding: 70px 6%;
+            }
+
+            .section-heading h2 {
+                font-size: 30px;
+            }
+
+            .section-heading p {
+                font-size: 15px;
+            }
+
+            .feature-content h3 {
+                font-size: 24px;
+            }
+
+            .feature-image img {
+                width: 170px;
+            }
+
+            .feature-row {
+                padding: 40px 0;
+            }
+        }
 
         /* HOW IT WORKS */
 
@@ -153,6 +303,7 @@
         }
     </style>
 
+
     <style>
         .hero-banner {
             position: relative;
@@ -160,7 +311,6 @@
             width: 100%;
             background-image: url('images/chat/Chat_Header_Banner.jpeg');
             background-size: cover;
-            /* background-position: center; */
             display: flex;
             align-items: center;
             border-radius: 24px;
@@ -168,7 +318,6 @@
             font-family: 'Inter', system-ui, sans-serif;
         }
 
-        /* Dark overlay for better text readability */
         .hero-banner::before {
             content: '';
             position: absolute;
@@ -185,7 +334,7 @@
 
         .content-overlay {
             position: relative;
-            z-index: 2;
+            z-index: 3;
             width: 50%;
             padding-left: 70px;
             color: white;
@@ -243,13 +392,148 @@
             color: rgba(255, 255, 255, 0.9);
             font-size: 1rem;
         }
+
+        /* ==================== FLOATING ICONS ==================== */
+        .floating-icons {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 2;
+            pointer-events: none;
+            overflow: hidden;
+        }
+
+        .float-icon {
+            position: absolute;
+            font-size: 2.8rem;
+            opacity: 0.85;
+            filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.4));
+        }
+
+        /* Positions - Right Side */
+        .float-icon:nth-child(1) {
+            top: 20%;
+            left: 68%;
+            font-size: 3.5rem;
+        }
+
+        .float-icon:nth-child(2) {
+            top: 35%;
+            left: 80%;
+            font-size: 2.4rem;
+        }
+
+        .float-icon:nth-child(3) {
+            top: 55%;
+            left: 65%;
+            font-size: 2.8rem;
+        }
+
+        .float-icon:nth-child(4) {
+            top: 25%;
+            left: 85%;
+            font-size: 2.3rem;
+        }
+
+        .float-icon:nth-child(5) {
+            top: 70%;
+            left: 73%;
+            font-size: 3.0rem;
+        }
+
+        .float-icon:nth-child(6) {
+            top: 45%;
+            left: 88%;
+            font-size: 2.5rem;
+        }
+
+        .float-icon:nth-child(7) {
+            top: 18%;
+            left: 75%;
+            font-size: 2.6rem;
+        }
+
+        .float-icon:nth-child(8) {
+            top: 65%;
+            left: 82%;
+            font-size: 2.9rem;
+        }
+
+        /* 1. Upward Floating */
+        .up-float {
+            animation: floatUp 22s linear infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes floatUp {
+            0% {
+                transform: translateY(120px) rotate(0deg);
+                opacity: 0;
+            }
+
+            15% {
+                opacity: 0.85;
+            }
+
+            85% {
+                opacity: 0.85;
+            }
+
+            100% {
+                transform: translateY(-800px) rotate(25deg);
+                opacity: 0;
+            }
+        }
+
+        /* 2. Up & Down Bobbing */
+        .bob {
+            animation: bob 5s ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes bob {
+
+            0%,
+            100% {
+                transform: translateY(0) rotate(-8deg);
+            }
+
+            50% {
+                transform: translateY(-45px) rotate(8deg);
+            }
+        }
+
+        /* 3. Horizontal Left-Right Movement */
+        .horizontal {
+            animation: horizontalDrift 14s ease-in-out infinite;
+            animation-delay: var(--delay);
+        }
+
+        @keyframes horizontalDrift {
+
+            0%,
+            100% {
+                transform: translateX(0) rotate(-10deg);
+            }
+
+            50% {
+                transform: translateX(80px) rotate(10deg);
+            }
+        }
+
+        /* Combine gentle floating with all types */
+        .float-icon {
+            animation-timing-function: ease-in-out;
+        }
     </style>
 @endsection
 
 @section('content')
     <section class="hero-banner">
 
-        <!-- Left Content -->
+        <!-- Left Content (Unchanged) -->
         <div class="content-overlay">
             <h1 class="main-heading">
                 Chat<br><span class="gradient-text">Freely.</span>
@@ -269,12 +553,39 @@
             </div>
         </div>
 
+        <!-- Floating Cute Icons with Mixed Animations -->
+        <div class="floating-icons">
+            <div class="float-icon up-float" style="--delay: 0s;">❤️</div>
+            <div class="float-icon horizontal" style="--delay: 1.5s;">💬</div>
+            <div class="float-icon bob" style="--delay: 0.3s;">❤️</div>
+            <div class="float-icon up-float" style="--delay: 2.4s;">💬</div>
+            <div class="float-icon horizontal" style="--delay: 0.8s;">🤝</div>
+            <div class="float-icon bob" style="--delay: 1.9s;">💖</div>
+            <div class="float-icon up-float" style="--delay: 3.2s;">💬</div>
+            <div class="float-icon horizontal" style="--delay: 1.2s;">💖</div>
+
+            <div class="float-icon up-float" style="--delay: 0s;">❤️</div>
+            <div class="float-icon horizontal" style="--delay: 1.5s;">💬</div>
+            <div class="float-icon bob" style="--delay: 0.3s;">❤️</div>
+            <div class="float-icon up-float" style="--delay: 2.4s;">💬</div>
+            <div class="float-icon horizontal" style="--delay: 0.8s;">🤝</div>
+            <div class="float-icon bob" style="--delay: 1.9s;">💖</div>
+            <div class="float-icon up-float" style="--delay: 3.2s;">💬</div>
+            <div class="float-icon horizontal" style="--delay: 1.2s;">💖</div>
+        </div>
+
     </section>
+
+
 
     <section class="why-chat">
         <div class="container">
 
-            <h2>Why Chat on AffirmSpace?</h2>
+            <h2>🌈 LGBTQ+ Chat – Safe, Anonymous & Inclusive Chat Platform</h2>
+
+            <p>AffirmSpace is a modern platform offering LGBTQ chat online, designed specifically for individuals who want
+                more than just surface-level interaction. It is a space where people identifying as gay, lesbian, bisexual,
+                queer, trans, and beyond can connect, communicate, and feel understood without judgment.</p>
 
             <div class="features-grid">
 
@@ -311,6 +622,95 @@
         </div>
     </section>
 
+    <!-- LGBTQ+ Chat Features Section -->
+    <section class="chat-features">
+
+        <!-- Heading -->
+        <div class="section-heading">
+            <span class="small-title"></span>
+
+            <h2>
+                💬 LGBTQ+ Chat Features</h2>
+
+            <p>
+                AffirmSpace offers everything you need to connect comfortably and confidently
+            </p>
+        </div>
+
+        <div class="features-wrapper">
+
+            <!-- Feature 1 -->
+            <div class="feature-row">
+
+                <div class="feature-image">
+                    <img src="{{ asset('images/chat/anonymouschat.png') }}" alt="">
+                </div>
+
+                <div class="feature-content">
+                    <h3>Anonymous LGBTQ+ Chat Without Revealing Your Identity</h3>
+                </div>
+
+            </div>
+
+            <!-- Feature 2 -->
+            <div class="feature-row reverse">
+
+                <div class="feature-image">
+                    <img src="{{ asset('images/chat/private.png') }}" alt="">
+                </div>
+
+                <div class="feature-content">
+                    <h3>One-on-One Private Conversations</h3>
+                </div>
+
+            </div>
+
+            <!-- Feature 3 -->
+            <div class="feature-row">
+
+                <div class="feature-image">
+                    <img src="{{ asset('images/chat/groupchat.png') }}" alt="">
+                </div>
+
+                <div class="feature-content">
+                    <h3>LGBTQ+ Group Chat Rooms</h3>
+                </div>
+
+            </div>
+
+            <!-- Feature 4 -->
+            <div class="feature-row reverse">
+
+                <div class="feature-image">
+                    <img src="{{ asset('images/chat/safety.png') }}" alt="">
+                </div>
+
+                <div class="feature-content">
+                    <h3>Private,Safe & Moderate</h3>
+                </div>
+
+            </div>
+
+            <!-- Feature 5 -->
+            <div class="feature-row">
+
+                <div class="feature-image">
+                    <img src="{{ asset('images/chat/instant.png') }}" alt="">
+                </div>
+
+                <div class="feature-content">
+                    <h3>⚡ Instant Chat & Easy Sign-Up</h3>
+                </div>
+
+            </div>
+
+        </div>
+        <p style="text-align: center";>Whether you're here to talk, explore, or connect, everything is designed for
+            simplicity and comfort.</p>
+
+    </section>
+
+
     <section class="how-it-works">
         <div class="container">
 
@@ -319,14 +719,16 @@
             <div class="steps">
 
                 <div class="step">
-                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Browse_Connect.png') }}"
+                    <div class="step-number"><img height="60"
+                            src="{{ asset('images/chat/Browse_Connect.png') }}"
                             alt="Hands passing heart showing friends support and connection."></div>
                     <h3>Browse & Connect</h3>
                     <p>Find people to chat with.</p>
                 </div>
 
                 <div class="step">
-                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Start_Messaging.png') }}"
+                    <div class="step-number"><img height="60"
+                            src="{{ asset('images/chat/Start_Messaging.png') }}"
                             alt="Two people using phones showing messaging and online communication."></div>
                     <h3>Start Messaging</h3>
                     <p>Send text, emojis and media.</p>
