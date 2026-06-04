@@ -1,6 +1,26 @@
+<style>
+    .primary-btn,
+    .secondary-btn {
+        padding: 14px 25px;
+        border-radius: 30px;
+        font-weight: 600;
+        text-decoration: none;
+    }
+
+    .primary-btn {
+        color: white;
+        background: linear-gradient(90deg, #ff512f, #dd2476);
+    }
+
+    .secondary-btn {
+        color: #dd2476;
+        border: 2px solid #dd2476;
+    }
+</style>
+
 <header>
     <a href="{{ route('/') }}" class="logo-container">
-        <img src="{{ asset('images/welcomepage.png') }}" alt="AffirmSpace Logo">
+        <img src="{{ asset('public/images/welcomepage.png') }}" alt="AffirmSpace Logo">
         <span>AffirmSpace</span>
     </a>
 
@@ -67,7 +87,7 @@
 
                 <li>
                     <a href="{{ route('apps') }}"
-                        class="{{ request()->routeIs('apps') ? 'activeTab font-bold text-blue-600' : '' }}">
+                        class="primary-btn {{ request()->routeIs('apps') ? 'activeTab font-bold text-blue-600' : '' }}">
                         Download Our App
                     </a>
                 </li>
@@ -79,8 +99,7 @@
                             Go to Feed
                         </a>
                     @else
-                        <a href="{{ route('login') }}"
-                            class="{{ request()->routeIs('login') ? 'activeTab font-bold text-blue-600 nav-btn' : 'nav-btn' }}">
+                        <a href="{{ route('login') }}" class="secondary-btn">
                             Login
                         </a>
                     @endif
