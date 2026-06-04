@@ -20,7 +20,7 @@
 
 <header>
     <a href="{{ route('/') }}" class="logo-container">
-        <img src="{{ asset('public/images/welcomepage.png') }}" alt="AffirmSpace Logo">
+        <img src="{{ asset('images/welcomepage.png') }}" alt="AffirmSpace Logo">
         <span>AffirmSpace</span>
     </a>
 
