@@ -395,6 +395,7 @@ Route::group([], function () {
     Route::get('/lgbtq-dating-app', function () {return view('seo.dating');})->name('chatAndDating');
     Route::get('/lgbtq-community', function () {return view('seo.community');})->name('community');
     Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
+    Route::get('/lgbtq-social-app', function () {return view('seo.apps');})->name('apps');
     Route::get('/lgbtq-mental-health-counselling', function () {return view('seo.counselling');})->name('counselling');
 });
 
@@ -402,6 +403,8 @@ Route::middleware('auth')->group(function () {
     Route::post('/chat/send', [LiveChatController::class, 'send']);
     Route::get('/fetch-messages/{id}', [LiveChatController::class, 'fetch']);
 });
+
+Route::get('/group-call-page', function () {return view('user.chat.group_call_webview');});
 
 Route::get('/sitemap.xml', [HomeController::class, 'sitemap']);
 

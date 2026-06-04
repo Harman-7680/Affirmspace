@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\ApiDatingController;
 use App\Http\Controllers\Api\ApiDatingMessageController;
 use App\Http\Controllers\Api\ApiEventController;
 use App\Http\Controllers\Api\ApiFriendController;
+use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
 use App\Http\Controllers\Api\ApiProfileController;
 use App\Http\Controllers\Api\ApiStatusController;
@@ -149,6 +150,12 @@ Route::prefix('social')->group(function () {
     Route::post('verify-otp', [SocialLoginController::class, 'verifyOtp']);
     Route::get('complete-profile', [SocialLoginController::class, 'showCompleteProfileForm']);
     Route::post('complete-profile', [SocialLoginController::class, 'completeProfile']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/group-rooms', [ApiJitsiRoomController::class, 'rooms']);
+    Route::post('/group-rooms/create', [ApiJitsiRoomController::class, 'create']);
+    Route::post('/group-rooms/join/{room}', [ApiJitsiRoomController::class, 'join']);
 });
 
 // this route for both app and website

@@ -66,6 +66,13 @@
                 </li>
 
                 <li>
+                    <a href="{{ route('apps') }}"
+                        class="{{ request()->routeIs('apps') ? 'activeTab font-bold text-blue-600' : '' }}">
+                        Download Our App
+                    </a>
+                </li>
+
+                <li>
                     @if (Auth::check())
                         <a href="{{ route('feed') }}"
                             class="{{ request()->routeIs('feed') ? 'activeTab font-bold text-blue-600 nav-btn' : 'nav-btn' }}">
