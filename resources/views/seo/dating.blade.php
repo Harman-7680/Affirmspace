@@ -9,6 +9,75 @@
         content="LGBTQ+ dating, LGBTQ+ dating platform, safe LGBTQ+ dating, LGBTQ+ dating app / website, LGBTQ+ relationships">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- WebPage Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "LGBTQ Dating – Meaningful Connections for Gay, Lesbian, Queer & Trans Individuals",
+  "url": "https://affirmspace.com/lgbtq-dating-app",
+  "description": "Affirmspace helps LGBTQ+ individuals build meaningful connections through authentic conversations, dating, community, and relationships."
+}
+</script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is LGBTQ dating on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace provides an inclusive LGBTQ+ dating experience where users can connect through meaningful conversations and build genuine relationships."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Affirmspace only for dating?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. In addition to dating, Affirmspace offers community spaces, chat, events, support, and opportunities to build friendships."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who can use Affirmspace dating?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace welcomes gay, lesbian, bisexual, queer, transgender, non-binary individuals and supportive allies looking for meaningful connections."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How is Affirmspace different from traditional dating apps?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace focuses on authentic conversations, inclusivity, community, and meaningful relationships rather than superficial interactions."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Affirmspace a safe LGBTQ dating platform?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace promotes respectful communication, privacy, community guidelines, and an inclusive environment for LGBTQ+ individuals."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I make friends on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Many users join Affirmspace to make friends, find community, meet new people, and build meaningful relationships."
+      }
+    }
+  ]
+}
+</script>
 @endsection
 
 @section('css')

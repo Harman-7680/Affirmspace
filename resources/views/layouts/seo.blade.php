@@ -51,6 +51,7 @@
             'counselling',
             'events',
             'blog.detail',
+            'apps',
         ];
 
         $isIndex = in_array($routeName, $indexRoutes);

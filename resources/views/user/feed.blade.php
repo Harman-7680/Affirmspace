@@ -535,7 +535,7 @@
                                     return (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm);
                                 });
                                 if (this.showCount < matched.length) {
-                                    this.showCount += 1;
+                                    this.showCount += 3;
                                 }
                             }
                         }">

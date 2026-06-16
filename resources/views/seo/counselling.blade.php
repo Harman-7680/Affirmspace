@@ -10,6 +10,75 @@
         content="LGBTQ+ counselling, LGBTQ+ mental health support, LGBTQ+ therapists / counsellors, LGBTQ+ counselling platform, LGBTQ+ mental wellness	">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- WebPage Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebPage",
+  "name": "LGBTQ+ Counselling & Therapy Support",
+  "url": "https://affirmspace.com/lgbtq-mental-health-counselling",
+  "description": "Connect with verified LGBTQ+ affirming counsellors and therapists for mental health support, emotional wellbeing, personal growth, relationship guidance, and identity-related concerns."
+}
+</script>
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What mental health support is available on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace helps users connect with verified counsellors and therapists who provide support for emotional wellbeing, personal growth, relationships, stress management, and identity-related concerns."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Are counsellors and therapists verified on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Affirmspace reviews professional qualifications and supporting documentation before approving counsellors and therapists on the platform."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I find LGBTQ+ affirming therapists on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Affirmspace helps users connect with verified counsellors and therapists who provide LGBTQ+ affirming support in a respectful and inclusive environment."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can therapy help with stress, relationships, and self-confidence?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Many people seek counselling and therapy for support with stress, relationships, self-confidence, emotional wellbeing, identity exploration, and personal development."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I access counselling online through Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Users can browse verified counsellor and therapist profiles and access available online counselling and support services through the platform."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Who can use counselling services on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace welcomes LGBTQ+ individuals and supportive allies seeking professional guidance, emotional support, personal growth, and mental wellbeing resources."
+      }
+    }
+  ]
+}
+</script>
 @endsection
 
 @section('css')

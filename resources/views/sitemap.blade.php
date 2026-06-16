@@ -15,6 +15,7 @@
             'chatAndDating',
             'counselling',
             'events',
+            'apps',
         ];
     @endphp
 

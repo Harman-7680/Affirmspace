@@ -10,6 +10,75 @@
         content="LGBTQ+ chat, LGBTQ+ chat platform, safe LGBTQ+ chat, LGBTQ+ messaging platform, LGBTQ+ community chat">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- FAQ Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is Affirmspace LGBTQ+ Chat?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace is a safe and inclusive LGBTQ+ chat platform where gay, lesbian, bisexual, queer, transgender, non-binary individuals and allies can connect, chat, and build meaningful relationships."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Affirmspace free to use?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Users can join Affirmspace, connect with the community, and access chat features without any cost."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I chat anonymously on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Affirmspace allows users to connect comfortably while maintaining their privacy and sharing only the information they choose."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Affirmspace only for LGBTQ+ individuals?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace is designed primarily for LGBTQ+ individuals, including gay, lesbian, bisexual, queer, transgender, and non-binary people, while also welcoming supportive allies."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is Affirmspace a safe LGBTQ+ chat platform?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Affirmspace focuses on creating a respectful and inclusive environment through community guidelines, moderation, and privacy-focused features."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Can I make friends on Affirmspace?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Many users join Affirmspace to meet like-minded people, build friendships, join community discussions, and connect with others who share similar experiences."
+      }
+    }
+  ]
+}
+</script>
+
+    <!-- WebPage Schema -->
+    <script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"WebPage",
+  "name":"LGBTQ+ Chat Online",
+  "url":"https://affirmspace.com/lgbtq-chat",
+  "description":"Safe LGBTQ+ chat platform for gay, lesbian, queer, trans and non-binary individuals."
+}
+</script>
 @endsection
 
 @section('css')
@@ -719,16 +788,14 @@
             <div class="steps">
 
                 <div class="step">
-                    <div class="step-number"><img height="60"
-                            src="{{ asset('images/chat/Browse_Connect.png') }}"
+                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Browse_Connect.png') }}"
                             alt="Hands passing heart showing friends support and connection."></div>
                     <h3>Browse & Connect</h3>
                     <p>Find people to chat with.</p>
                 </div>
 
                 <div class="step">
-                    <div class="step-number"><img height="60"
-                            src="{{ asset('images/chat/Start_Messaging.png') }}"
+                    <div class="step-number"><img height="60" src="{{ asset('images/chat/Start_Messaging.png') }}"
                             alt="Two people using phones showing messaging and online communication."></div>
                     <h3>Start Messaging</h3>
                     <p>Send text, emojis and media.</p>
