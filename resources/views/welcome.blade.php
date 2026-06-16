@@ -18,6 +18,59 @@
     <meta property="og:image" content="{{ config('app.url') . '/images/og.png' }}">
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <!-- Organization Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Affirmspace",
+  "url": "https://affirmspace.com",
+  "logo" => asset('public/images/new_logo.png'),
+  "description": "Affirmspace is an LGBTQ+ community platform for chat, dating, community rooms, events, support and meaningful connections in a safe and inclusive environment."
+ "sameAs": [
+    "https://www.instagram.com/affirmspaceofficial/",
+    "https://www.facebook.com/Affirmspace/",
+    "https://www.linkedin.com/in/affirm-space-6a2632400/",
+    "https://x.com/affirm_space"
+  ]
+}
+</script>
+
+    <!-- SoftwareApplication Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "Affirmspace",
+  "url": "https://affirmspace.com",
+  "applicationCategory": "SocialNetworkingApplication",
+  "operatingSystem": "Android",
+  "downloadUrl": "https://play.google.com/store/apps/details?id=com.affirmspace.app",
+  "installUrl": "https://play.google.com/store/apps/details?id=com.affirmspace.app",
+  "description": "Affirmspace is an LGBTQ+ community platform for chat, dating, community rooms, events, support and meaningful connections in a safe and inclusive environment.",
+  "publisher": {
+    "@type": "Organization",
+    "name": "Affirmspace",
+    "url": "https://affirmspace.com"
+  }
+}
+</script>
+
+    <!-- WebSite Schema -->
+    <script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "WebSite",
+  "name": "Affirmspace",
+  "alternateName": [
+    "AffirmSpace",
+    "Affirm Space"
+  ],
+  "url": "https://affirmspace.com",
+  "description": "Affirmspace is an LGBTQ+ community platform for chat, dating, community rooms, events, support and meaningful connections."
+}
+</script>
 @endsection
 
 @section('css')
