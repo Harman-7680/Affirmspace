@@ -250,5 +250,30 @@
                 roomTimer = null;
             }
         };
+
+        // ROOM SEARCH
+        const roomSearch = document.getElementById('roomSearch');
+
+        if (roomSearch) {
+
+            roomSearch.addEventListener('keyup', function() {
+
+                const searchValue = this.value.toLowerCase();
+
+                document.querySelectorAll('.room-card').forEach(card => {
+
+                    const roomName = card.dataset.title.toLowerCase();
+
+                    if (roomName.includes(searchValue)) {
+
+                        card.style.display = '';
+
+                    } else {
+
+                        card.style.display = 'none';
+                    }
+                });
+            });
+        }
     </script>
 @endsection
