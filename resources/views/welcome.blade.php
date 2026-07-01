@@ -20,15 +20,15 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700&display=swap" rel="stylesheet">
 
     <!-- Organization Schema -->
-    <script type="application/ld+json">
+<script type="application/ld+json">
 {
   "@context": "https://schema.org",
   "@type": "Organization",
   "name": "Affirmspace",
   "url": "https://affirmspace.com",
-  "logo" => asset('public/images/new_logo.png'),
-  "description": "Affirmspace is an LGBTQ+ community platform for chat, dating, community rooms, events, support and meaningful connections in a safe and inclusive environment."
- "sameAs": [
+  "logo": "{{ asset('images/new_logo.png') }}",
+  "description": "Affirmspace is an LGBTQ+ community platform for chat, dating, community rooms, events, support and meaningful connections in a safe and inclusive environment.",
+  "sameAs": [
     "https://www.instagram.com/affirmspaceofficial/",
     "https://www.facebook.com/Affirmspace/",
     "https://www.linkedin.com/in/affirm-space-6a2632400/",
