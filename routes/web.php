@@ -354,6 +354,7 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::get('/event/success/{id}', [EventController::class, 'success'])->name('event.success');
     Route::get('/event/cancel/{id}', [EventController::class, 'cancel'])->name('event.cancel');
     Route::post('/event/verify', [EventController::class, 'verify'])->name('event.verify');
+    Route::get('/location-search', [EventController::class, 'locationSearch']);
 });
 
 // public route for mobile videocall

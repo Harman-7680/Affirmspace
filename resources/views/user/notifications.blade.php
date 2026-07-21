@@ -89,9 +89,17 @@
 
                 {{-- City --}}
                 <div>
-                    <label class="block text-gray-700 font-medium mb-1">City</label>
-                    <input type="text" name="city" placeholder="Enter city" value="{{ old('city') }}"
-                        class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                    <label class="block text-gray-700 font-medium mb-1">Location (City / Landmark)</label>
+                    {{-- <input type="text" name="city" placeholder="Enter city" value="{{ old('city') }}"
+                        class="w-full border border-gray-300 rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-indigo-500"> --}}
+                    <div class="relative">
+                        <input type="text" id="location" name="city" autocomplete="off"
+                            placeholder="Search city or landmark..." class="w-full border border-gray-300 rounded-lg p-3">
+
+                        <div id="suggestions"
+                            class="absolute left-0 right-0 bg-white border rounded-lg shadow-lg mt-1 hidden z-50 max-h-60 overflow-y-auto">
+                        </div>
+                    </div>
                     @error('city')
                         <p class="text-red-500 text-sm">{{ $message }}</p>
                     @enderror
@@ -230,5 +238,64 @@
                     });
                 }
             });
+    </script>
+
+    <script>
+        const input = document.getElementById('location');
+        const suggestions = document.getElementById('suggestions');
+
+        let timer;
+
+        input.addEventListener('keyup', function() {
+
+            clearTimeout(timer);
+
+            const query = this.value.trim();
+
+            if (query.length < 2) {
+                suggestions.classList.add('hidden');
+                return;
+            }
+
+            timer = setTimeout(() => {
+
+                fetch(`/location-search?q=${encodeURIComponent(query)}`)
+                    .then(res => res.json())
+                    .then(data => {
+
+                        suggestions.innerHTML = '';
+
+                        if (data.length === 0) {
+                            suggestions.classList.add('hidden');
+                            return;
+                        }
+
+                        data.forEach(place => {
+
+                            const item = document.createElement('div');
+
+                            item.className = 'p-3 hover:bg-gray-100 cursor-pointer';
+
+                            item.innerHTML = `📍 ${place.display_name}`;
+
+                            item.onclick = () => {
+
+                                input.value = place.display_name;
+
+                                suggestions.classList.add('hidden');
+
+                            };
+
+                            suggestions.appendChild(item);
+
+                        });
+
+                        suggestions.classList.remove('hidden');
+
+                    });
+
+            }, 300);
+
+        });
     </script>
 @endsection

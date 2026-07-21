@@ -226,4 +226,21 @@ class EventController extends Controller
 
         return null;
     }
+
+    public function locationSearch(Request $request)
+    {
+        $response = Http::get('https://us1.locationiq.com/v1/autocomplete.php', [
+            'key'    => config('services.locationiq.key'),
+            'q'      => $request->q,
+            'limit'  => 5,
+            'dedupe' => 1,
+            'format' => 'json',
+        ]);
+
+        return response()->json(
+            $response->successful()
+                ? $response->json()
+                : []
+        );
+    }
 }
