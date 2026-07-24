@@ -609,20 +609,37 @@ class ProfileController extends Controller
         //     });
 
         $boostHours = 2; // how many hours a friend's post gets priority
-        $all_posts  = Post::with([
+
+        // $blockedUserIds = Block::where('user_id', $auth->id)
+        //     ->whereNotNull('blocked_id')
+        //     ->pluck('blocked_id')
+        //     ->merge(
+        //         Block::where('blocked_id', $auth->id)
+        //             ->whereNotNull('user_id')
+        //             ->pluck('user_id')
+        //     )
+        //     ->unique()
+        //     ->toArray();
+
+        $blockedUserIds = array_unique(array_merge(
+            $blockedUsers,
+            $blockedByUsers
+        ));
+
+        $all_posts = Post::with([
             'user',
             'likes',
-            'comments' => function ($q) use ($auth, $friends) {
-                $blockedUserIds = Block::where('user_id', $auth->id)
-                    ->whereNotNull('blocked_id')
-                    ->pluck('blocked_id')
-                    ->merge(
-                        Block::where('blocked_id', $auth->id)
-                            ->whereNotNull('user_id')
-                            ->pluck('user_id')
-                    )
-                    ->unique()
-                    ->toArray();
+            'comments' => function ($q) use ($auth, $friends, $blockedUserIds) {
+                // $blockedUserIds = Block::where('user_id', $auth->id)
+                //     ->whereNotNull('blocked_id')
+                //     ->pluck('blocked_id')
+                //     ->merge(
+                //         Block::where('blocked_id', $auth->id)
+                //             ->whereNotNull('user_id')
+                //             ->pluck('user_id')
+                //     )
+                //     ->unique()
+                //     ->toArray();
 
                 $q->whereNull('parent_id')
                     ->whereNotIn('user_id', $blockedUserIds)
@@ -680,33 +697,90 @@ class ProfileController extends Controller
             });
 
         // Fetch all visible users
-        $all_users = \App\Models\User::where('id', '!=', $auth->id)
+        // $all_users = \App\Models\User::where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hidden_Users)
+        //     ->with(['ratingsReceived', 'specialization'])
+        //     ->inRandomOrder()
+        //     ->get();
+
+        $all_users = User::where('id', '!=', $auth->id)
             ->whereNotIn('id', $hidden_Users)
-            ->with(['ratingsReceived', 'specialization'])
+            ->with('specialization')
+            ->withAvg('ratingsReceived', 'rating')
             ->inRandomOrder()
             ->get();
 
+        $friendships = Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })->get();
+
+        // $friendCounts = Friendship::where('status', 'accepted')
+        //     ->get()
+        //     ->flatMap(function ($f) {
+        //         return [
+        //             $f->sender_id,
+        //             $f->receiver_id,
+        //         ];
+        //     })
+        //     ->countBy();
+
+        $friendCounts = Friendship::selectRaw("
+        sender_id as user_id,
+        COUNT(*) as total
+    ")
+            ->where('status', 'accepted')
+            ->groupBy('sender_id')
+            ->pluck('total', 'user_id');
+
+        $receiverCounts = Friendship::selectRaw("
+        receiver_id as user_id,
+        COUNT(*) as total
+    ")
+            ->where('status', 'accepted')
+            ->groupBy('receiver_id')
+            ->pluck('total', 'user_id');
+
+        foreach ($receiverCounts as $id => $count) {
+            $friendCounts[$id] = ($friendCounts[$id] ?? 0) + $count;
+        }
+
+        $friendIds = array_flip($friends);
+
+        $friendshipMap = [];
+
+        foreach ($friendships as $friendship) {
+
+            $otherId = $friendship->sender_id == $auth->id
+                ? $friendship->receiver_id
+                : $friendship->sender_id;
+
+            $friendshipMap[$otherId] = $friendship;
+        }
+
         // Enhance user data
         foreach ($all_users as $user) {
-            $friendCount = Friendship::where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->count();
-            $user->friend_count = $friendCount;
+            // $friendCount = Friendship::where(function ($query) use ($user, $friendship) {
+            //     $query->where('sender_id', $user->id)
+            //         ->orWhere('receiver_id', $user->id);
+            // })->where('status', 'accepted')->count();
+            // $user->friend_count = $friendCount;
 
-            $user->is_friend = in_array($user->id, $friends);
+            $user->is_friend    = isset($friendIds[$user->id]);
+            $user->friend_count = $friendCounts[$user->id] ?? 0;
 
-            $friendship = Friendship::where(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-            })->first();
+            // $friendship = Friendship::where(function ($q) use ($auth, $user) {
+            //     $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+            // })->orWhere(function ($q) use ($auth, $user) {
+            //     $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+            // })->first();
+
+            $friendship = $friendshipMap[$user->id] ?? null;
 
             $user->friendship_status = $friendship?->status;
             $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
 
-            $averageRating        = $user->ratingsReceived->avg('rating');
-            $user->average_rating = round($averageRating ?? 0, 1);
+            $user->average_rating = round($user->ratings_received_avg_rating ?? 0, 1);
         }
 
         // Statuses (last 24h)
@@ -736,29 +810,31 @@ class ProfileController extends Controller
         //     ->map(fn($group) => collect($group));
 
         // Statuses (last 24h)
-        $userId    = auth()->id();
-        $friendIds = \DB::table('friendships')
-            ->where('status', 'accepted')
-            ->where(function ($query) use ($userId) {
-                $query->where('sender_id', $userId)
-                    ->orWhere('receiver_id', $userId);
-            })
-            ->get()
-            ->map(function ($friendship) use ($userId) {
-                return $friendship->sender_id == $userId
-                    ? $friendship->receiver_id
-                    : $friendship->sender_id;
-            })
-            ->unique()
-            ->values()
-            ->toArray();
+        // $userId    = auth()->id();
+        // $friendIds = \DB::table('friendships')
+        //     ->where('status', 'accepted')
+        //     ->where(function ($query) use ($userId) {
+        //         $query->where('sender_id', $userId)
+        //             ->orWhere('receiver_id', $userId);
+        //     })
+        //     ->get()
+        //     ->map(function ($friendship) use ($userId) {
+        //         return $friendship->sender_id == $userId
+        //             ? $friendship->receiver_id
+        //             : $friendship->sender_id;
+        //     })
+        //     ->unique()
+        //     ->values()
+        //     ->toArray();
 
-        $friendIds[] = $auth->id; // include myself
-                                  // dd($friendIds);
+        // $friendIds[] = $auth->id;
+
+        $statusUserIds   = $friends;
+        $statusUserIds[] = $auth->id;
 
         $statuses = Status::with('user')
             ->where('created_at', '>=', now()->subDay())
-            ->whereIn('user_id', $friendIds)
+            ->whereIn('user_id', $statusUserIds)
             ->whereNotIn('user_id', $hiddenUsers)
             ->latest()
             ->get()

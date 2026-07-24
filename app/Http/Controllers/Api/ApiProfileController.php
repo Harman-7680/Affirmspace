@@ -7,6 +7,7 @@ use App\Models\Event;
 use App\Models\Friendship;
 use App\Models\Message;
 use App\Models\Mute;
+use App\Models\Bookmark;
 use App\Models\Post;
 use App\Models\Status;
 use App\Models\User;
@@ -652,29 +653,29 @@ class ApiProfileController extends Controller
         $auth = Auth::user();
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
-        $notifications = $auth->unreadNotifications->map(function ($notification) {
-            $data = $notification->data;
+        // $notifications = $auth->unreadNotifications->map(function ($notification) {
+        //     $data = $notification->data;
 
-            // If this is a friend request, fetch friendship ID
-            if (isset($data['follower_id'])) {
-                $friendship = \App\Models\Friendship::where('sender_id', $data['follower_id'])
-                    ->where('receiver_id', auth()->id())
-                    ->where('status', 'pending')
-                    ->first();
+        //     // If this is a friend request, fetch friendship ID
+        //     if (isset($data['follower_id'])) {
+        //         $friendship = \App\Models\Friendship::where('sender_id', $data['follower_id'])
+        //             ->where('receiver_id', auth()->id())
+        //             ->where('status', 'pending')
+        //             ->first();
 
-                if ($friendship) {
-                    $data['friendship_id'] = $friendship->id;
-                }
-            }
+        //         if ($friendship) {
+        //             $data['friendship_id'] = $friendship->id;
+        //         }
+        //     }
 
-            return [
-                'id'         => $notification->id,
-                'type'       => $notification->type,
-                'data'       => $data,
-                'read_at'    => $notification->read_at,
-                'created_at' => $notification->created_at,
-            ];
-        });
+        //     return [
+        //         'id'         => $notification->id,
+        //         'type'       => $notification->type,
+        //         'data'       => $data,
+        //         'read_at'    => $notification->read_at,
+        //         'created_at' => $notification->created_at,
+        //     ];
+        // });
 
         $friends = $auth->friendsList()->pluck('id')->toArray();
 
@@ -841,22 +842,42 @@ class ApiProfileController extends Controller
         //         return $p;
         //     });
 
-        $boostHours = 2;
-        $all_posts  = Post::with([
+        $boostHours  = 2;
+        $friendships = Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })->get();
+
+        $bookmarkIds = Bookmark::where('user_id', $auth->id)
+            ->pluck('post_id')
+            ->flip();
+
+        $blockedUserIds = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->merge(
+                Block::where('blocked_id', $auth->id)
+                    ->whereNotNull('user_id')
+                    ->pluck('user_id')
+            )
+            ->unique()
+            ->toArray();
+
+        $all_posts = Post::with([
             'user',
             'likes',
-            'comments' => function ($q) use ($auth) {
+            'comments' => function ($q) use ($auth, $blockedUserIds) {
                 // IDs of users blocked by auth or who have blocked auth
-                $blockedUserIds = Block::where('user_id', $auth->id)
-                    ->whereNotNull('blocked_id')
-                    ->pluck('blocked_id')
-                    ->merge(
-                        Block::where('blocked_id', $auth->id)
-                            ->whereNotNull('user_id')
-                            ->pluck('user_id')
-                    )
-                    ->unique()
-                    ->toArray();
+                // $blockedUserIds = Block::where('user_id', $auth->id)
+                //     ->whereNotNull('blocked_id')
+                //     ->pluck('blocked_id')
+                //     ->merge(
+                //         Block::where('blocked_id', $auth->id)
+                //             ->whereNotNull('user_id')
+                //             ->pluck('user_id')
+                //     )
+                //     ->unique()
+                //     ->toArray();
 
                 $q->whereNull('parent_id')
                     ->whereNotIn('user_id', $blockedUserIds)
@@ -911,55 +932,66 @@ class ApiProfileController extends Controller
             ->inRandomOrder() // randomize only within same priority
             ->orderBy('posts.created_at', 'desc')
             ->get()
-            ->map(function ($p) use ($auth) {
+            ->map(function ($p) use ($auth, $friendships, $bookmarkIds) {
                 // Total comments (including replies)
                 $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
 
                 // Friendship status between auth user and post owner
-                $friendship = Friendship::where(function ($q) use ($auth, $p) {
-                    $q->where('sender_id', $auth->id)->where('receiver_id', $p->user_id);
-                })->orWhere(function ($q) use ($auth, $p) {
-                    $q->where('sender_id', $p->user_id)->where('receiver_id', $auth->id);
-                })->first();
+                // $friendship = Friendship::where(function ($q) use ($auth, $p) {
+                //     $q->where('sender_id', $auth->id)->where('receiver_id', $p->user_id);
+                // })->orWhere(function ($q) use ($auth, $p) {
+                //     $q->where('sender_id', $p->user_id)->where('receiver_id', $auth->id);
+                // })->first();
+
+                $friendship = $friendships->first(function ($item) use ($auth, $p) {
+
+                    return
+                        ($item->sender_id == $auth->id && $item->receiver_id == $p->user_id) ||
+
+                        ($item->receiver_id == $auth->id && $item->sender_id == $p->user_id);
+
+                });
 
                 $p->friendship_status = $friendship?->status ?? 'not_friends';
                 $p->friendship_sender = $friendship?->sender_id ?? null;
 
-                $p->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
-                    ->where('post_id', $p->id)
-                    ->exists();
+                // $p->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
+                //     ->where('post_id', $p->id)
+                //     ->exists();
+
+                $p->is_bookmarked = isset($bookmarkIds[$p->id]);
 
                 return $p;
             });
 
         // --- All Users ---
-        $all_users = User::where('id', '!=', $auth->id)
-            ->whereNotIn('id', $hiddenUsers)
-            ->with(['ratingsReceived', 'specialization'])
-            ->inRandomOrder()
-            ->get();
+        // $all_users = User::where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hiddenUsers)
+        //     ->with(['ratingsReceived', 'specialization'])
+        //     ->inRandomOrder()
+        //     ->get();
 
-        foreach ($all_users as $user) {
-            $friendCount = Friendship::where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->count();
+        // foreach ($all_users as $user) {
+        //     $friendCount = Friendship::where(function ($query) use ($user) {
+        //         $query->where('sender_id', $user->id)
+        //             ->orWhere('receiver_id', $user->id);
+        //     })->where('status', 'accepted')->count();
 
-            $user->friend_count = $friendCount;
-            $user->is_friend    = in_array($user->id, $friends);
+        //     $user->friend_count = $friendCount;
+        //     $user->is_friend    = in_array($user->id, $friends);
 
-            $friendship = Friendship::where(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-            })->first();
+        //     $friendship = Friendship::where(function ($q) use ($auth, $user) {
+        //         $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+        //     })->orWhere(function ($q) use ($auth, $user) {
+        //         $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+        //     })->first();
 
-            $user->friendship_status = $friendship?->status;
-            $user->friendship_sender = $friendship?->sender_id;
+        //     $user->friendship_status = $friendship?->status;
+        //     $user->friendship_sender = $friendship?->sender_id;
 
-            $averageRating        = $user->ratingsReceived->avg('rating');
-            $user->average_rating = round($averageRating ?? 0, 1);
-        }
+        //     $averageRating        = $user->ratingsReceived->avg('rating');
+        //     $user->average_rating = round($averageRating ?? 0, 1);
+        // }
 
         // Statuses (last 24h)
         $userId    = auth()->id();
@@ -1028,7 +1060,7 @@ class ApiProfileController extends Controller
             'user'      => $auth,
             // 'notifications' => $notifications,
             'all_posts' => $all_posts,
-            'all_users' => $all_users,
+            // 'all_users' => $all_users,
             'statuses'  => $statuses,
             'events'    => $events,
         ], 200);
