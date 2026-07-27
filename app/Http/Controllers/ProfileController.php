@@ -795,7 +795,7 @@ class ProfileController extends Controller
             //     $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
             // })->first();
 
-            $friendship = $friendshipMap[$useall_usersr->id] ?? null;
+            $friendship = $friendshipMap[$user->id] ?? null;
 
             $user->friendship_status = $friendship?->status;
             $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
