@@ -703,12 +703,32 @@ class ProfileController extends Controller
         //     ->inRandomOrder()
         //     ->get();
 
-        $all_users = User::where('id', '!=', $auth->id)
+        // $all_users = User::where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hidden_Users)
+        //     ->with('specialization')
+        //     ->withAvg('ratingsReceived', 'rating')
+        //     ->inRandomOrder()
+        //     ->get();
+
+        $counselors = User::where('role', 1)
+            ->where('id', '!=', $auth->id)
             ->whereNotIn('id', $hidden_Users)
             ->with('specialization')
             ->withAvg('ratingsReceived', 'rating')
             ->inRandomOrder()
+            ->limit(15)
             ->get();
+
+        $counselees = User::where('role', 0)
+            ->where('id', '!=', $auth->id)
+            ->whereNotIn('id', $hidden_Users)
+            ->with('specialization')
+            ->withAvg('ratingsReceived', 'rating')
+            ->inRandomOrder()
+            ->limit(15)
+            ->get();
+
+        $all_users = $counselors->merge($counselees)->shuffle();
 
         $friendships = Friendship::where(function ($q) use ($auth) {
             $q->where('sender_id', $auth->id)
@@ -775,7 +795,7 @@ class ProfileController extends Controller
             //     $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
             // })->first();
 
-            $friendship = $friendshipMap[$user->id] ?? null;
+            $friendship = $friendshipMap[$useall_usersr->id] ?? null;
 
             $user->friendship_status = $friendship?->status;
             $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
