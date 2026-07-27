@@ -842,35 +842,35 @@ class ProfileController extends Controller
             ->map(fn($group) => collect($group));
 
         // Events (nearby & upcoming)
-        $userAddress = $auth->address ?? '';
-        $now         = Carbon::now();
-        $eventsQuery = Event::where('status', 'approved');
+        // $userAddress = $auth->address ?? '';
+        // $now         = Carbon::now();
+        // $eventsQuery = Event::where('status', 'approved');
 
-        if (! empty($userAddress)) {
-            $addressParts = array_map('trim', explode(',', $userAddress));
-            $eventsQuery->where(function ($query) use ($addressParts) {
-                foreach ($addressParts as $part) {
-                    if (! empty($part)) {
-                        $query->orWhereRaw('LOWER(city) LIKE ?', ['%' . strtolower($part) . '%']);
-                    }
-                }
-            });
-        } else {
-            $eventsQuery->whereRaw('0=1');
-        }
+        // if (! empty($userAddress)) {
+        //     $addressParts = array_map('trim', explode(',', $userAddress));
+        //     $eventsQuery->where(function ($query) use ($addressParts) {
+        //         foreach ($addressParts as $part) {
+        //             if (! empty($part)) {
+        //                 $query->orWhereRaw('LOWER(city) LIKE ?', ['%' . strtolower($part) . '%']);
+        //             }
+        //         }
+        //     });
+        // } else {
+        //     $eventsQuery->whereRaw('0=1');
+        // }
 
-        $eventsQuery->where(function ($query) use ($now) {
-            $query->whereDate('timing', '>', $now->toDateString())
-                ->orWhere(function ($q) use ($now) {
-                    $q->whereDate('timing', '=', $now->toDateString())
-                        ->whereTime('timing', '>=', $now->toTimeString());
-                });
-        });
+        // $eventsQuery->where(function ($query) use ($now) {
+        //     $query->whereDate('timing', '>', $now->toDateString())
+        //         ->orWhere(function ($q) use ($now) {
+        //             $q->whereDate('timing', '=', $now->toDateString())
+        //                 ->whereTime('timing', '>=', $now->toTimeString());
+        //         });
+        // });
 
-        $events = $eventsQuery->get()->map(function ($e) {
-            $e->formatted_timing = Carbon::parse($e->timing)->format('d M Y h:i A');
-            return $e;
-        });
+        // $events = $eventsQuery->get()->map(function ($e) {
+        //     $e->formatted_timing = Carbon::parse($e->timing)->format('d M Y h:i A');
+        //     return $e;
+        // });
 
         return view('user.feed', [
             'user'          => $auth,
@@ -878,7 +878,7 @@ class ProfileController extends Controller
             'all_users'     => $all_users,
             'notifications' => $notifications,
             'statuses'      => $statuses,
-            'events'        => $events,
+            // 'events'        => $events,
         ]);
     }
 
