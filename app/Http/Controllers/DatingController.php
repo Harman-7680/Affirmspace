@@ -1,13 +1,14 @@
 <?php
 namespace App\Http\Controllers;
 
-use App\Models\Status;
+use App\Models\Friendship;
 use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\View\View;
 
 class DatingController extends Controller
@@ -18,41 +19,27 @@ class DatingController extends Controller
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
         $notifications = $auth->unreadNotifications;
-        $details       = $auth->details;
+        $details       = UserDetail::firstOrCreate(
+            ['user_id' => $auth->id],
+            [
+                'onboarding_step'     => 1,
+                'profile_completed'   => false,
+                'verification_status' => 'not_uploaded',
+            ]
+        );
 
-        // If user has not filled dating details → show details form
-        if (! $details || ! $details->identity || ! $details->interest || ! $details->preference) {
-            return view('user.dating.pages', compact('auth', 'notifications', 'details'))
-                ->with('user', $auth);
+        $visibilityFilter = request('visibility', 'everyone');
+
+        // Onboarding not completed
+        if (! $details->profile_completed) {
+
+            return view('user.dating.pages', [
+                'user'          => $auth,
+                'auth'          => $auth,
+                'notifications' => $notifications,
+                'details'       => $details,
+            ]);
         }
-
-        /* ---------------------------------------------
-        NEW: Verification Logic
-        ----------------------------------------------*/
-
-        // 1) NOT UPLOADED → Force photo upload
-        if ($details->verification_status === 'not_uploaded') {
-            return redirect()->route('dating.upload.photos')
-                ->with('error', 'Please upload your verification photos.');
-        }
-
-        // 2) PENDING → Show waiting page
-        if ($details->verification_status === 'pending') {
-            return redirect()->route('dating.verification.wait');
-        }
-
-        // 3) REJECTED → Force re-upload photos
-        if ($details->verification_status === 'rejected') {
-            return redirect()->route('dating.upload.photos')
-                ->with('error', 'Your verification was rejected. Please upload again.');
-        }
-
-        // 4) APPROVED → Continue to normal matching
-        // NO NEED TO REDIRECT — just continue
-
-        /* ---------------------------------------------
-        Your original matching code starts here
-        ----------------------------------------------*/
 
         // Get all BLOCKED users
         $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
@@ -67,253 +54,331 @@ class DatingController extends Controller
 
         $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
 
-        // STEP 1 → Get all other users with details
-        // $allUsers = UserDetail::with('user')
-        //     ->where('user_id', '!=', $auth->id)
-        //     ->whereNotIn('user_id', $hiddenUsers)
-        //     ->get();
-
-        $allUsers = UserDetail::with('user')
-            ->where('user_id', '!=', $auth->id)
-            ->where('verification_status', 'approved')
-            ->whereNotIn('user_id', $hiddenUsers)
-            ->inRandomOrder()
-            ->get();
+        $allUsers = $this->getVisibleProfiles(
+            $auth,
+            $details,
+            $hiddenUsers,
+            $visibilityFilter
+        );
 
         $matches = collect();
 
-        // STEP 2 → Loop and find matching users
         foreach ($allUsers as $other) {
 
-            $matchCount = 0;
+            $score = 0;
 
-            if ($other->identity === $details->preference) {
-                $matchCount++;
+            // Preference match
+            if (
+                $other->identity == $details->preference &&
+                $details->identity == $other->preference
+            ) {
+                $score += 40;
             }
 
-            if ($other->relationship_type === $details->relationship_type) {
-                $matchCount++;
+            if ($details->city == $other->city) {
+                $score += 20;
             }
 
-            if ($other->interest === $details->interest) {
-                $matchCount++;
+            // Relationship match
+            if ($other->relationship_type == $details->relationship_type) {
+                $score += 20;
             }
 
-            if ($matchCount >= 2) {
+            // Interest match
+            $myInterests    = $details->interest ?? [];
+            $theirInterests = $other->interest ?? [];
 
-                $user = $other->user;
+            if (is_string($myInterests)) {
+                $myInterests = json_decode($myInterests, true) ?? [$myInterests];
+            }
 
-                // Friend count
-                $friendCount = \App\Models\Friendship::where(function ($q) use ($user) {
-                    $q->where('sender_id', $user->id)
-                        ->orWhere('receiver_id', $user->id);
-                })->where('status', 'accepted')->count();
+            if (is_string($theirInterests)) {
+                $theirInterests = json_decode($theirInterests, true) ?? [$theirInterests];
+            }
 
-                $user->friend_count = $friendCount;
+            $common = count(
+                array_intersect(
+                    $myInterests ?? [],
+                    $theirInterests ?? []
+                )
+            );
 
-                // Friendship status
-                $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-                })->orWhere(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-                })->first();
+            if ($common >= 3) {
+                $score += 30;
+            } elseif ($common == 2) {
+                $score += 20;
+            } elseif ($common == 1) {
+                $score += 10;
+            }
 
-                // if ($friendship && $friendship->status === 'accepted') {
-                //     continue;
-                // }
+            // Verified bonus
+            if ($other->verification_status == 'approved') {
+                $score += 20;
+            }
 
-                $user->friendship_status = $friendship?->status;
-                $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+            if ($score >= 40) {
 
-                $user->UserStatus = $user->UserStatus;
+                $other->match_score = $score;
 
-                // push into matches
                 $matches->push($other);
             }
         }
 
+        $matches = $matches
+            ->sortByDesc('match_score')
+            ->take(50)
+            ->values();
+
+        if (request()->ajax()) {
+
+            $data = $matches->map(function ($m) use ($auth) {
+
+                $friendship = Friendship::where(function ($q) use ($auth, $m) {
+
+                    $q->where('sender_id', $auth->id)
+                        ->where('receiver_id', $m->user_id);
+
+                })->orWhere(function ($q) use ($auth, $m) {
+
+                    $q->where('sender_id', $m->user_id)
+                        ->where('receiver_id', $auth->id);
+
+                })->first();
+
+                // Skip accepted & pending
+                if ($friendship && in_array($friendship->status, ['accepted', 'pending'])) {
+                    return null;
+                }
+
+                return [
+                    'id'                => $m->user->id,
+                    'first_name'        => $m->user->first_name,
+                    'last_name'         => $m->user->last_name,
+                    'image'             => $m->user->details?->photo1,
+                    'identity'          => $m->identity,
+                    'preference'        => $m->preference,
+                    'interest'          => $m->interest,
+                    'relationship_type' => $m->relationship_type,
+                    'UserStatus'        => $m->user->UserStatus,
+
+                    'friendship_status' => $friendship?->status,
+                    'friendship_sender' => $friendship?->sender_id,
+
+                    'friend_count'      => Friendship::where(function ($q) use ($m) {
+
+                        $q->where('sender_id', $m->user->id)
+                            ->orWhere('receiver_id', $m->user->id);
+
+                    })
+                        ->where('status', 'accepted')
+                        ->count(),
+                ];
+
+            })
+                ->filter()
+                ->values();
+
+            return response()->json([
+                'matches' => $data,
+            ]);
+        }
+
         return view('user.dating.pages-matches', [
-            'user'          => $auth,
-            'notifications' => $notifications,
-            'matches'       => $matches,
-            'details'       => $details,
+            'user'             => $auth,
+            'notifications'    => $notifications,
+            'matches'          => $matches,
+            'details'          => $details,
+            'visibilityFilter' => $visibilityFilter,
         ]);
     }
 
-    public function saveDetails(Request $request)
+    private function getVisibleProfiles($auth, $details, $hiddenUsers, $visibilityFilter)
     {
-        $request->validate([
-            'gender'            => 'required|string',
-            'interest'          => 'required|string',
-            'preference'        => 'required|string',
-            'relationship_type' => 'required|string',
-            'bio'               => 'nullable|string',
-        ]);
 
-        UserDetail::updateOrCreate(
-            ['user_id' => Auth::id()],
-            [
-                'identity'          => $request->gender,
-                'interest'          => $request->interest,
-                'preference'        => $request->preference,
-                'relationship_type' => $request->relationship_type,
-                'bio'               => $request->bio,
-            ]
-        );
+        $query = UserDetail::with('user')
+            ->where('user_id', '!=', $auth->id)
+            ->whereNotIn('user_id', $hiddenUsers);
 
-        return redirect()->back()->with('success', 'Details saved successfully');
+        $isVerified = $details->verification_status === 'approved';
+
+        if (! $isVerified) {
+
+            // ===========================
+            // CURRENT USER = UNVERIFIED
+            // ===========================
+
+            if ($visibilityFilter === 'verified') {
+
+                // Show only verified users who allow everyone
+                $query->where('verification_status', 'approved')
+                    ->where('profile_visibility', 'everyone');
+
+            } else {
+
+                // Show all unverified
+                // + verified users whose visibility = everyone
+                $query->where(function ($q) {
+
+                    $q->where('verification_status', '!=', 'approved')
+
+                        ->orWhere(function ($q2) {
+
+                            $q2->where('verification_status', 'approved')
+                                ->where('profile_visibility', 'everyone');
+
+                        });
+
+                });
+
+            }
+
+        } else {
+
+            // ===========================
+            // CURRENT USER = VERIFIED
+            // ===========================
+
+            if ($visibilityFilter === 'verified') {
+
+                $query->where('verification_status', 'approved')
+                    ->whereIn('profile_visibility', [
+                        'everyone',
+                        'verified_only',
+                    ]);
+
+            } else {
+
+                $query->where(function ($q) {
+
+                    $q->where('verification_status', '!=', 'approved')
+
+                        ->orWhere(function ($q2) {
+
+                            $q2->where('verification_status', 'approved')
+                                ->whereIn('profile_visibility', [
+                                    'everyone',
+                                    'verified_only',
+                                ]);
+
+                        });
+
+                });
+            }
+        }
+
+        return $query->limit(300)->get();
     }
 
     public function updateDetails(Request $request)
     {
         $request->validate([
-            'identity'          => 'required|string',
-            'interest'          => 'required|string',
             'preference'        => 'required|string',
+            'interest'          => 'required|array|min:1',
+            'interest.*'        => 'string|max:50',
             'relationship_type' => 'required|string',
             'bio'               => 'nullable|string|max:300',
-            'photo1'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo2'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo3'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo4'            => 'nullable|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-        ], [
-            'photo1.max'   => 'Photo 1 must be less than 2MB.',
-            'photo2.max'   => 'Photo 2 must be less than 2MB.',
-            'photo3.max'   => 'Photo 3 must be less than 2MB.',
-            'photo4.max'   => 'Photo 4 must be less than 2MB.',
-            'photo1.mimes' => 'Photo 1 must be an image (jpeg, png, jpg, gif, webp).',
-            'photo2.mimes' => 'Photo 2 must be an image (jpeg, png, jpg, gif, webp).',
-            'photo3.mimes' => 'Photo 3 must be an image (jpeg, png, jpg, gif, webp).',
-            'photo4.mimes' => 'Photo 4 must be an image (jpeg, png, jpg, gif, webp).',
+
+            'photo1'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo2'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo3'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo4'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo5'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
+            'photo6'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
         ]);
 
         $user = Auth::user();
 
         $details = UserDetail::updateOrCreate(
-            ['user_id' => $user->id],
             [
-                // 'identity'          => $request->identity,
-                'interest'          => $request->interest,
-                'preference'        => $request->preference,
-                'relationship_type' => $request->relationship_type,
-                'bio'               => $request->bio,
+                'user_id' => $user->id,
+            ],
+            [
+                // Basic
+                'display_name'       => $request->display_name,
+                'date_of_birth'      => $request->date_of_birth,
+                'height'             => $request->height,
+                'city'               => $request->city,
+                'job_title'          => $request->occupation,
+                'education'          => $request->education,
+                'languages'          => $request->languages,
+
+                // Dating
+                'preference'         => $request->preference,
+                'interest'           => json_encode($request->interest),
+                'relationship_type'  => $request->relationship_type,
+
+                // Gender
+                'gender'             => $request->gender,
+                'pronouns'           => $request->pronouns,
+
+                // Lifestyle
+                'smoking'            => $request->smoking,
+                'drinking'           => $request->drinking,
+                'workout'            => $request->workout,
+                'diet'               => $request->diet,
+                'pets'               => $request->pets,
+
+                // Privacy
+                'profile_visibility' => $request->profile_visibility,
+                'who_can_message'    => $request->who_can_message,
+
+                // Matching preference
+                'min_age'            => $request->min_age,
+                'max_age'            => $request->max_age,
+                'max_distance'       => $request->max_distance,
+                'hide_distance'      => $request->has('hide_distance') ? 1 : 0,
+                'hide_online_status' => $request->has('hide_online_status') ? 1 : 0,
+                // Bio
+                'bio'                => $request->bio,
+                'identity'           => $request->gender,
             ]
         );
 
-        // Handle photo uploads
-        for ($i = 1; $i <= 4; $i++) {
-            $photo = $request->file('photo' . $i);
-            if ($photo) {
-                // Delete old photo if exists
+        // Photo Upload
+        for ($i = 1; $i <= 6; $i++) {
+
+            if ($request->hasFile('photo' . $i)) {
+
                 if ($details->{'photo' . $i}) {
-                    \Storage::delete('public/' . $details->{'photo' . $i});
+                    Storage::disk('public')
+                        ->delete($details->{'photo' . $i});
                 }
 
-                $path                    = $photo->store('user_photos', 'public');
-                $details->{'photo' . $i} = $path;
+                $details->{'photo' . $i} =
+                $request->file('photo' . $i)
+                    ->store('dating_photos', 'public');
+
             }
+
         }
 
         $details->save();
 
-        return redirect()->back()->with('success', 'Your details updated successfully.');
-    }
-
-    public function uploadPhotosPage()
-    {
-        $auth = Auth::user();
-        abort_if($auth->role != 0, 403, 'Unauthorized access');
-
-        $notifications = $auth->unreadNotifications;
-        $details       = $auth->details;
-
-        // If no dating details → force fill details first
-        if (! $details || ! $details->identity || ! $details->interest || ! $details->preference) {
-            abort(403, 'Unauthorized access');
-        }
-
-        if ($details->verification_status == 'pending') {
-            return redirect()->route('dating.verification.wait');
-        }
-
-        if ($details->verification_status == 'approved') {
-            return redirect()->route('pages');
-        }
-
-        $user = Auth::user();
-        return view('user.dating.upload-photos', compact('auth', 'details', 'notifications', 'user'));
-    }
-
-    public function saveUploadedPhotos(Request $request)
-    {
-        $request->validate([
-            'photo1' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo2' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo3' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'photo4' => 'required|image|mimes:jpeg,png,jpg,gif,webp|max:2048',
-            'selfie' => 'required|image|max:2048',
-        ], [
-            'photo1.max' => 'Photo must be less than 2MB.',
-            'photo2.max' => 'Photo must be less than 2MB.',
-            'photo3.max' => 'Photo must be less than 2MB.',
-            'photo4.max' => 'Photo must be less than 2MB.',
-            'selfie.max' => 'Selfie must be less than 2MB.',
-        ]);
-
-        $user    = Auth::user();
-        $details = $user->details;
-
-        // Save images
-        $details->photo1 = $request->file('photo1')->store('dating_photos', 'public');
-        $details->photo2 = $request->file('photo2')->store('dating_photos', 'public');
-        $details->photo3 = $request->file('photo3')->store('dating_photos', 'public');
-        $details->photo4 = $request->file('photo4')->store('dating_photos', 'public');
-        $details->selfie = $request->file('selfie')->store('dating_selfies', 'public');
-
-        // Set status pending
-        $details->verification_status = 'pending';
-        $details->save();
-
-        // Send pending email
-        Mail::to($user->email)->send(new \App\Mail\PendingVerificationMail($user));
-
-        return redirect()->route('dating.verification.wait');
-    }
-
-    public function verificationWait()
-    {
-        $auth = Auth::user();
-        abort_if($auth->role != 0, 403, 'Unauthorized access');
-
-        // If no details or status not pending → unauthorized
-        // $details = $auth->details;
-        // if (! $details || $details->verification_status !== 'pending') {
-        //     abort(403, 'Unauthorized access');
-        // }
-
-        $notifications = $auth->unreadNotifications;
-
-        return view('user.dating.verification-waiting', compact('auth', 'notifications'));
+        return back()->with(
+            'success',
+            'Dating profile updated successfully.'
+        );
     }
 
     public function datingProfile($id)
     {
         $auth = Auth::user();
-        abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+        abort_if($auth->role != 0, 403);
 
         $notifications = $auth->unreadNotifications;
 
-        // Load the user and details
-        $user    = User::with('details')->findOrFail($id);
-        $details = $user->details;
+        // Logged in user verification check
+        $myDetails = UserDetail::where('user_id', $auth->id)->first();
 
-        // Check if details exist and status is approved
-        if (! $details || $details->verification_status !== 'approved') {
-            abort(403, 'Unauthorized access');
-        }
+        // if ($myDetails->verification_status == 'pending') {
+        //     return redirect()->route('dating.verification.wait');
+        // }
 
-        // Friendship status check
-        $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $id) {
+        // Ab jis profile pe click hua hai usko open karo
+        $user = User::with('details')->findOrFail($id);
+
+        $friendship = Friendship::where(function ($q) use ($auth, $id) {
             $q->where('sender_id', $auth->id)
                 ->where('receiver_id', $id);
         })->orWhere(function ($q) use ($auth, $id) {
@@ -321,15 +386,362 @@ class DatingController extends Controller
                 ->where('receiver_id', $auth->id);
         })->first();
 
-        return view('user.dating.dating-profile', compact('user', 'notifications', 'details', 'friendship'));
+        return view('user.dating.dating-profile', [
+            'user'          => $user,
+            'details'       => $user->details,
+            'friendship'    => $friendship,
+            'notifications' => $notifications,
+        ]);
     }
 
     public function destroy()
     {
         $user = Auth::user();
 
-        // Delete dating profile
-        UserDetail::where('user_id', $user->id)->delete();
-        return redirect('/feed')->with('success', 'Dating profile deleted successfully.');
+        $details = UserDetail::where('user_id', $user->id)
+            ->first();
+
+        if ($details) {
+
+            foreach (['photo1', 'photo2', 'photo3', 'photo4', 'photo5', 'photo6', 'verification_selfie', 'verification_id'] as $photo) {
+                if ($details->$photo) {
+                    Storage::disk('public')
+                        ->delete($details->$photo);
+                }
+            }
+
+            $details->delete();
+
+        }
+
+        return redirect('/feed')
+            ->with(
+                'success',
+                'Dating profile deleted successfully.'
+            );
+    }
+
+    public function saveStep(Request $request)
+    {
+        try {
+
+            $user = Auth::user();
+
+            $details = UserDetail::firstOrCreate([
+                'user_id' => $user->id,
+            ]);
+
+            switch ((int) $request->step) {
+
+                // Welcome
+                case 1:
+                    break;
+
+                // Verification intro
+                case 2:
+                    break;
+
+                // Identity + Preference
+                case 3:
+
+                    $request->validate([
+                        'identity'          => 'required|string|in:male,female,non_binary,transgender',
+                        'preference'        => 'required|string',
+                        'relationship_type' => 'required|string',
+                    ]);
+
+                    $details->identity          = $request->identity;
+                    $details->preference        = $request->preference;
+                    $details->relationship_type = $request->relationship_type;
+
+                    break;
+
+                // Basic Information
+                case 4:
+                    $request->validate([
+                        'dating_display_name' => 'required|string|max:50',
+                        'dob'                 => 'required|date|before:-18 years',
+                        'height'              => 'nullable|numeric|min:100|max:250',
+                        'city'                => 'required|string|max:100',
+                        'occupation'          => 'nullable|string|max:100',
+                    ]);
+
+                    $details->display_name  = $request->dating_display_name;
+                    $details->date_of_birth = $request->dob;
+                    $details->height        = $request->height;
+                    $details->city          = $request->city;
+                    $details->job_title     = $request->occupation;
+
+                    break;
+
+                // Gender
+                case 5:
+                    $request->validate([
+                        'gender'   => 'required|string',
+                        'pronouns' => 'nullable|string|max:30',
+                    ]);
+
+                    $details->gender   = $request->gender;
+                    $details->pronouns = $request->pronouns;
+
+                    break;
+
+                // Photos
+                case 6:
+                    $request->validate([
+                        'photos'   => 'required|array|min:4|max:6',
+                        'photos.*' => 'image|mimes:jpg,jpeg,png,webp|max:5120',
+                    ]);
+
+                    if ($request->hasFile('photos')) {
+
+                        $photos = $request->file('photos');
+
+                        foreach ($photos as $key => $photo) {
+
+                            if ($key >= 6) {
+                                break;
+                            }
+
+                            $photoPath = $photo->store(
+                                'dating_photos',
+                                'public'
+                            );
+
+                            $column = 'photo' . ($key + 1);
+
+                            // delete old image
+                            if ($details->$column) {
+
+                                \Storage::disk('public')
+                                    ->delete($details->$column);
+
+                            }
+
+                            $details->$column = $photoPath;
+
+                        }
+
+                    }
+
+                    break;
+
+                // Bio
+                case 7:
+                    $request->validate([
+                        'bio' => 'required|string|min:20|max:500',
+                    ]);
+
+                    $details->bio = $request->bio;
+
+                    break;
+
+                // Interests
+                case 8:
+                    $request->validate([
+                        'interests'   => 'required|array|min:1',
+                        'interests.*' => 'string|max:50',
+                    ]);
+
+                    $details->interest = $request->interests
+                        ? json_encode($request->interests)
+                        : null;
+
+                    break;
+
+                // Lifestyle
+                case 9:
+                    $request->validate([
+                        'lifestyle_smoking'  => 'required|string',
+                        'lifestyle_drinking' => 'required|string',
+                        'lifestyle_pets'     => 'nullable|string',
+                        'workout'            => 'nullable|string',
+                        'diet'               => 'nullable|string',
+                    ]);
+
+                    $details->smoking = $request->lifestyle_smoking;
+
+                    $details->drinking = $request->lifestyle_drinking;
+
+                    $details->pets = $request->lifestyle_pets;
+
+                    // extra fields
+                    $details->workout = $request->workout;
+
+                    $details->diet = $request->diet;
+
+                    break;
+
+                // Privacy
+                case 10:
+                    $request->validate([
+                        'privacy_profile_view' => 'required|in:everyone,verified_only',
+                        'who_can_message'      => 'required|in:everyone,verified_only',
+                    ]);
+
+                    $details->profile_visibility = $request->privacy_profile_view ?? 'everyone';
+
+                    $details->who_can_message = $request->who_can_message ?? 'everyone';
+
+                    $details->hide_distance = $request->hide_distance ? 1 : 0;
+
+                    $details->hide_online_status = $request->hide_online ? 1 : 0;
+
+                    break;
+
+                // Match Preferences
+                case 11:
+                    $request->validate([
+                        'min_age'      => 'required|integer|min:18|max:99',
+                        'max_age'      => 'required|integer|gte:min_age|max:99',
+                        'max_distance' => 'required|integer|min:1|max:500',
+                    ]);
+
+                    $details->min_age =
+                    $request->min_age;
+
+                    $details->max_age =
+                    $request->max_age;
+
+                    $details->max_distance =
+                    $request->max_distance;
+
+                    $details->verified_only =
+                    $request->verified_only ? 1 : 0;
+
+                    $details->people_with_photos =
+                    $request->people_with_photos ? 1 : 0;
+
+                    $details->similar_interests =
+                    $request->similar_interests ? 1 : 0;
+
+                    break;
+
+                // Complete Profile
+                case 12:
+
+                    $details->profile_completed = 1;
+
+                    break;
+
+            }
+
+            $details->onboarding_step = max(
+                $details->onboarding_step ?? 0,
+                (int) $request->step
+            );
+
+            $details->save();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Step saved successfully',
+            ]);
+
+        } catch (\Exception $e) {
+
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+            ], 500);
+
+        }
+    }
+
+    public function verificationPage()
+    {
+        $user = Auth::user();
+
+        abort_if($user->role != 0, 403, 'Unauthorized access');
+
+        $notifications = $user->unreadNotifications;
+
+        $userDetail = UserDetail::firstOrCreate(
+            ['user_id' => $user->id],
+            [
+                'verification_status' => 'not_uploaded',
+            ]
+        );
+
+        // Pending
+        if ($userDetail->verification_status == 'pending') {
+            return view('user.dating.verification-waiting', compact('userDetail', 'notifications'));
+        }
+
+        // Approved
+        if ($userDetail->verification_status == 'approved') {
+
+            // apna dating dashboard/profile route
+            return redirect()->route('dating.profile', Auth::id());
+        }
+
+        // Rejected
+        if ($userDetail->verification_status == 'rejected') {
+
+            return view('user.dating.upload-photos', compact('userDetail', 'notifications'));
+        }
+
+        // Not Uploaded
+        return view('user.dating.upload-photos', compact('userDetail', 'notifications'));
+    }
+
+    public function submitVerification(Request $request)
+    {
+        $request->validate([
+            'verify_method' => 'required|in:selfie,id',
+
+            'selfie_file'   => [
+                'required_if:verify_method,selfie',
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:5120',
+            ],
+
+            'id_file'       => [
+                'required_if:verify_method,id',
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:5120',
+            ],
+        ]);
+
+        $user = Auth::user();
+
+        $detail = UserDetail::where('user_id', $user->id)->firstOrFail();
+
+        // Selfie Verification
+        if ($request->verify_method == 'selfie') {
+
+            $path = $request->file('selfie_file')
+                ->store('verification/selfies', 'public');
+
+            $detail->verification_selfie = $path;
+            $detail->verification_id     = null;
+        }
+
+        // ID Verification
+        if ($request->verify_method == 'id') {
+
+            $path = $request->file('id_file')
+                ->store('verification/ids', 'public');
+
+            $detail->verification_id     = $path;
+            $detail->verification_selfie = null;
+        }
+
+        $detail->verification_method = $request->verify_method;
+        $detail->verification_status = 'pending';
+        $detail->rejection_reason    = null;
+
+        $detail->save();
+
+        Mail::to($user->email)->send(new \App\Mail\PendingVerificationMail($user));
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Verification submitted successfully.',
+        ]);
     }
 }

@@ -241,6 +241,7 @@ Route::middleware('auth')->get('/post/{id}/comment', [ProfileController::class, 
 
 // Dating related routes
 Route::middleware('auth', 'profile.complete')->group(function () {
+    Route::post('/dating/save-step', [DatingController::class, 'saveStep'])->name('dating.save.step');
     Route::post('/save-details', [DatingController::class, 'saveDetails'])->name('user.save-details');
     Route::post('/user/details/update', [DatingController::class, 'updateDetails'])
         ->name('user.details.update');
@@ -248,6 +249,10 @@ Route::middleware('auth', 'profile.complete')->group(function () {
     Route::post('/dating/upload-photos', [DatingController::class, 'saveUploadedPhotos'])->name('dating.upload.photos.save');
     Route::get('/dating/profile/{id}', [DatingController::class, 'datingProfile'])
         ->name('dating.profile');
+    Route::get('/dating/verification', [DatingController::class, 'verificationPage'])
+        ->name('dating.verification');
+    Route::post('/dating/submit-verification', [DatingController::class, 'submitVerification'])
+        ->name('dating.submit.verification');
     Route::get('/dating/verification-wait', [DatingController::class, 'verificationWait'])
         ->name('dating.verification.wait');
     Route::get('/dating-profile/delete', [DatingController::class, 'destroy'])

@@ -125,7 +125,7 @@
 
             {{-- LEFT PROFILE CARD --}}
             <div
-                class="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 relative h-[200px] flex flex-col transition hover:shadow-2xl">
+                class="md:col-span-1 bg-white rounded-2xl shadow-lg p-6 relative flex flex-col transition hover:shadow-2xl">
 
                 {{-- SETTINGS BUTTON --}}
                 <button onclick="document.getElementById('editModal').classList.remove('hidden')"
@@ -159,37 +159,201 @@
 
                 {{-- DETAILS LIST --}}
                 <div class="flex-1 overflow-y-auto">
-                    <div class="flex flex-col gap-2 text-sm text-gray-700">
+                    <div class="flex flex-col gap-3 text-sm text-gray-700">
 
-                        <span class="inline-block bg-blue-50 text-indigo-700 px-3 py-1 rounded-full font-medium">
-                            Identity: {{ $details->identity }}
-                        </span>
+                        {{-- Basic Info --}}
+                        <div class="bg-gray-50 px-3 py-2 rounded-xl">
 
-                        <span class="inline-block bg-pink-50 text-pink-700 px-3 py-1 rounded-full font-medium">
-                            Preference: {{ $details->preference }}
-                        </span>
+                            @if ($details->display_name)
+                                <p class="font-semibold text-gray-800 text-base">
+                                    {{ $details->display_name }}
+                                </p>
+                            @endif
 
-                        <span class="inline-block bg-green-50 text-green-700 px-3 py-1 rounded-full font-medium">
-                            Interest: {{ $details->interest }}
-                        </span>
+                            @if ($details->date_of_birth)
+                                <span class="inline-block bg-blue-50 text-blue-700 px-3 py-1 rounded-full mt-2">
+                                    🎂 {{ \Carbon\Carbon::parse($details->date_of_birth)->age }} Years
+                                </span>
+                            @endif
 
-                        <span class="inline-block bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full font-medium">
-                            Relationship: {{ $details->relationship_type }}
-                        </span>
 
+                            @if ($details->city)
+                                <span class="inline-block bg-green-50 text-green-700 px-3 py-1 rounded-full mt-2">
+                                    📍 {{ $details->city }}
+                                </span>
+                            @endif
+
+
+                            @if ($details->height)
+                                <span class="inline-block bg-purple-50 text-purple-700 px-3 py-1 rounded-full mt-2">
+                                    📏 {{ $details->height }} cm
+                                </span>
+                            @endif
+
+
+                            @if ($details->job_title)
+                                <span class="inline-block bg-yellow-50 text-yellow-700 px-3 py-1 rounded-full mt-2">
+                                    💼 {{ $details->job_title }}
+                                </span>
+                            @endif
+
+                        </div>
+
+
+                        {{-- Identity --}}
+                        @if ($details->identity)
+                            <span class="bg-blue-50 text-indigo-700 px-3 py-2 rounded-full font-medium">
+                                🌈 Identity:
+                                {{ $details->identity }}
+                            </span>
+                        @endif
+
+
+
+                        {{-- Preference --}}
+                        @if ($details->preference)
+                            <span class="bg-pink-50 text-pink-700 px-3 py-2 rounded-full font-medium">
+                                💕 Looking for:
+                                {{ $details->preference }}
+                            </span>
+                        @endif
+
+
+
+                        {{-- Relationship --}}
+                        @if ($details->relationship_type)
+                            <span class="bg-yellow-50 text-yellow-700 px-3 py-2 rounded-full font-medium">
+                                ❤️ Relationship:
+                                {{ $details->relationship_type }}
+                            </span>
+                        @endif
+
+
+
+                        {{-- Interests --}}
+                        <div class="bg-green-50 text-green-700 px-3 py-3 rounded-xl">
+
+                            <div class="font-semibold mb-2">
+                                🎯 Interests
+                            </div>
+
+
+                            @php
+                                $myInterests = is_array($details->interest)
+                                    ? $details->interest
+                                    : json_decode($details->interest, true);
+                            @endphp
+
+
+                            @if (!empty($myInterests))
+                                <div class="flex flex-wrap gap-2">
+
+                                    @foreach ($myInterests as $interest)
+                                        <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                            {{ $interest }}
+                                        </span>
+                                    @endforeach
+
+                                </div>
+                            @else
+                                <span class="text-xs text-gray-500">
+                                    No interests added
+                                </span>
+                            @endif
+
+                        </div>
+
+
+
+                        {{-- Lifestyle --}}
+                        <div class="bg-orange-50 text-orange-700 px-3 py-3 rounded-xl">
+
+                            <div class="font-semibold mb-2">
+                                🌱 Lifestyle
+                            </div>
+
+
+                            @if ($details->smoking)
+                                <span class="inline-block bg-white px-2 py-1 rounded-full mr-1">
+                                    🚬 {{ $details->smoking }}
+                                </span>
+                            @endif
+
+
+                            @if ($details->drinking)
+                                <span class="inline-block bg-white px-2 py-1 rounded-full mr-1">
+                                    🍷 {{ $details->drinking }}
+                                </span>
+                            @endif
+
+
+                            @if ($details->workout)
+                                <span class="inline-block bg-white px-2 py-1 rounded-full mr-1">
+                                    🏋️ {{ $details->workout }}
+                                </span>
+                            @endif
+
+
+                            @if ($details->diet)
+                                <span class="inline-block bg-white px-2 py-1 rounded-full mr-1">
+                                    🥗 {{ $details->diet }}
+                                </span>
+                            @endif
+
+
+                            @if ($details->pets)
+                                <span class="inline-block bg-white px-2 py-1 rounded-full mr-1">
+                                    🐶 {{ $details->pets }}
+                                </span>
+                            @endif
+
+                        </div>
+
+
+
+                        {{-- Bio --}}
                         @if ($details->bio)
-                            <p class="pt-2 border-t border-gray-200 mt-2 text-gray-600">
-                                <strong>Bio:</strong> {{ $details->bio }}
-                            </p>
+                            <div class="border-t pt-3 text-gray-600">
+
+                                <strong class="text-gray-800">
+                                    About me:
+                                </strong>
+
+                                <p class="mt-1">
+                                    {{ $details->bio }}
+                                </p>
+
+                            </div>
+                        @endif
+
+
+
+                        {{-- Verification --}}
+                        @if ($details->verification_status)
+                            <div>
+
+                                @if ($details->verification_status == 'approved')
+                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                        ✅ Verified Profile
+                                    </span>
+                                @elseif($details->verification_status == 'pending')
+                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+                                        ⏳ Verification Pending
+                                    </span>
+                                @endif
+
+                            </div>
                         @endif
                     </div>
                 </div>
             </div>
 
             {{-- RIGHT MATCHES LIST + SEARCH --}}
+
             <div class="md:col-span-2" x-data="{
                 showCount: 3,
                 search: '',
+                visibility: '{{ request('visibility', 'everyone') }}',
                 allMatches: {{ Js::from(
                     $matches->map(function ($m) use ($user) {
                         // Determine friendship status
@@ -226,6 +390,22 @@
                     return list.slice(0, this.showCount);
                 },
             
+                async loadUsers() {
+            
+                    const res = await fetch(
+                        '{{ route('pages') }}?visibility=' + this.visibility, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        }
+                    );
+            
+                    const data = await res.json();
+            
+                    this.allMatches = data.matches;
+                    this.showCount = 3;
+                },
+            
                 seeMore() {
                     const s = this.search.toLowerCase();
                     const list = this.allMatches.filter(u =>
@@ -256,10 +436,23 @@
                     }
                 }
             }">
+                <div class="flex items-center gap-3 mb-4">
+
+                    <input type="text" x-model="search" placeholder="Search matched users..."
+                        class="flex-1 px-3 py-2 border rounded-lg text-sm">
+
+                    <select x-model="visibility" @change="loadUsers()" class="px-3 py-2 border rounded-lg text-sm">
+
+                        <option value="everyone">Everyone</option>
+                        <option value="verified">Verified</option>
+
+                    </select>
+
+                </div>
 
                 {{-- SEARCH BOX --}}
-                <input type="text" x-model="search" placeholder="Search Matched users..."
-                    class="w-full mb-4 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400">
+                {{-- <input type="text" x-model="search" placeholder="Search Matched users..."
+                    class="w-full mb-4 px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-400"> --}}
 
                 {{-- NO MATCHES --}}
                 <div x-show="filteredUsers.length === 0" class="bg-white p-4 rounded-xl shadow text-center text-gray-600">
