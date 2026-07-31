@@ -6,9 +6,11 @@ use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 use Illuminate\View\View;
 
 class DatingController extends Controller
@@ -75,10 +77,6 @@ class DatingController extends Controller
                 $score += 40;
             }
 
-            if ($details->city == $other->city) {
-                $score += 20;
-            }
-
             // Relationship match
             if ($other->relationship_type == $details->relationship_type) {
                 $score += 20;
@@ -87,14 +85,6 @@ class DatingController extends Controller
             // Interest match
             $myInterests    = $details->interest ?? [];
             $theirInterests = $other->interest ?? [];
-
-            if (is_string($myInterests)) {
-                $myInterests = json_decode($myInterests, true) ?? [$myInterests];
-            }
-
-            if (is_string($theirInterests)) {
-                $theirInterests = json_decode($theirInterests, true) ?? [$theirInterests];
-            }
 
             $common = count(
                 array_intersect(
@@ -195,9 +185,91 @@ class DatingController extends Controller
     private function getVisibleProfiles($auth, $details, $hiddenUsers, $visibilityFilter)
     {
 
+        $currentLocation = session('current_location');
+
+        if ($currentLocation) {
+
+            // User ne browser location allow ki
+            $myLat = (float) $currentLocation['lat'];
+            $myLng = (float) $currentLocation['lng'];
+
+        } else {
+
+            // User ne location allow nahi ki
+            $myLocation = $details->city;
+
+            if (
+                ! $myLocation ||
+                empty($myLocation['lat']) ||
+                empty($myLocation['lng'])
+            ) {
+                return collect();
+            }
+
+            $myLat = (float) $myLocation['lat'];
+            $myLng = (float) $myLocation['lng'];
+        }
+
+        $radius = $details->max_distance ?? 50;
+
         $query = UserDetail::with('user')
             ->where('user_id', '!=', $auth->id)
             ->whereNotIn('user_id', $hiddenUsers);
+
+        $query->selectRaw("
+    user_details.*,
+
+    (
+        6371 *
+        acos(
+            cos(radians(?))
+            *
+            cos(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lat')
+                        ) AS DECIMAL(10,8)
+                    )
+                )
+            )
+            *
+            cos(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lng')
+                        ) AS DECIMAL(11,8)
+                    )
+                ) - radians(?)
+            )
+            +
+            sin(radians(?))
+            *
+            sin(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lat')
+                        ) AS DECIMAL(10,8)
+                    )
+                )
+            )
+        )
+    ) AS distance
+", [
+            $myLat,
+            $myLng,
+            $myLat,
+        ]);
+
+        $query->whereBetween('date_of_birth', [
+            now()->subYears($details->max_age)->toDateString(),
+            now()->subYears($details->min_age)->toDateString(),
+        ]);
+
+        // $query->having('distance', '<=', $radius)
+        //     ->orderBy('distance');
 
         $isVerified = $details->verification_status === 'approved';
 
@@ -266,6 +338,30 @@ class DatingController extends Controller
             }
         }
 
+        if ($details->similar_interests) {
+
+            $myInterests = $details->interest ?? [];
+
+            if (! empty($myInterests)) {
+
+                $query->where(function ($q) use ($myInterests) {
+
+                    foreach ($myInterests as $interest) {
+                        $q->orWhereJsonContains('interest', $interest);
+                    }
+
+                });
+
+            }
+        }
+
+        if ($details->verified_only) {
+            $query->where('verification_status', 'approved');
+        }
+
+        $query->having('distance', '<=', $radius)
+            ->orderBy('distance');
+
         return $query->limit(300)->get();
     }
 
@@ -277,6 +373,9 @@ class DatingController extends Controller
             'interest.*'        => 'string|max:50',
             'relationship_type' => 'required|string',
             'bio'               => 'nullable|string|max:300',
+            'city'              => 'required|string|max:100',
+            'latitude'          => 'nullable|numeric',
+            'longitude'         => 'nullable|numeric',
 
             'photo1'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'photo2'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -288,6 +387,47 @@ class DatingController extends Controller
 
         $user = Auth::user();
 
+        $cityData = null;
+
+// CASE 1: Browser location available
+        if ($request->filled(['latitude', 'longitude'])) {
+
+            $cityData = [
+                'address' => $request->city,
+                'lat'     => $request->latitude,
+                'lng'     => $request->longitude,
+            ];
+
+        }
+
+// CASE 2: Manual city input
+        else {
+
+            $response = Http::get('https://us1.locationiq.com/v1/search.php', [
+
+                'key'    => config('services.locationiq.key'),
+                'q'      => $request->city,
+                'format' => 'json',
+                'limit'  => 1,
+
+            ]);
+
+            if ($response->successful() && ! empty($response[0])) {
+
+                $cityData = [
+                    'address' => $response[0]['display_name'],
+                    'lat'     => $response[0]['lat'],
+                    'lng'     => $response[0]['lon'],
+                ];
+
+            }
+
+        }
+
+        if (! $cityData) {
+            return back()->with('error', 'City location not found');
+        }
+
         $details = UserDetail::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -297,14 +437,14 @@ class DatingController extends Controller
                 'display_name'       => $request->display_name,
                 'date_of_birth'      => $request->date_of_birth,
                 'height'             => $request->height,
-                'city'               => $request->city,
-                'job_title'          => $request->occupation,
+                'city'               => $cityData,
+                'job_title'          => $request->job_title,
                 'education'          => $request->education,
                 'languages'          => $request->languages,
 
                 // Dating
                 'preference'         => $request->preference,
-                'interest'           => json_encode($request->interest),
+                'interest'           => $request->interest,
                 'relationship_type'  => $request->relationship_type,
 
                 // Gender
@@ -445,7 +585,7 @@ class DatingController extends Controller
                 case 3:
 
                     $request->validate([
-                        'identity'          => 'required|string|in:male,female,non_binary,transgender',
+                        'identity'          => 'required|string|in:Man,Woman,Non-binary,Transgender',
                         'preference'        => 'required|string',
                         'relationship_type' => 'required|string',
                     ]);
@@ -461,17 +601,26 @@ class DatingController extends Controller
                     $request->validate([
                         'dating_display_name' => 'required|string|max:50',
                         'dob'                 => 'required|date|before:-18 years',
-                        'height'              => 'nullable|numeric|min:100|max:250',
+                        'height'              => [
+                            'required',
+                            'regex:/^([4-8])\'([0-9]|1[0-1])("?|\'\')?$/',
+                        ],
                         'city'                => 'required|string|max:100',
-                        'occupation'          => 'nullable|string|max:100',
+                        'latitude'            => 'nullable|numeric',
+                        'longitude'           => 'nullable|numeric',
+                        'location_type'       => 'required|in:manual,current',
+                        'job_title'           => 'nullable|string|max:100',
                     ]);
 
                     $details->display_name  = $request->dating_display_name;
                     $details->date_of_birth = $request->dob;
                     $details->height        = $request->height;
-                    $details->city          = $request->city;
-                    $details->job_title     = $request->occupation;
-
+                    $details->city          = [
+                        'address' => $request->city,
+                        'lat'     => $request->latitude,
+                        'lng'     => $request->longitude,
+                    ];
+                    $details->job_title = $request->job_title;
                     break;
 
                 // Gender
@@ -543,9 +692,7 @@ class DatingController extends Controller
                         'interests.*' => 'string|max:50',
                     ]);
 
-                    $details->interest = $request->interests
-                        ? json_encode($request->interests)
-                        : null;
+                    $details->interest = $request->interests;
 
                     break;
 
@@ -637,6 +784,13 @@ class DatingController extends Controller
                 'success' => true,
                 'message' => 'Step saved successfully',
             ]);
+
+        } catch (ValidationException $e) {
+
+            return response()->json([
+                'success' => false,
+                'errors'  => $e->errors(),
+            ], 422);
 
         } catch (\Exception $e) {
 
@@ -742,6 +896,123 @@ class DatingController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Verification submitted successfully.',
+        ]);
+    }
+
+    private function getAddressFromLatLng($lat, $lng)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        $response = \Http::get("https://us1.locationiq.com/v1/reverse.php", [
+            'key'    => $apiKey,
+            'lat'    => $lat,
+            'lon'    => $lng,
+            'format' => 'json',
+        ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    public function geocode(Request $request)
+    {
+        $request->validate([
+            'address' => 'required|string',
+        ]);
+
+        $response = Http::get('https://us1.locationiq.com/v1/search.php', [
+            'key'    => config('services.locationiq.key'),
+            'q'      => $request->address,
+            'format' => 'json',
+            'limit'  => 1,
+        ]);
+
+        if (! $response->successful() || empty($response[0])) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Location not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'address' => $response[0]['display_name'],
+            'lat'     => $response[0]['lat'],
+            'lng'     => $response[0]['lon'],
+        ]);
+    }
+
+    public function matchesLocation(Request $request)
+    {
+        $auth = Auth::user();
+
+        if ($request->filled(['lat', 'lng'])) {
+
+            // Browser location allow
+            session([
+                'current_location' => [
+                    'lat' => $request->lat,
+                    'lng' => $request->lng,
+                ],
+            ]);
+
+        } else {
+
+            // Browser location denied
+            session()->forget('current_location');
+
+        }
+
+        $details = UserDetail::where('user_id', $auth->id)
+            ->first();
+
+        $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(
+            array_merge($blockedUsers, $blockedByUsers)
+        );
+
+        $visibilityFilter = $request->visibility ?? 'everyone';
+
+        $matches = $this->getVisibleProfiles(
+            $auth,
+            $details,
+            $hiddenUsers,
+            $visibilityFilter
+        );
+
+        return response()->json([
+            'success' => true,
+            'matches' => $matches->map(function ($m) {
+
+                return [
+                    'id'                => $m->user->id,
+                    'first_name'        => $m->user->first_name,
+                    'last_name'         => $m->user->last_name,
+                    'image'             => $m->photo1,
+                    'identity'          => $m->identity,
+                    'preference'        => $m->preference,
+                    'interest'          => $m->interest,
+                    'relationship_type' => $m->relationship_type,
+                    'UserStatus'        => $m->user->UserStatus,
+                    'friendship_status' => null,
+                    'friendship_sender' => null,
+                    'friend_count'      => 0,
+                ];
+
+            }),
         ]);
     }
 }

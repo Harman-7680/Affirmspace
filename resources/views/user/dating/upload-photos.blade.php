@@ -193,7 +193,7 @@
                     <p style="color: #4b5563; font-size: 0.875rem; margin-bottom: 1.5rem;">
                         Your verification request is currently under review. This usually takes 24 to 48 hours.
                     </p>
-                    <a href="#"
+                    <a href="{{ route('pages') }}"
                         style="display: inline-block; padding: 0.875rem 2rem; background: #ff4d8b; color: white; font-weight: bold; border-radius: 0.875rem; text-decoration: none;">
                         Return to Dashboard 🚀
                     </a>

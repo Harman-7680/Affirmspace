@@ -7,7 +7,9 @@ use App\Models\User;
 use App\Models\UserDetail;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Validation\ValidationException;
 
 class ApiDatingController extends Controller
 {
@@ -35,8 +37,7 @@ class ApiDatingController extends Controller
 
         if (
             ! $details->identity ||
-            ! $details->preference ||
-            ! $details->interest
+            ! $details->preference
         ) {
 
             return response()->json([
@@ -159,6 +160,9 @@ class ApiDatingController extends Controller
             'interest.*'        => 'string|max:50',
             'relationship_type' => 'required|string',
             'bio'               => 'nullable|string|max:300',
+            'city'              => 'required|string|max:100',
+            'latitude'          => 'required|numeric',
+            'longitude'         => 'required|numeric',
 
             'photo1'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'photo2'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -179,16 +183,18 @@ class ApiDatingController extends Controller
                 'display_name'       => $request->display_name,
                 'date_of_birth'      => $request->date_of_birth,
                 'height'             => $request->height,
-                'city'               => $request->city,
+                'city'               => [
+                    'address' => $request->city,
+                    'lat'     => $request->latitude,
+                    'lng'     => $request->longitude,
+                ],
                 'job_title'          => $request->job_title,
                 'education'          => $request->education,
                 'languages'          => $request->languages,
 
                 // Dating
                 'preference'         => $request->preference,
-                'interest'           => $request->interest
-                    ? json_encode($request->interest)
-                    : null,
+                'interest'           => $request->interest,
                 'relationship_type'  => $request->relationship_type,
 
                 // Gender
@@ -290,7 +296,8 @@ class ApiDatingController extends Controller
         $allUsers = $this->getVisibleProfiles(
             $auth,
             $details,
-            $hiddenUsers
+            $hiddenUsers,
+            request('visibility', 'everyone')
         );
 
         $matches = collect();
@@ -307,11 +314,6 @@ class ApiDatingController extends Controller
                 $score += 40;
             }
 
-            // City
-            if ($details->city && $details->city == $other->city) {
-                $score += 20;
-            }
-
             // Relationship
             if ($other->relationship_type == $details->relationship_type) {
                 $score += 20;
@@ -320,14 +322,6 @@ class ApiDatingController extends Controller
             // Interests
             $myInterests    = $details->interest ?? [];
             $theirInterests = $other->interest ?? [];
-
-            if (is_string($myInterests)) {
-                $myInterests = json_decode($myInterests, true) ?? [$myInterests];
-            }
-
-            if (is_string($theirInterests)) {
-                $theirInterests = json_decode($theirInterests, true) ?? [$theirInterests];
-            }
 
             $common = count(array_intersect(
                 $myInterests ?? [],
@@ -389,15 +383,57 @@ class ApiDatingController extends Controller
 
         return response()->json([
             'status'  => 'success',
-            'user'    => $auth,
-            'details' => $details,
-            'matches' => $matches,
+            'matches' => $matches->map(function ($m) {
+
+                return [
+                    'id'                => $m->user->id,
+                    'first_name'        => $m->user->first_name,
+                    'last_name'         => $m->user->last_name,
+                    'image'             => $m->photo1
+                        ? asset('storage/' . $m->photo1)
+                        : null,
+                    'identity'          => $m->identity,
+                    'preference'        => $m->preference,
+                    'interest'          => $m->interest,
+                    'relationship_type' => $m->relationship_type,
+                    'UserStatus'        => $m->user->UserStatus,
+
+                    'friendship_status' => $m->user->friendship_status ?? null,
+                    'friendship_sender' => $m->user->friendship_sender ?? null,
+
+                    'friend_count'      => $m->user->friend_count ?? 0,
+
+                    'match_score'       => $m->match_score ?? 0,
+                ];
+
+            }),
         ]);
     }
 
     public function viewProfile($id)
     {
         $auth    = Auth::user();
+        $blocked = \App\Models\Block::where(function ($q) use ($auth, $id) {
+
+            $q->where('user_id', $auth->id)
+                ->where('blocked_id', $id);
+
+        })->orWhere(function ($q) use ($auth, $id) {
+
+            $q->where('user_id', $id)
+                ->where('blocked_id', $auth->id);
+
+        })->exists();
+
+        if ($blocked) {
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'Profile not available.',
+            ], 403);
+
+        }
+
         $details = $auth->details;
 
         if (! $details) {
@@ -407,7 +443,24 @@ class ApiDatingController extends Controller
             ]);
         }
 
-        $user = User::with('details')->findOrFail($id);
+        $user = User::with('details')
+            ->whereHas('details')
+            ->findOrFail($id);
+
+        $profile = $user->details;
+
+        if (
+            $profile->profile_visibility == 'verified_only'
+            &&
+            $details->verification_status != 'approved'
+        ) {
+
+            return response()->json([
+                'status'  => 'error',
+                'message' => 'This profile is visible to verified users only.',
+            ], 403);
+
+        }
 
         $friendship = Friendship::where(function ($q) use ($auth, $id) {
             $q->where('sender_id', $auth->id)->where('receiver_id', $id);
@@ -417,8 +470,28 @@ class ApiDatingController extends Controller
 
         return response()->json([
             'status'     => 'success',
-            'user'       => $user,
-            'details'    => $user->details,
+            'profile'    => [
+                'id'                => $user->id,
+                'first_name'        => $user->first_name,
+                'last_name'         => $user->last_name,
+                'image'             => $user->details?->photo1
+                    ? asset('storage/' . $user->details->photo1)
+                    : null,
+                'bio'               => $profile->bio,
+                'identity'          => $profile->identity,
+                'interest'          => $profile->interest,
+                'relationship_type' => $profile->relationship_type,
+                'photos'            => collect([
+                    $profile->photo1,
+                    $profile->photo2,
+                    $profile->photo3,
+                    $profile->photo4,
+                    $profile->photo5,
+                    $profile->photo6,
+                ])->filter()->map(function ($photo) {
+                    return asset('storage/' . $photo);
+                })->values(),
+            ],
             'friendship' => $friendship,
         ]);
     }
@@ -487,7 +560,7 @@ class ApiDatingController extends Controller
                 case 3:
 
                     $request->validate([
-                        'identity'          => 'required|string|in:male,female,non_binary,transgender',
+                        'identity'          => 'required|string|in:Man,Woman,Non-binary,Transgender',
                         'preference'        => 'required|string',
                         'relationship_type' => 'required|string',
                     ]);
@@ -504,7 +577,10 @@ class ApiDatingController extends Controller
                     $request->validate([
                         'dating_display_name' => 'required|string|max:50',
                         'dob'                 => 'required|date|before:-18 years',
-                        'height'              => 'nullable|numeric|min:100|max:250',
+                        'height'              => [
+                            'required',
+                            'regex:/^([4-8])\'([0-9]|1[0-1])("?|\'\')?$/',
+                        ],
                         'city'                => 'required|string|max:100',
                         'occupation'          => 'nullable|string|max:100',
                     ]);
@@ -512,8 +588,12 @@ class ApiDatingController extends Controller
                     $details->display_name  = $request->dating_display_name;
                     $details->date_of_birth = $request->dob;
                     $details->height        = $request->height;
-                    $details->city          = $request->city;
-                    $details->job_title     = $request->occupation;
+                    $details->city          = [
+                        'address' => $request->city,
+                        'lat'     => $request->latitude,
+                        'lng'     => $request->longitude,
+                    ];
+                    $details->job_title = $request->occupation;
 
                     break;
 
@@ -590,7 +670,7 @@ class ApiDatingController extends Controller
                         'interests.*' => 'string|max:50',
                     ]);
 
-                    $details->interest = json_encode($request->interests);
+                    $details->interest = $request->interests;
 
                     break;
 
@@ -686,6 +766,13 @@ class ApiDatingController extends Controller
                 'message' => 'Step saved successfully',
             ]);
 
+        } catch (ValidationException $e) {
+
+            return response()->json([
+                'success' => false,
+                'errors'  => $e->errors(),
+            ], 422);
+
         } catch (\Exception $e) {
 
             return response()->json([
@@ -696,25 +783,111 @@ class ApiDatingController extends Controller
         }
     }
 
-    private function getVisibleProfiles($auth, $details, $hiddenUsers)
+    private function getVisibleProfiles($auth, $details, $hiddenUsers, $visibilityFilter)
     {
-        $visibilityFilter = request('visibility', 'everyone');
+
+        if (request()->filled(['lat', 'lng'])) {
+
+            // Mobile app current location bhej rahi hai
+            $myLat = (float) request('lat');
+            $myLng = (float) request('lng');
+
+        } else {
+
+            // Fallback to saved city
+            $myLocation = $details->city;
+
+            if (
+                ! $myLocation ||
+                empty($myLocation['lat']) ||
+                empty($myLocation['lng'])
+            ) {
+                return collect();
+            }
+
+            $myLat = (float) $myLocation['lat'];
+            $myLng = (float) $myLocation['lng'];
+        }
+
+        $radius = $details->max_distance ?? 50;
 
         $query = UserDetail::with('user')
             ->where('user_id', '!=', $auth->id)
             ->whereNotIn('user_id', $hiddenUsers);
 
+        $query->selectRaw("
+    user_details.*,
+
+    (
+        6371 *
+        acos(
+            cos(radians(?))
+            *
+            cos(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lat')
+                        ) AS DECIMAL(10,8)
+                    )
+                )
+            )
+            *
+            cos(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lng')
+                        ) AS DECIMAL(11,8)
+                    )
+                ) - radians(?)
+            )
+            +
+            sin(radians(?))
+            *
+            sin(
+                radians(
+                    CAST(
+                        JSON_UNQUOTE(
+                            JSON_EXTRACT(city,'$.lat')
+                        ) AS DECIMAL(10,8)
+                    )
+                )
+            )
+        )
+    ) AS distance
+", [
+            $myLat,
+            $myLng,
+            $myLat,
+        ]);
+
+        $query->whereBetween('date_of_birth', [
+            now()->subYears($details->max_age)->toDateString(),
+            now()->subYears($details->min_age)->toDateString(),
+        ]);
+
+        // $query->having('distance', '<=', $radius)
+        //     ->orderBy('distance');
+
         $isVerified = $details->verification_status === 'approved';
 
         if (! $isVerified) {
 
-            if ($visibilityFilter == 'verified') {
+            // ===========================
+            // CURRENT USER = UNVERIFIED
+            // ===========================
 
+            if ($visibilityFilter === 'verified') {
+
+                // Show only verified users who allow everyone
                 $query->where('verification_status', 'approved')
                     ->where('profile_visibility', 'everyone');
 
             } else {
 
+                // Show all unverified
+                // + verified users whose visibility = everyone
                 $query->where(function ($q) {
 
                     $q->where('verification_status', '!=', 'approved')
@@ -732,14 +905,17 @@ class ApiDatingController extends Controller
 
         } else {
 
-            if ($visibilityFilter == 'verified') {
+            // ===========================
+            // CURRENT USER = VERIFIED
+            // ===========================
+
+            if ($visibilityFilter === 'verified') {
 
                 $query->where('verification_status', 'approved')
-                    ->whereIn('profile_visibility',
-                        [
-                            'everyone',
-                            'verified_only',
-                        ]);
+                    ->whereIn('profile_visibility', [
+                        'everyone',
+                        'verified_only',
+                    ]);
 
             } else {
 
@@ -750,19 +926,40 @@ class ApiDatingController extends Controller
                         ->orWhere(function ($q2) {
 
                             $q2->where('verification_status', 'approved')
-                                ->whereIn('profile_visibility',
-                                    [
-                                        'everyone',
-                                        'verified_only',
-                                    ]);
+                                ->whereIn('profile_visibility', [
+                                    'everyone',
+                                    'verified_only',
+                                ]);
 
                         });
 
                 });
+            }
+        }
+
+        if ($details->similar_interests) {
+
+            $myInterests = $details->interest ?? [];
+
+            if (! empty($myInterests)) {
+
+                $query->where(function ($q) use ($myInterests) {
+
+                    foreach ($myInterests as $interest) {
+                        $q->orWhereJsonContains('interest', $interest);
+                    }
+
+                });
 
             }
-
         }
+
+        if ($details->verified_only) {
+            $query->where('verification_status', 'approved');
+        }
+
+        $query->having('distance', '<=', $radius)
+            ->orderBy('distance');
 
         return $query->limit(300)->get();
     }
@@ -861,6 +1058,8 @@ class ApiDatingController extends Controller
         $details->rejection_reason = null;
 
         $details->save();
+        Mail::to($auth->email)
+            ->send(new \App\Mail\PendingVerificationMail($auth));
 
         return response()->json([
 
@@ -870,6 +1069,120 @@ class ApiDatingController extends Controller
 
             'message'             => 'Verification uploaded successfully. Waiting for approval.',
 
+        ]);
+
+    }
+
+    private function getAddressFromLatLng($lat, $lng)
+    {
+        $apiKey = env('LOCATIONIQ_KEY');
+
+        $response = \Http::get("https://us1.locationiq.com/v1/reverse.php", [
+            'key'    => $apiKey,
+            'lat'    => $lat,
+            'lon'    => $lng,
+            'format' => 'json',
+        ]);
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return null;
+    }
+
+    public function geocode(Request $request)
+    {
+        $request->validate([
+            'address' => 'required|string',
+        ]);
+
+        $response = \Http::get('https://us1.locationiq.com/v1/search.php', [
+            'key'    => config('services.locationiq.key'),
+            'q'      => $request->address,
+            'format' => 'json',
+            'limit'  => 1,
+        ]);
+
+        if (! $response->successful() || empty($response[0])) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Location not found',
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'address' => $response[0]['display_name'],
+            'lat'     => $response[0]['lat'],
+            'lng'     => $response[0]['lon'],
+        ]);
+    }
+
+    public function matchesLocation(Request $request)
+    {
+        $auth = Auth::user();
+
+        $details = UserDetail::where('user_id', $auth->id)
+            ->first();
+
+        if (! $details) {
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Dating profile not found',
+            ], 404);
+
+        }
+
+        if ($request->filled(['lat', 'lng'])) {
+
+            $details->temp_lat = $request->lat;
+            $details->temp_lng = $request->lng;
+
+        }
+
+        $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(
+            array_merge(
+                $blockedUsers,
+                $blockedByUsers
+            )
+        );
+
+        $matches = $this->getVisibleProfiles(
+            $auth,
+            $details,
+            $hiddenUsers,
+            $request->visibility ?? 'everyone'
+        );
+
+        return response()->json([
+            'success' => true,
+            'matches' => $matches->map(function ($m) {
+
+                return [
+                    'id'                => $m->user->id,
+                    'first_name'        => $m->user->first_name,
+                    'last_name'         => $m->user->last_name,
+                    'image'             => $m->photo1
+                        ? asset('storage/' . $m->photo1)
+                        : null,
+                    'identity'          => $m->identity,
+                    'preference'        => $m->preference,
+                    'interest'          => $m->interest,
+                    'relationship_type' => $m->relationship_type,
+                ];
+
+            }),
         ]);
 
     }

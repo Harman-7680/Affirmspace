@@ -45,6 +45,8 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
     Route::get('/dating/profile/{id}', [ApiDatingController::class, 'viewProfile']);
     Route::delete('/dating-profile', [ApiDatingController::class, 'destroy']);
     Route::post('/dating/verification/upload', [ApiDatingController::class, 'uploadVerification']);
+    Route::post('/dating/geocode', [ApiDatingController::class, 'geocode']);
+    Route::post('/dating/matches/location', [ApiDatingController::class, 'matchesLocation']);
 });
 
 Route::middleware('auth:sanctum')->group(function () {

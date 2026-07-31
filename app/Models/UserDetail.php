@@ -65,9 +65,6 @@ class UserDetail extends Model
         'photo6',
         'selfie',
 
-        // Verification
-        'verification_status',
-
         // Onboarding
         'onboarding_step',
         'profile_completed',
@@ -83,6 +80,9 @@ class UserDetail extends Model
     ];
 
     protected $casts = [
+
+        'city'               => 'array',
+        'interest'           => 'array',
 
         'date_of_birth'      => 'date',
 

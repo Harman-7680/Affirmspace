@@ -71,14 +71,21 @@
 
                 {{-- City --}}
                 <div class="space-y-0.5">
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">City</label>
-                    <input type="text" name="city" value="{{ $details->city }}"
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking_wider">
+                        City
+                    </label>
+
+                    <input type="text" id="cityInput" name="city" value="{{ $details->city['address'] ?? '' }}"
                         class="f-input text-[10px] py-1 px-1.5" placeholder="City">
+
+                    <input type="hidden" id="latitude" name="latitude" value="{{ $details->city['lat'] ?? '' }}">
+
+                    <input type="hidden" id="longitude" name="longitude" value="{{ $details->city['lng'] ?? '' }}">
                 </div>
 
                 {{-- Job --}}
                 <div class="space-y-0.5">
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">Occupation</label>
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">Job Title</label>
                     <input type="text" name="job_title" value="{{ $details->job_title }}"
                         class="f-input text-[10px] py-1 px-1.5" placeholder="Job Title">
                 </div>
@@ -179,13 +186,21 @@
 
                 {{-- Who Can Message --}}
                 <div class="space-y-0.5">
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">Who Can
-                        Message</label>
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">
+                        Who Can Message
+                    </label>
+
                     <select name="who_can_message" class="f-input text-[10px] py-1 px-1.5">
+
                         <option value="everyone" {{ $details->who_can_message == 'everyone' ? 'selected' : '' }}>
-                            Everyone</option>
-                        <option value="matches" {{ $details->who_can_message == 'matches' ? 'selected' : '' }}>Matches
-                            Only</option>
+                            Everyone
+                        </option>
+
+                        <option value="matches_only"
+                            {{ $details->who_can_message == 'matches_only' ? 'selected' : '' }}>
+                            Verified Users Only
+                        </option>
+
                     </select>
                 </div>
 
@@ -215,17 +230,28 @@
 
                 {{-- Interest --}}
                 <div class="space-y-0.5">
-                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">Interest</label>
-                    <select name="interest" class="f-input text-[10px] py-1 px-1.5" required>
-                        @foreach (['Romantic', 'Fun & Playful', 'Emotional Support', 'Deep Conversations', 'Travel Partner', 'Movie Nights', 'Caring Nature', 'Serious & Mature', 'Open Minded', 'Respectful & Kind'] as $interest)
+
+                    <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider">
+                        Interest
+                    </label>
+
+                    <select name="interest[]" class="f-input text-[10px] py-1 px-1.5" multiple required>
+
+                        @foreach (['Gaming', 'Technology', 'Coffee', 'Reading', 'Travel', 'Music', 'Movies', 'Sports', 'Cooking', 'Fitness'] as $interest)
                             <option value="{{ $interest }}"
-                                {{ $details->interest == $interest ? 'selected' : '' }}>
-                                {{ $interest }}</option>
+                                {{ in_array($interest, $details->interest ?? []) ? 'selected' : '' }}>
+                                {{ $interest }}
+                            </option>
                         @endforeach
+
                     </select>
+
                     @error('interest')
-                        <p class="text-red-600 text-[9px] mt-0.5">{{ $message }}</p>
+                        <p class="text-red-600 text-[9px] mt-0.5">
+                            {{ $message }}
+                        </p>
                     @enderror
+
                 </div>
 
                 {{-- Relationship Type --}}
@@ -390,3 +416,47 @@
         box-shadow: 0 4px 10px rgba(255, 0, 0, 0.3);
     }
 </style>
+
+<script>
+    document.getElementById('cityInput')?.addEventListener('change', async function() {
+
+        let city = this.value;
+
+        if (!city) return;
+
+
+        let response = await fetch("{{ route('dating.geocode') }}", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": "{{ csrf_token() }}"
+            },
+
+            body: JSON.stringify({
+                address: city
+            })
+
+        });
+
+
+        let data = await response.json();
+
+
+        if (data.success) {
+
+            document.getElementById('latitude').value = data.lat;
+            document.getElementById('longitude').value = data.lng;
+
+        } else {
+
+            alert("City location not found");
+
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+
+        }
+
+    });
+</script>

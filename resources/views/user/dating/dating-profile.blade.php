@@ -212,16 +212,37 @@
                 <h2 class="text-xl font-semibold mb-3 border-b pb-2 text-pink-600">Profile Details</h2>
 
                 @if (Auth::check() && Auth::id() !== $user->id)
-                    <!-- Message Input -->
-                    <div class="flex items-center gap-2 mb-4 mt-2">
-                        <input type="text" id="datingMessage" placeholder="Say Hi 👋"
-                            class="flex-1 p-2 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-pink-500 dark:bg-gray-900 dark:border-gray-600 dark:text-white">
-                        <button onclick="sendDatingMessage()"
-                            class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition">
-                            Send
-                        </button>
-                    </div>
+                    @php
+                        $canMessage = false;
+
+                        if ($user->details?->who_can_message == 'everyone') {
+                            $canMessage = true;
+                        } elseif ($user->details?->who_can_message == 'matches_only') {
+                            if (Auth::user()->details?->verification_status == 'approved') {
+                                $canMessage = true;
+                            }
+                        }
+                    @endphp
+
+
+                    @if ($canMessage)
+                        <div class="flex items-center gap-2 mb-4 mt-2">
+
+                            <input type="text" id="datingMessage" placeholder="Say Hi 👋"
+                                class="flex-1 p-2 rounded-lg border">
+
+                            <button onclick="sendDatingMessage()" class="bg-blue-500 text-white px-4 py-2 rounded-lg">
+                                Send
+                            </button>
+
+                        </div>
+                    @else
+                        <div class="mb-4 mt-2 p-3 rounded-lg bg-yellow-100 text-yellow-700 text-sm">
+                            🔒 Only verified users can message this user.
+                        </div>
+                    @endif
                 @endif
+
                 <ul class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <li class="flex justify-between">
                         <span class="font-medium text-gray-700">Gender:</span>

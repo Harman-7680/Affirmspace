@@ -257,6 +257,10 @@ Route::middleware('auth', 'profile.complete')->group(function () {
         ->name('dating.verification.wait');
     Route::get('/dating-profile/delete', [DatingController::class, 'destroy'])
         ->name('dating-profile.delete');
+    Route::post('/location/geocode', [DatingController::class, 'geocode'])
+        ->name('dating.geocode');
+    Route::post('/dating/matches/location', [DatingController::class, 'matchesLocation'])
+        ->name('dating.matches.location');
 });
 
 Route::middleware('auth')->group(function () {

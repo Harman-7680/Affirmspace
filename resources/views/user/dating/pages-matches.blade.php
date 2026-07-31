@@ -178,15 +178,19 @@
 
 
                             @if ($details->city)
+                                @php
+                                    $city = $details->city;
+                                @endphp
+
                                 <span class="inline-block bg-green-50 text-green-700 px-3 py-1 rounded-full mt-2">
-                                    📍 {{ $details->city }}
+                                    📍 {{ $city['address'] ?? '' }}
                                 </span>
                             @endif
 
 
                             @if ($details->height)
                                 <span class="inline-block bg-purple-50 text-purple-700 px-3 py-1 rounded-full mt-2">
-                                    📏 {{ $details->height }} cm
+                                    📏 {{ $details->height }}
                                 </span>
                             @endif
 
@@ -237,23 +241,13 @@
                                 🎯 Interests
                             </div>
 
-
-                            @php
-                                $myInterests = is_array($details->interest)
-                                    ? $details->interest
-                                    : json_decode($details->interest, true);
-                            @endphp
-
-
-                            @if (!empty($myInterests))
+                            @if (!empty($details->interest))
                                 <div class="flex flex-wrap gap-2">
-
-                                    @foreach ($myInterests as $interest)
+                                    @foreach ($details->interest as $interest)
                                         <span class="px-3 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
                                             {{ $interest }}
                                         </span>
                                     @endforeach
-
                                 </div>
                             @else
                                 <span class="text-xs text-gray-500">
@@ -262,8 +256,6 @@
                             @endif
 
                         </div>
-
-
 
                         {{-- Lifestyle --}}
                         <div class="bg-orange-50 text-orange-700 px-3 py-3 rounded-xl">
@@ -333,13 +325,25 @@
                             <div>
 
                                 @if ($details->verification_status == 'approved')
-                                    <span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs">
+                                    <a href="{{ route('dating.verification') }}"
+                                        class="inline-block bg-green-100 text-green-700 px-3 py-1 rounded-full text-xs hover:bg-green-200 transition">
                                         ✅ Verified Profile
-                                    </span>
+                                    </a>
                                 @elseif($details->verification_status == 'pending')
-                                    <span class="bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs">
+                                    <a href="{{ route('dating.verification') }}"
+                                        class="inline-block bg-yellow-100 text-yellow-700 px-3 py-1 rounded-full text-xs hover:bg-yellow-200 transition">
                                         ⏳ Verification Pending
-                                    </span>
+                                    </a>
+                                @elseif($details->verification_status == 'rejected')
+                                    <a href="{{ route('dating.verification') }}"
+                                        class="inline-block bg-red-100 text-red-700 px-3 py-1 rounded-full text-xs hover:bg-red-200 transition">
+                                        ❌ Verification Rejected
+                                    </a>
+                                @elseif($details->verification_status == 'not_uploaded')
+                                    <a href="{{ route('dating.verification') }}"
+                                        class="inline-block bg-gray-100 text-gray-700 px-3 py-1 rounded-full text-xs hover:bg-gray-200 transition">
+                                        ⚠️ Verify Profile
+                                    </a>
                                 @endif
 
                             </div>
@@ -350,7 +354,7 @@
 
             {{-- RIGHT MATCHES LIST + SEARCH --}}
 
-            <div class="md:col-span-2" x-data="{
+            <div id="matches-container" class="md:col-span-2" x-data="{
                 showCount: 3,
                 search: '',
                 visibility: '{{ request('visibility', 'everyone') }}',
@@ -485,8 +489,14 @@
                                         class="bg-gray-100 px-2 py-0.5 rounded-full"></span>
                                     <span x-text="'Prefers: ' + (user.preference ?? 'N/A')"
                                         class="bg-gray-100 px-2 py-0.5 rounded-full"></span>
-                                    <span x-text="'Interest: ' + (user.interest ?? 'N/A')"
-                                        class="bg-gray-100 px-2 py-0.5 rounded-full"></span>
+                                    <span
+                                        x-text="'Interest: ' + (
+        Array.isArray(user.interest) 
+            ? user.interest.join(', ') 
+            : JSON.parse(user.interest || '[]').join(', ')
+    )"
+                                        class="bg-gray-100 px-2 py-0.5 rounded-full">
+                                    </span>
                                     <span x-text="'Relationship: ' + (user.relationship_type ?? 'N/A')"
                                         class="bg-gray-100 px-2 py-0.5 rounded-full"></span>
                                 </div>
@@ -713,6 +723,84 @@
                     }
                 })
                 .catch(() => alert("Network error"));
+        }
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+
+            if (!navigator.geolocation) {
+                console.log("Geolocation not supported");
+                loadNearbyUsers(null, null);
+                return;
+            }
+
+            navigator.geolocation.getCurrentPosition(
+
+                function(position) {
+
+                    loadNearbyUsers(
+                        position.coords.latitude,
+                        position.coords.longitude
+                    );
+
+                },
+
+                function(error) {
+
+                    console.log("Location denied");
+
+                    // User denied → DB wali location use hogi
+                    loadNearbyUsers(null, null);
+
+                },
+
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+
+            );
+
+        });
+
+        async function loadNearbyUsers(lat = null, lng = null) {
+
+            let body = {
+                visibility: document.querySelector('[x-model="visibility"]').value
+            };
+
+
+            if (lat && lng) {
+                body.lat = lat;
+                body.lng = lng;
+            }
+
+
+            const response = await fetch(
+                "{{ route('dating.matches.location') }}", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-CSRF-TOKEN": "{{ csrf_token() }}"
+                    },
+                    body: JSON.stringify(body)
+                }
+            );
+
+
+            const data = await response.json();
+
+
+            if (data.success) {
+
+                let container = document.getElementById('matches-container');
+
+                container._x_dataStack[0].allMatches = data.matches;
+                container._x_dataStack[0].showCount = 3;
+
+            }
         }
     </script>
 @endsection

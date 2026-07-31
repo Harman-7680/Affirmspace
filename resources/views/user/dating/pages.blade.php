@@ -83,9 +83,10 @@
                         <p class="text-[9px] text-gray-500 mb-1.5">Select how you identify yourself.</p>
                         <select name="identity" class="f-input text-[10px] py-1 px-1.5" required>
                             <option value="" disabled selected>Select identity</option>
-                            <option value="Woman">Woman</option>
                             <option value="Man">Man</option>
+                            <option value="Woman">Woman</option>
                             <option value="Non-binary">Non-binary</option>
+                            <option value="Transgender">Transgender</option>
                         </select>
                         <p class="error-msg text-red-500 text-[9px] mt-0.5 hidden"></p>
                     </div>
@@ -95,7 +96,7 @@
                         <p class="text-[9px] text-gray-500 mb-1.5">Choose who you naturally feel drawn to connect with.</p>
                         <select name="preference" class="f-input text-[10px] py-1 px-1.5" required>
                             <option value="" disabled selected>Select preference</option>
-                            @foreach (['Women', 'Man', 'Non-binary', 'Everyone'] as $item)
+                            @foreach (['Woman', 'Man', 'Non-binary', 'Everyone'] as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
@@ -149,20 +150,62 @@
                         </div>
 
                         <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
+
+                            <input type="hidden" name="lat" id="lat">
+                            <input type="hidden" name="lng" id="lng">
+
+                            <!-- Location -->
                             <div>
-                                <label
-                                    class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-0.5">City</label>
-                                <input type="text" name="city" class="f-input text-[10px] py-2 px-2.5"
-                                    placeholder="City" data-type="string" required>
+                                <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-1">
+                                    Location
+                                </label>
+
+                                <!-- Option -->
+                                <div class="flex items-center gap-3 mb-2 text-[10px]">
+                                    <label class="flex items-center gap-1 cursor-pointer">
+                                        <input type="radio" name="location_type" value="current" checked>
+                                        <span>Current</span>
+                                    </label>
+
+                                    <label class="flex items-center gap-1 cursor-pointer">
+                                        <input type="radio" name="location_type" value="manual">
+                                        <span>Manual</span>
+                                    </label>
+                                </div>
+
+                                <!-- Current Location -->
+                                <div id="currentLocationBox">
+                                    <button type="button" id="detectLocation"
+                                        class="w-full py-2 rounded-lg bg-blue-600 text-white text-[10px] hover:bg-blue-700">
+                                        📍 Use Current Location
+                                    </button>
+                                </div>
+
+                                <!-- Manual -->
+                                <div id="manualLocationBox" class="hidden">
+                                    <input type="text" name="city" id="city"
+                                        class="f-input text-[10px] py-2 px-2.5" placeholder="Search your city">
+                                </div>
+
+                                <!-- Hidden -->
+                                <input type="hidden" name="latitude" id="latitude">
+                                <input type="hidden" name="longitude" id="longitude">
+
                                 <p class="error-msg text-red-500 text-[9px] mt-0.5 hidden"></p>
                             </div>
+
+                            <!-- Job Title -->
                             <div>
-                                <label
-                                    class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-0.5">Occupation</label>
-                                <input type="text" name="occupation" class="f-input text-[10px] py-2 px-2.5"
-                                    placeholder="Occupation" data-type="string" required>
+                                <label class="block text-[9px] font-bold text-gray-600 uppercase tracking-wider mb-0.5">
+                                    Job Title
+                                </label>
+
+                                <input type="text" name="job_title" class="f-input text-[10px] py-2 px-2.5"
+                                    placeholder="job_title" data-type="string" required>
+
                                 <p class="error-msg text-red-500 text-[9px] mt-0.5 hidden"></p>
                             </div>
+
                         </div>
                     </div>
                 </div>
@@ -195,22 +238,25 @@
                         <h2 class="text-xs font-extrabold text-gray-900 mb-0.5">Upload Dating Photos</h2>
                         <p class="text-[9px] text-gray-500 mb-2">Add your best moments! (Preview shows instantly)</p>
                     </div>
-
-                    <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
-                        @for ($i = 1; $i <= 6; $i++)
-                            <label
-                                class="photo-upload-box relative w-full h-14 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-pink-500 hover:bg-pink-50/20 overflow-hidden group shadow-xs transition">
-                                <div class="placeholder-content flex flex-col items-center">
-                                    <span
-                                        class="text-sm group-hover:scale-110 transition-transform text-pink-500 font-bold">+</span>
-                                    <span class="text-[8px] font-semibold text-gray-500">Photo {{ $i }}</span>
-                                </div>
-                                <img src="" alt="Preview"
-                                    class="preview-img hidden absolute inset-0 w-full h-full object-cover">
-                                <input type="file" name="photos[]" accept="image/*"
-                                    class="photo-input absolute inset-0 opacity-0 cursor-pointer">
-                            </label>
-                        @endfor
+                    <div class="field-group" data-name="photos">
+                        <div class="grid grid-cols-3 sm:grid-cols-6 gap-1.5">
+                            @for ($i = 1; $i <= 6; $i++)
+                                <label
+                                    class="photo-upload-box relative w-full h-14 bg-gray-50 border border-dashed border-gray-300 rounded-lg flex flex-col items-center justify-center cursor-pointer hover:border-pink-500 hover:bg-pink-50/20 overflow-hidden group shadow-xs transition">
+                                    <div class="placeholder-content flex flex-col items-center">
+                                        <span
+                                            class="text-sm group-hover:scale-110 transition-transform text-pink-500 font-bold">+</span>
+                                        <span class="text-[8px] font-semibold text-gray-500">Photo
+                                            {{ $i }}</span>
+                                    </div>
+                                    <img src="" alt="Preview"
+                                        class="preview-img hidden absolute inset-0 w-full h-full object-cover">
+                                    <input type="file" name="photos[]" accept="image/*"
+                                        class="photo-input absolute inset-0 opacity-0 cursor-pointer">
+                                </label>
+                            @endfor
+                        </div>
+                        <p class="error-msg text-red-500 text-xs mt-2 hidden"></p>
                     </div>
                 </div>
 
@@ -644,6 +690,7 @@
         const nextBtn = document.getElementById("nextBtn");
         const submitBtn = document.getElementById("submitBtn");
         const startBtn = document.getElementById("startBtn");
+        const cityInput = document.querySelector('input[name="city"]');
 
         const totalQuestions = blocks.length;
 
@@ -867,29 +914,212 @@
             });
         });
 
-        async function saveStep(step) {
-            let formData = new FormData(form);
-            formData.append("step", step);
+        document.querySelectorAll('input[name="location_type"]').forEach(radio => {
+
+            radio.addEventListener('change', function() {
+
+                if (this.value === 'current') {
+
+                    document.getElementById('currentLocationBox').classList.remove('hidden');
+                    document.getElementById('manualLocationBox').classList.add('hidden');
+
+                } else {
+
+                    document.getElementById('currentLocationBox').classList.add('hidden');
+                    document.getElementById('manualLocationBox').classList.remove('hidden');
+
+                }
+
+            });
+
+        });
+
+        document.getElementById('detectLocation').addEventListener('click', function() {
+
+            if (!navigator.geolocation) {
+                alert('Geolocation is not supported by your browser.');
+                return;
+            }
+
+            this.disabled = true;
+            this.innerText = 'Detecting...';
+
+            navigator.geolocation.getCurrentPosition(
+                async (position) => {
+
+                        const lat = position.coords.latitude;
+                        const lng = position.coords.longitude;
+
+                        document.getElementById('latitude').value = lat;
+                        document.getElementById('longitude').value = lng;
+
+
+                        try {
+
+                            const response = await fetch(
+                                `https://us1.locationiq.com/v1/reverse?key={{ config('services.locationiq.key') }}&lat=${lat}&lon=${lng}&format=json`
+                            );
+
+                            const data = await response.json();
+
+                            if (data.display_name) {
+
+                                document.querySelector('input[name="city"]').value = data.display_name;
+
+                            }
+
+                        } catch (e) {
+
+                            console.error("Reverse geocoding failed", e);
+
+                        }
+
+                        this.innerText = 'Location Detected';
+
+                    },
+                    (error) => {
+
+                        alert('Unable to fetch your location.');
+
+                        console.error(error);
+
+                        this.disabled = false;
+                        this.innerText = '📍 Use Current Location';
+
+                    }, {
+                        enableHighAccuracy: true,
+                        timeout: 10000,
+                        maximumAge: 0
+                    }
+            );
+
+        });
+
+        cityInput.addEventListener('change', async function() {
+
+            if (document.querySelector('input[name="location_type"]:checked').value !== 'manual') {
+                return;
+            }
+
+            const address = this.value.trim();
+
+            if (!address) return;
 
             try {
-                const response = await fetch("{{ route('dating.save.step') }}", {
+
+                const response = await fetch("{{ route('dating.geocode') }}", {
+
                     method: "POST",
+
                     headers: {
+                        "Content-Type": "application/json",
                         "X-CSRF-TOKEN": csrf,
                         "Accept": "application/json"
                     },
-                    body: formData
+
+                    body: JSON.stringify({
+                        address: address
+                    })
+
                 });
 
                 const data = await response.json();
-                // console.log(data);
-                return data;
+
+                if (data.success) {
+
+                    document.getElementById("latitude").value = data.lat;
+                    document.getElementById("longitude").value = data.lng;
+
+                    console.log(data);
+
+                } else {
+
+                    alert("Location not found");
+
+                }
+
             } catch (e) {
-                // console.error(e);
+
+                console.error(e);
+
+            }
+
+        });
+
+        async function saveStep(step) {
+
+            clearLaravelErrors();
+
+            let formData = new FormData(form);
+            formData.append("step", step);
+
+            const response = await fetch("{{ route('dating.save.step') }}", {
+                method: "POST",
+                headers: {
+                    "X-CSRF-TOKEN": csrf,
+                    "Accept": "application/json"
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (response.status === 422) {
+                showLaravelErrors(data.errors);
                 return {
                     success: false
                 };
             }
+
+            return data;
+        }
+
+        function clearLaravelErrors() {
+
+            document.querySelectorAll(".error-msg").forEach(error => {
+                error.innerHTML = "";
+                error.classList.add("hidden");
+            });
+
+            document.querySelectorAll(".f-input").forEach(input => {
+                input.classList.remove("border-red-500");
+            });
+
+        }
+
+        function showLaravelErrors(errors) {
+
+            Object.keys(errors).forEach(function(fieldName) {
+
+                // photos.0 -> photos
+                let groupName = fieldName.split('.')[0];
+
+                let group = document.querySelector(`[data-name="${groupName}"]`);
+
+                if (group) {
+
+                    let error = group.querySelector(".error-msg");
+
+                    error.textContent = errors[fieldName][0];
+                    error.classList.remove("hidden");
+                    return;
+                }
+
+                let field =
+                    document.querySelector(`[name="${fieldName}"]`) ||
+                    document.querySelector(`[name="${fieldName}[]"]`);
+
+                if (!field) return;
+
+                let error = field.parentElement.querySelector(".error-msg");
+
+                if (error) {
+                    error.textContent = errors[fieldName][0];
+                    error.classList.remove("hidden");
+                }
+
+            });
+
         }
 
         form.addEventListener("submit", async function(e) {
