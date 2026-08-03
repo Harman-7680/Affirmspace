@@ -259,9 +259,16 @@
                         <span class="text-gray-600">{{ $user->details->relationship_type }}</span>
                     </li>
 
-                    <li class="flex justify-between">
+                    <li>
                         <span class="font-medium text-gray-700">Interest:</span>
-                        <span class="text-gray-600">{{ $user->details->interest }}</span>
+
+                        <div class="flex flex-wrap gap-2 mt-2">
+                            @foreach ($user->details->interest ?? [] as $interest)
+                                <span class="px-2 py-1 bg-purple-100 text-purple-700 rounded-full text-xs">
+                                    {{ $interest }}
+                                </span>
+                            @endforeach
+                        </div>
                     </li>
 
                     <!-- BIO FULL WIDTH -->

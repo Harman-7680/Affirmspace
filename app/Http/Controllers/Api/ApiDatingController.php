@@ -24,54 +24,27 @@ class ApiDatingController extends Controller
             ], 403);
         }
 
-        $details = UserDetail::firstOrCreate(
-            [
-                'user_id' => $auth->id,
-            ],
-            [
-                'onboarding_step'     => 1,
-                'profile_completed'   => false,
-                'verification_status' => 'not_uploaded',
-            ]
-        );
+        $details = UserDetail::where('user_id', $auth->id)->first();
 
-        if (
-            ! $details->identity ||
-            ! $details->preference
-        ) {
+        if (! $details) {
 
             return response()->json([
                 'status'       => 'profile_not_started',
-
                 'current_step' => 1,
-
                 'next_action'  => 'start_onboarding',
-
                 'message'      => 'Start your dating profile.',
             ]);
         }
 
-        $resumeStep = min(
-            ($details->onboarding_step ?? 1) + 1,
-            12
-        );
-
         if (! $details->profile_completed) {
+            $currentStep = $details->onboarding_step ?? 1;
 
             return response()->json([
-
                 'status'       => 'profile_incomplete',
-
-                // Last saved step
-                'current_step' => $details->onboarding_step ?? 1,
-
-                // App yaha se continue karega
-                'resume_step'  => $resumeStep,
-
+                'current_step' => $currentStep,
+                'resume_step'  => min($currentStep + 1, 12),
                 'next_action'  => 'complete_profile',
-
                 'message'      => 'Complete your dating profile.',
-
             ]);
         }
 
@@ -536,7 +509,7 @@ class ApiDatingController extends Controller
         ], 404);
     }
 
-    public function saveStep(Request $request)
+    public function saveDetails(Request $request)
     {
         try {
 

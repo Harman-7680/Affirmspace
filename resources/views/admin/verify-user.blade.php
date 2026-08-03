@@ -48,7 +48,8 @@
                         <th>Email</th>
                         <th>Details</th>
                         <th>4 Photos</th>
-                        <th>Live Selfie</th>
+                        <th>Verification Type</th>
+                        <th>Verification File</th>
                         <th>Profile</th>
                         <th>Status</th>
                         <th>Action</th>
@@ -72,15 +73,15 @@
                                 <div><b>Relationship :</b> <span x-text="detail.relationship_type"></span></div>
                             </td>
 
-                            <!-- 4 Photos -->
+                            <!-- 4 Photos (Size reduced) -->
                             <td>
-                                <div id="photos-container" class="d-flex gap-2 flex-wrap">
+                                <div id="photos-container" class="d-flex gap-1 flex-wrap">
                                     <template x-for="photo in ['photo1','photo2','photo3','photo4']" :key="photo">
                                         <template x-if="detail[photo]">
                                             <img class="border gallery-image"
                                                 :src="'{{ asset('storage') }}/' + detail[photo]"
                                                 :data-src="'{{ asset('storage') }}/' + detail[photo]" alt="photo"
-                                                style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px; margin-right:10px; cursor: zoom-in;">
+                                                style="width: 45px; height: 45px; object-fit: cover; border-radius: 4px; margin-right: 4px; margin-bottom: 4px; cursor: zoom-in;">
                                         </template>
                                     </template>
 
@@ -93,19 +94,36 @@
                                 </div>
                             </td>
 
-                            <!-- Selfie -->
                             <td>
-                                <template x-if="detail.selfie">
-                                    <img class="border gallery-image" :src="'{{ asset('storage') }}/' + detail.selfie"
-                                        :data-src="'{{ asset('storage') }}/' + detail.selfie" alt="selfie"
-                                        style="width: 100px; height: 60px; object-fit: cover; border-radius: 5px; border: 1px solid #dee2e6; cursor: zoom-in;">
+                                <span class="badge bg-info"
+                                    x-text="detail.verification_method === 'selfie'
+                ? 'Live Selfie'
+                : 'Government ID'">
+                                </span>
+                            </td>
+
+                            <td>
+                                <!-- Selfie (Size reduced) -->
+                                <template x-if="detail.verification_method === 'selfie' && detail.verification_selfie">
+                                    <img class="border gallery-image"
+                                        :src="'{{ asset('storage') }}/' + detail.verification_selfie"
+                                        :data-src="'{{ asset('storage') }}/' + detail.verification_selfie" alt="Selfie"
+                                        style="width: 55px; height: 45px; object-fit: cover; border-radius: 4px; cursor: pointer;">
                                 </template>
 
-                                <!-- Fallback -->
-                                <template x-if="!detail.selfie">
-                                    <span class="text-gray-400 text-sm italic">
-                                        Not uploaded yet
-                                    </span>
+                                <!-- Government ID (Size reduced) -->
+                                <template x-if="detail.verification_method === 'id' && detail.verification_id">
+                                    <img class="border gallery-image"
+                                        :src="'{{ asset('storage') }}/' + detail.verification_id"
+                                        :data-src="'{{ asset('storage') }}/' + detail.verification_id" alt="Government ID"
+                                        style="width: 55px; height: 45px; object-fit: cover; border-radius: 4px; cursor: pointer;">
+                                </template>
+
+                                <!-- Not Uploaded -->
+                                <template
+                                    x-if="(detail.verification_method === 'selfie' && !detail.verification_selfie) ||
+              (detail.verification_method === 'id' && !detail.verification_id)">
+                                    <span class="text-muted">Not uploaded</span>
                                 </template>
                             </td>
 
@@ -180,9 +198,7 @@
             position: absolute;
             inset: 0;
             background: rgba(0, 0, 0, 0.45);
-            /* tweak opacity (0.0 - 0.9) */
             backdrop-filter: blur(2px);
-            /* optional soft blur */
         }
 
         /* center content */
@@ -197,7 +213,6 @@
             align-items: center;
             justify-content: center;
             pointer-events: none;
-            /* let close button handle pointer */
         }
 
         /* the preview image */
@@ -275,39 +290,33 @@
             const imgEl = document.getElementById('lightbox-img');
             const closeBtn = document.getElementById('lightbox-close');
 
-            // helper: open lightbox with image src
             function openLightbox(src, alt = '') {
                 imgEl.src = src;
                 imgEl.alt = alt;
                 overlay.style.display = 'block';
                 overlay.setAttribute('aria-hidden', 'false');
-                // trap focus if needed (simple)
                 closeBtn.focus();
-                document.body.style.overflow = 'hidden'; // prevent page scroll
+                document.body.style.overflow = 'hidden';
             }
 
             function closeLightbox() {
                 imgEl.src = '';
                 overlay.style.display = 'none';
                 overlay.setAttribute('aria-hidden', 'true');
-                document.body.style.overflow = ''; // restore scroll
+                document.body.style.overflow = '';
             }
 
-            // click delegation for images with .gallery-image
             document.addEventListener('click', function(e) {
                 const target = e.target;
                 if (target && target.classList && target.classList.contains('gallery-image')) {
-                    // prefer data-src if present (keeps thumbnail src small)
                     const src = target.dataset.src || target.src;
                     openLightbox(src, target.alt || '');
                 }
             });
 
-            // backdrop or close button click closes
             backdrop.addEventListener('click', closeLightbox);
             closeBtn.addEventListener('click', closeLightbox);
 
-            // Esc key closes lightbox
             document.addEventListener('keydown', function(e) {
                 if (e.key === 'Escape' && overlay.style.display === 'block') {
                     closeLightbox();

@@ -272,7 +272,7 @@
             </div>
 
             {{-- Checkboxes row --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1.5 border-t border-gray-100">
+            {{-- <div class="grid grid-cols-1 sm:grid-cols-2 gap-1.5 pt-1.5 border-t border-gray-100">
                 <label
                     class="flex items-center gap-1.5 p-1.5 bg-gray-50 rounded-lg border border-gray-200 cursor-pointer hover:border-pink-300 transition">
                     <input type="checkbox" name="hide_distance" value="1"
@@ -286,7 +286,7 @@
                         {{ $details->hide_online_status ? 'checked' : '' }} class="w-3 h-3 accent-pink-600 rounded">
                     <span class="text-[10px] font-bold text-gray-800">Hide Online Status</span>
                 </label>
-            </div>
+            </div> --}}
 
             {{-- Bio --}}
             <div class="space-y-0.5">
