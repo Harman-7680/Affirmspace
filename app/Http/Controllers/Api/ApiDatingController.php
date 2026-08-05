@@ -423,6 +423,30 @@ class ApiDatingController extends Controller
 
         $profile = $user->details;
 
+        $canMessage    = false;
+        $messageReason = null;
+
+        if ($auth->id != $user->id) {
+
+            if ($profile->who_can_message === 'everyone') {
+
+                $canMessage = true;
+
+            } elseif (
+                $profile->who_can_message === 'matches_only' &&
+                $details->verification_status === 'approved'
+            ) {
+
+                $canMessage = true;
+
+            } else {
+
+                $messageReason = 'Only verified users can message this user.';
+
+            }
+
+        }
+
         if (
             $auth->id != $id &&
             $profile->profile_visibility == 'verified_only' &&
@@ -441,8 +465,9 @@ class ApiDatingController extends Controller
         })->first();
 
         return response()->json([
-            'status'     => 'success',
-            'profile'    => [
+            'status'         => 'success',
+
+            'profile'        => [
                 'id'                => $user->id,
                 'first_name'        => $user->first_name,
                 'last_name'         => $user->last_name,
@@ -464,7 +489,15 @@ class ApiDatingController extends Controller
                     return asset('storage/' . $photo);
                 })->values(),
             ],
-            'friendship' => $friendship,
+
+            'friendship'     => $friendship,
+
+            'can_message'    => $canMessage,
+
+            'message_reason' => $messageReason,
+
+            'is_own_profile' => $auth->id == $user->id,
+
         ]);
     }
 
