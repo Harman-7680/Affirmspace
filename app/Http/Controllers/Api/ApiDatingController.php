@@ -417,22 +417,21 @@ class ApiDatingController extends Controller
         }
 
         $user = User::with('details')
+            ->where('id', $id)
             ->whereHas('details')
-            ->findOrFail($id);
+            ->firstOrFail();
 
         $profile = $user->details;
 
         if (
-            $profile->profile_visibility == 'verified_only'
-            &&
+            $auth->id != $id &&
+            $profile->profile_visibility == 'verified_only' &&
             $details->verification_status != 'approved'
         ) {
-
             return response()->json([
                 'status'  => 'error',
                 'message' => 'This profile is visible to verified users only.',
             ], 403);
-
         }
 
         $friendship = Friendship::where(function ($q) use ($auth, $id) {

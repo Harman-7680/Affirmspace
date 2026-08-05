@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Friendship;
 use App\Models\User;
 use App\Models\UserDetail;
@@ -508,16 +509,50 @@ class DatingController extends Controller
 
         $notifications = $auth->unreadNotifications;
 
-        // Logged in user verification check
+        // Logged in user dating details
         $myDetails = UserDetail::where('user_id', $auth->id)->first();
 
-        // if ($myDetails->verification_status == 'pending') {
-        //     return redirect()->route('dating.verification.wait');
-        // }
+        if (! $myDetails) {
+            return redirect()->route('pages')
+                ->with('error', 'Please complete your dating profile first.');
+        }
 
-        // Ab jis profile pe click hua hai usko open karo
-        $user = User::with('details')->findOrFail($id);
+        // Check if either user has blocked the other
+        $blocked = Block::where(function ($q) use ($auth, $id) {
+            $q->where('user_id', $auth->id)
+                ->where('blocked_id', $id);
+        })->orWhere(function ($q) use ($auth, $id) {
+            $q->where('user_id', $id)
+                ->where('blocked_id', $auth->id);
+        })->exists();
 
+        if ($blocked) {
+            return redirect()->route('pages')
+                ->with('error', 'This profile is not available.');
+        }
+
+        // Load dating profile
+        $user = User::with('details')
+            ->where('id', $id)
+            ->whereHas('details')
+            ->first();
+
+        if (! $user) {
+            return redirect()->route('pages')
+                ->with('error', 'Profile not found.');
+        }
+
+        // Verified only profile check
+        if (
+            $auth->id != $user->id &&
+            $user->details->profile_visibility == 'verified_only' &&
+            $myDetails->verification_status != 'approved'
+        ) {
+            return redirect()->route('pages')
+                ->with('error', 'This profile is visible to verified users only.');
+        }
+
+        // Friendship status
         $friendship = Friendship::where(function ($q) use ($auth, $id) {
             $q->where('sender_id', $auth->id)
                 ->where('receiver_id', $id);
