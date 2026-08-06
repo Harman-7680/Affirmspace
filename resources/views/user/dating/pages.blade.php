@@ -164,12 +164,12 @@
                                 <div class="flex items-center gap-3 mb-2 text-[10px]">
                                     <label class="flex items-center gap-1 cursor-pointer">
                                         <input type="radio" name="location_type" value="current" checked>
-                                        <span>Current</span>
+                                        <span style="color:black;">Current</span>
                                     </label>
 
                                     <label class="flex items-center gap-1 cursor-pointer">
                                         <input type="radio" name="location_type" value="manual">
-                                        <span>Manual</span>
+                                        <span style="color:black;">Manual</span>
                                     </label>
                                 </div>
 
@@ -212,22 +212,32 @@
 
                 {{-- STEP 5: GENDER & PRONOUNS --}}
                 <div class="q-block hidden">
-                    <h2 class="q-title">Gender & Pronouns</h2>
-                    <p class="sub-text">We proudly welcome all identities. Confirm your gender details.</p>
+                    <h2 class="q-title" style="color:black;">Gender & Pronouns</h2>
+                    <p class="sub-text" style="color:black;">We proudly welcome all identities. Confirm your gender
+                        details.</p>
 
                     <div class="space-y-3">
                         <div>
-                            <label class="text-xs font-bold text-gray-700 mb-1 block">Your Registered Gender</label>
-                            <div class="static-box py-3 px-4 font-semibold text-gray-900 bg-white">
+                            <label class="text-xs font-bold mb-1 block" style="color:black;">Your Registered
+                                Gender</label>
+                            <div class="static-box py-3 px-4 font-semibold bg-white" style="color:black;">
                                 {{ $user->gender ?? 'Not Specified' }}
                             </div>
                             <input type="hidden" name="gender" value="{{ $user->gender ?? '' }}">
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-gray-700 mb-1 block">Pronouns (Optional)</label>
-                            <input type="text" name="pronouns" class="f-input text-sm py-3"
-                                placeholder="e.g. She/Her, They/Them, He/Him">
+                            <label class="text-xs font-bold mb-1 block" style="color:black;">Pronouns (Optional)</label>
+                            <select name="pronouns" class="f-input text-sm py-3 bg-white" style="color:black;">
+                                <option value="" style="color:gray;">Select Pronouns (Optional)</option>
+                                <option value="She/Her" style="color:black;">She/Her</option>
+                                <option value="He/Him" style="color:black;">He/Him</option>
+                                <option value="They/Them" style="color:black;">They/Them</option>
+                                <option value="She/They" style="color:black;">She/They</option>
+                                <option value="He/They" style="color:black;">He/They</option>
+                                <option value="Any Pronouns" style="color:black;">Any Pronouns</option>
+                                <option value="Other" style="color:black;">Other</option>
+                            </select>
                         </div>
                     </div>
                 </div>
@@ -246,7 +256,7 @@
                                     <div class="placeholder-content flex flex-col items-center">
                                         <span
                                             class="text-sm group-hover:scale-110 transition-transform text-pink-500 font-bold">+</span>
-                                        <span class="text-[8px] font-semibold text-gray-500">Photo
+                                        <span class="text-[8px] font-semibold text-gray-500" style="color:black;">Photo
                                             {{ $i }}</span>
                                     </div>
                                     <img src="" alt="Preview"
@@ -304,7 +314,8 @@
                                 class="px-2.5 py-1.5 rounded-lg border border-gray-200 text-[10px] font-semibold cursor-pointer transition-all bg-gray-50 hover:bg-pink-50/30 hover:border-pink-400 select-none flex items-center gap-1.5 shadow-2xs group">
                                 <input type="checkbox" name="interests[]" value="{{ $item }}"
                                     class="accent-pink-600 w-3 h-3 rounded interest-checkbox">
-                                <span class="text-black group-hover:text-pink-600 transition font-bold">{{ $emoji }}
+                                <span class="text-black group-hover:text-pink-600 transition font-bold"
+                                    style="color:black;">{{ $emoji }}
                                     {{ $item }}</span>
                             </label>
                         @endforeach
@@ -373,13 +384,14 @@
                         </div>
                         <label
                             class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-300 cursor-pointer hover:border-pink-500 shadow-sm">
-                            <span class="text-sm font-bold text-gray-900">Hide my Distance</span>
+                            <span class="text-sm font-bold text-gray-900 bg-white" style="color:grey;">Hide my
+                                Distance</span>
                             <input type="checkbox" name="hide_distance" value="1"
                                 class="w-5 h-5 accent-pink-600 rounded">
                         </label>
                         <label
                             class="flex items-center justify-between p-4 bg-white rounded-xl border border-gray-300 cursor-pointer hover:border-pink-500 shadow-sm">
-                            <span class="text-sm font-bold text-gray-900">Hide my Online Status</span>
+                            <span class="text-sm font-bold text-gray-900" style="color:grey;">Hide my Online Status</span>
                             <input type="checkbox" name="hide_online" value="1"
                                 class="w-5 h-5 accent-pink-600 rounded">
                         </label>
@@ -388,28 +400,64 @@
 
                 {{-- STEP 11: MATCH PREFERENCES --}}
                 <div class="q-block hidden">
-                    <h2 class="q-title">Match Preferences</h2>
-                    <p class="sub-text">Customize your discovery feed.</p>
+                    <h2 class="q-title" style="color:black;">Match Preferences</h2>
+                    <p class="sub-text" style="color:black;">Customize your discovery feed.</p>
                     <div class="space-y-4">
                         <div>
-                            <label class="text-xs font-bold text-gray-700 mb-1 block">Preferred Age Range</label>
+                            <label class="text-xs font-bold mb-1 block" style="color:black;">Preferred Age Range</label>
                             <div class="grid grid-cols-2 gap-2">
                                 <div>
                                     <input type="number" name="min_age" value="18" min="18"
-                                        class="f-input text-sm py-2" data-type="number" required>
+                                        class="f-input text-sm py-2 bg-white" style="color:black;" data-type="number"
+                                        required>
                                     <p class="error-msg text-red-500 text-[9px] mt-1 hidden"></p>
                                 </div>
                                 <div>
                                     <input type="number" name="max_age" value="50" min="18"
-                                        class="f-input text-sm py-2" data-type="number" required>
+                                        class="f-input text-sm py-2 bg-white" style="color:black;" data-type="number"
+                                        required>
                                     <p class="error-msg text-red-500 text-[9px] mt-1 hidden"></p>
                                 </div>
                             </div>
                         </div>
+
                         <div>
-                            <label class="text-xs font-bold text-gray-700 mb-1 block">Max Distance (km)</label>
-                            <input type="range" name="max_distance" min="5" max="200" value="50"
-                                class="w-full accent-pink-600">
+                            <label class="text-xs font-bold mb-1 block" style="color:black;">Max Distance (km)</label>
+
+                            <!-- Hidden input jo backend ko value bhejega -->
+                            <input type="hidden" name="max_distance" id="selected_max_distance" value="50">
+
+                            <!-- Horizontal Scrollable Distance Options -->
+                            <div class="flex overflow-x-auto gap-2 py-1 no-scrollbar" style="scroll-behavior: smooth;">
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="5" style="color:black;">5 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="10" style="color:black;">10 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="25" style="color:black;">25 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="50" style="color:black; background-color: #fbcfe8; border-color: #ec4899;"
+                                    data-selected="true">50 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="75" style="color:black;">75 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="100" style="color:black;">100 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="150" style="color:black;">150 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="200" style="color:black;">200 km</button>
+                                <button type="button"
+                                    class="distance-chip px-3 py-1.5 rounded-full text-xs font-medium border border-gray-300 bg-white text-black shrink-0 transition-all"
+                                    data-value="500" style="color:black;">500+ km</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -1138,5 +1186,31 @@
         });
 
         updateView();
+    </script>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const chips = document.querySelectorAll('.distance-chip');
+            const hiddenInput = document.getElementById('selected_max_distance');
+
+            chips.forEach(chip => {
+                chip.addEventListener('click', function() {
+                    // Remove active styling from all chips
+                    chips.forEach(c => {
+                        c.style.backgroundColor = 'white';
+                        c.style.borderColor = '#d1d5db';
+                        c.removeAttribute('data-selected');
+                    });
+
+                    // Add active styling to clicked chip
+                    this.style.backgroundColor = '#fbcfe8'; // Light pink highlight
+                    this.style.borderColor = '#ec4899'; // Pink border
+                    this.setAttribute('data-selected', 'true');
+
+                    // Set value to hidden input for backend
+                    hiddenInput.value = this.getAttribute('data-value');
+                });
+            });
+        });
     </script>
 @endsection

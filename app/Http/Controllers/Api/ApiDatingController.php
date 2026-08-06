@@ -56,13 +56,15 @@ class ApiDatingController extends Controller
 
                     'status'              => 'verification_required',
 
-                    'current_step'        => 12,
+                    // 'current_step'        => 12,
 
                     'verification_status' => 'not_uploaded',
 
                     'next_action'         => 'upload_verification',
 
                     'message'             => 'Please upload verification photos.',
+
+                    "redirect_to_profile" => true,
 
                 ]);
 
@@ -586,15 +588,36 @@ class ApiDatingController extends Controller
                             'required',
                             'regex:/^([4-8])\'([0-9]|1[0-1])("?|\'\')?$/',
                         ],
-                        'city'                => 'required|string|max:100',
+                        'location_type'       => 'required|in:manual,current',
+                        'city'                => 'sometimes|nullable|string|max:255',
+                        'latitude'            => 'required|numeric',
+                        'longitude'           => 'required|numeric',
                         'occupation'          => 'nullable|string|max:100',
                     ]);
 
                     $details->display_name  = $request->dating_display_name;
                     $details->date_of_birth = $request->dob;
                     $details->height        = $request->height;
-                    $details->city          = [
-                        'address' => $request->city,
+                    $address                = $request->city;
+
+                    if ($request->location_type === 'current') {
+
+                        $location = $this->getAddressFromLatLng(
+                            $request->latitude,
+                            $request->longitude
+                        );
+
+                        if (! $location || empty($location['display_name'])) {
+                            throw ValidationException::withMessages([
+                                'location' => ['Unable to detect current location.'],
+                            ]);
+                        }
+
+                        $address = $location['display_name'];
+                    }
+
+                    $details->city = [
+                        'address' => $address,
                         'lat'     => $request->latitude,
                         'lng'     => $request->longitude,
                     ];

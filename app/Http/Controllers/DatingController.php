@@ -808,9 +808,11 @@ class DatingController extends Controller
 
             }
 
+            $nextStep = min((int) $request->step + 1, 12);
+
             $details->onboarding_step = max(
                 $details->onboarding_step ?? 0,
-                (int) $request->step
+                $nextStep
             );
 
             $details->save();
