@@ -135,10 +135,10 @@ class ApiDatingController extends Controller
             'interest.*'        => 'string|max:50',
             'relationship_type' => 'required|string',
             'bio'               => 'nullable|string|max:300',
-            'city'              => 'required|string|max:100',
+            'city'              => 'required_if:location_type,manual|nullable|string|max:100',
+            'location_type'     => 'sometimes|in:manual,current',
             'latitude'          => 'required|numeric',
             'longitude'         => 'required|numeric',
-
             'photo1'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'photo2'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
             'photo3'            => 'nullable|image|mimes:jpeg,png,jpg,webp|max:2048',
@@ -149,6 +149,43 @@ class ApiDatingController extends Controller
 
         $user = Auth::user();
 
+        $cityData = null;
+
+// Current Location
+        if ($request->input('location_type') === 'current') {
+
+            $location = $this->getAddressFromLatLng(
+                $request->latitude,
+                $request->longitude
+            );
+
+            if (! $location || empty($location['display_name'])) {
+
+                return response()->json([
+                    'status'  => 'error',
+                    'message' => 'Unable to detect current location.',
+                ], 422);
+
+            }
+
+            $cityData = [
+                'address' => $location['display_name'],
+                'lat'     => $request->latitude,
+                'lng'     => $request->longitude,
+            ];
+
+        }
+// Manual Location
+        else {
+
+            $cityData = [
+                'address' => $request->city,
+                'lat'     => $request->latitude,
+                'lng'     => $request->longitude,
+            ];
+
+        }
+
         $details = UserDetail::updateOrCreate(
             [
                 'user_id' => $user->id,
@@ -158,11 +195,7 @@ class ApiDatingController extends Controller
                 'display_name'       => $request->display_name,
                 'date_of_birth'      => $request->date_of_birth,
                 'height'             => $request->height,
-                'city'               => [
-                    'address' => $request->city,
-                    'lat'     => $request->latitude,
-                    'lng'     => $request->longitude,
-                ],
+                'city'               => $cityData,
                 'job_title'          => $request->job_title,
                 'education'          => $request->education,
                 'languages'          => $request->languages,
