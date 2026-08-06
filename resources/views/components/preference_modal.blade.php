@@ -81,15 +81,25 @@
                         City
                     </label>
 
-                    <input type="text" id="cityInput" name="city"
-                        value="{{ is_array($details->city) ? $details->city['address'] ?? '' : $details->city ?? '' }}"
-                        class="f-input text-[10px] py-1 px-1.5 bg-white" style="color: black;" placeholder="City">
+                    <div class="flex items-center gap-1">
+                        <input type="text" id="cityInput" name="city"
+                            value="{{ is_array($details->city) ? $details->city['address'] ?? '' : $details->city ?? '' }}"
+                            class="f-input text-[10px] py-1 px-1.5 bg-white w-full" style="color: black;"
+                            placeholder="City">
+
+                        <button type="button" id="detectCurrentLocation" title="Detect Current Location"
+                            class="px-2 py-1 bg-blue-600 hover:bg-blue-700 text-white rounded text-[10px] shrink-0 transition">
+                            📍
+                        </button>
+                    </div>
 
                     <input type="hidden" id="latitude" name="latitude"
-                        value="{{ is_array($details->city) ? $details->city['lat'] ?? '' : $details->latitude ?? '' }}">
+                        value="{{ is_array($details->city) ? $details->city['lat'] ?? '' : '' }}">
 
                     <input type="hidden" id="longitude" name="longitude"
-                        value="{{ is_array($details->city) ? $details->city['lng'] ?? '' : $details->longitude ?? '' }}">
+                        value="{{ is_array($details->city) ? $details->city['lng'] ?? '' : '' }}">
+
+                    <input type="hidden" id="location_type" name="location_type" value="manual">
                 </div>
 
                 {{-- Job --}}
@@ -105,7 +115,8 @@
                     <label class="block text-[9px] font-bold uppercase tracking-wider"
                         style="color: black;">Education</label>
                     <input type="text" name="education" value="{{ $details->education ?? '' }}"
-                        class="f-input text-[10px] py-1 px-1.5 bg-white" style="color: black;" placeholder="Education">
+                        class="f-input text-[10px] py-1 px-1.5 bg-white" style="color: black;"
+                        placeholder="Education">
                 </div>
 
                 {{-- Languages --}}
@@ -443,34 +454,127 @@
 </style>
 
 <script>
-    document.getElementById('cityInput')?.addEventListener('change', async function() {
-        let city = this.value;
+    // Manual City
+    document.getElementById('cityInput').addEventListener('change', async function() {
+
+        document.getElementById('location_type').value = 'manual';
+
+        let city = this.value.trim();
+
         if (!city) return;
 
         try {
-            let response = await fetch("{{ route('dating.geocode') }}", {
+
+            const response = await fetch("{{ route('dating.geocode') }}", {
+
                 method: "POST",
+
                 headers: {
                     "Content-Type": "application/json",
                     "X-CSRF-TOKEN": "{{ csrf_token() }}"
                 },
+
                 body: JSON.stringify({
                     address: city
                 })
+
             });
 
-            let data = await response.json();
+            const data = await response.json();
 
             if (data.success) {
+
                 document.getElementById('latitude').value = data.lat;
                 document.getElementById('longitude').value = data.lng;
+
             } else {
-                alert("City location not found");
-                document.getElementById('latitude').value = '';
-                document.getElementById('longitude').value = '';
+
+                alert("Location not found");
+
             }
-        } catch (error) {
-            console.error("Geocoding error:", error);
+
+        } catch (e) {
+
+            console.error(e);
+
         }
+
+    });
+
+
+    // Current Location
+    document.getElementById('detectCurrentLocation').addEventListener('click', function() {
+
+        if (!navigator.geolocation) {
+
+            alert("Geolocation not supported");
+
+            return;
+
+        }
+
+        const btn = this;
+
+        btn.disabled = true;
+
+        btn.innerHTML = "Detecting...";
+
+        navigator.geolocation.getCurrentPosition(
+
+            async (position) => {
+
+                    const lat = position.coords.latitude;
+                    const lng = position.coords.longitude;
+
+                    document.getElementById('latitude').value = lat;
+                    document.getElementById('longitude').value = lng;
+                    document.getElementById('location_type').value = 'current';
+
+                    try {
+
+                        const response = await fetch(
+                            `https://us1.locationiq.com/v1/reverse.php?key={{ config('services.locationiq.key') }}&lat=${lat}&lon=${lng}&format=json`
+                        );
+
+                        const data = await response.json();
+
+                        if (data.display_name) {
+
+                            document.getElementById('cityInput').value = data.display_name;
+
+                        }
+
+                    } catch (e) {
+
+                        console.error(e);
+
+                    }
+
+                    btn.innerHTML = "Detected";
+
+                    btn.disabled = false;
+
+                },
+
+                (err) => {
+
+                    console.log(err);
+
+                    alert("Unable to detect location");
+
+                    btn.innerHTML = "📍";
+
+                    btn.disabled = false;
+
+                },
+
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                }
+
+        );
+
     });
 </script>

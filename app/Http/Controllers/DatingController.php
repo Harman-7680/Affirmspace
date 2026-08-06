@@ -374,7 +374,8 @@ class DatingController extends Controller
             'interest.*'        => 'string|max:50',
             'relationship_type' => 'required|string',
             'bio'               => 'nullable|string|max:300',
-            'city'              => 'required|string|max:100',
+            'city'              => 'sometimes|nullable|string|max:255',
+            'location_type'     => 'sometimes|in:manual,current',
             'latitude'          => 'nullable|numeric',
             'longitude'         => 'nullable|numeric',
 
@@ -390,8 +391,27 @@ class DatingController extends Controller
 
         $cityData = null;
 
-// CASE 1: Browser location available
-        if ($request->filled(['latitude', 'longitude'])) {
+// Current Location
+        if ($request->input('location_type') === 'current') {
+
+            $location = $this->getAddressFromLatLng(
+                $request->latitude,
+                $request->longitude
+            );
+
+            if (! $location || empty($location['display_name'])) {
+                return back()->with('error', 'Unable to detect current location.');
+            }
+
+            $cityData = [
+                'address' => $location['display_name'],
+                'lat'     => $request->latitude,
+                'lng'     => $request->longitude,
+            ];
+
+        }
+// Manual
+        elseif ($request->input('location_type') === 'manual') {
 
             $cityData = [
                 'address' => $request->city,
@@ -400,17 +420,14 @@ class DatingController extends Controller
             ];
 
         }
-
-// CASE 2: Manual city input
+// Old Manual (fallback)
         else {
 
             $response = Http::get('https://us1.locationiq.com/v1/search.php', [
-
                 'key'    => config('services.locationiq.key'),
                 'q'      => $request->city,
                 'format' => 'json',
                 'limit'  => 1,
-
             ]);
 
             if ($response->successful() && ! empty($response[0])) {
