@@ -503,17 +503,66 @@ class ApiDatingController extends Controller
             'status'         => 'success',
 
             'profile'        => [
-                'id'                => $user->id,
-                'first_name'        => $user->first_name,
-                'last_name'         => $user->last_name,
-                'image'             => $user->details?->photo1
-                    ? asset('storage/' . $user->details->photo1)
+                // User
+                'id'                  => $user->id,
+                'first_name'          => $user->first_name,
+                'last_name'           => $user->last_name,
+                'email'               => $user->email,
+
+                // Basic Info
+                'display_name'        => $profile->display_name,
+                'date_of_birth'       => $profile->date_of_birth,
+                'height'              => $profile->height,
+                'city'                => $profile->city,
+                'job_title'           => $profile->job_title,
+                'education'           => $profile->education,
+                'languages'           => $profile->languages,
+
+                // Gender
+                'gender'              => $profile->gender,
+                'pronouns'            => $profile->pronouns,
+
+                // Dating
+                'identity'            => $profile->identity,
+                'preference'          => $profile->preference,
+                'interest'            => $profile->interest,
+                'relationship_type'   => $profile->relationship_type,
+
+                // About
+                'bio'                 => $profile->bio,
+
+                // Lifestyle
+                'smoking'             => $profile->smoking,
+                'drinking'            => $profile->drinking,
+                'workout'             => $profile->workout,
+                'diet'                => $profile->diet,
+                'pets'                => $profile->pets,
+
+                // Privacy
+                'profile_visibility'  => $profile->profile_visibility,
+                'who_can_message'     => $profile->who_can_message,
+                'hide_distance'       => $profile->hide_distance,
+                'hide_online_status'  => $profile->hide_online_status,
+
+                // Match Preferences
+                'min_age'             => $profile->min_age,
+                'max_age'             => $profile->max_age,
+                'max_distance'        => $profile->max_distance,
+                'verified_only'       => $profile->verified_only,
+                'people_with_photos'  => $profile->people_with_photos,
+                'similar_interests'   => $profile->similar_interests,
+
+                // Verification
+                'verification_status' => $profile->verification_status,
+                'verification_method' => $profile->verification_method,
+                'verified_at'         => $profile->verified_at,
+
+                // Photos
+                'image'               => $profile->photo1
+                    ? asset('storage/' . $profile->photo1)
                     : null,
-                'bio'               => $profile->bio,
-                'identity'          => $profile->identity,
-                'interest'          => $profile->interest,
-                'relationship_type' => $profile->relationship_type,
-                'photos'            => collect([
+
+                'photos'              => collect([
                     $profile->photo1,
                     $profile->photo2,
                     $profile->photo3,
