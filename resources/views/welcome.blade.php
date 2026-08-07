@@ -823,8 +823,8 @@
                     <h1>A Safe LGBTQ+ Social Media Platform<br>to Connect, Date & Find Support</h1>
 
                     <div class="buttons">
-                        <a href="{{ 'register' }}?role=0" class="primary-btn">I'm a User</a>
-                        <a href="{{ 'register' }}?role=1" class="secondary-btn">I'm a Doctor / Therapist</a>
+                        <a href="{{ 'register' }}?role=0" class="primary-btn">Join Now →</a>
+                        {{-- <a href="{{ 'register' }}?role=1" class="secondary-btn">I'm a Doctor / Therapist</a> --}}
                     </div>
                 </div>
 

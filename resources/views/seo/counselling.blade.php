@@ -846,11 +846,11 @@
                     <div class="therapy-buttons">
 
                         <a href="{{ 'login' }}" class="therapy-btn primary-btn">
-                            📅 Book a Session
+                            📅 Join as a Doctor
                         </a>
 
                         <a href="{{ 'login' }}" class="therapy-btn secondary-btn">
-                            💬 Talk to Our Team
+                            💬 Book Appointment
                         </a>
                     </div>
                 </div>
