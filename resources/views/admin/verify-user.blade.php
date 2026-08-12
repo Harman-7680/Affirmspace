@@ -61,7 +61,7 @@
                             <td x-text="(currentPage - 1) * perPage + index + 1"></td>
 
                             <td>
-                                <strong x-text="detail.user.first_name + ' ' + detail.user.last_name"></strong><br>
+                                <strong x-text="detail.display_name || 'N/A'"></strong><br>
                                 <small>ID: <span x-text="detail.user.id"></span></small>
                             </td>
 
@@ -96,9 +96,13 @@
 
                             <td>
                                 <span class="badge bg-info"
-                                    x-text="detail.verification_method === 'selfie'
-                ? 'Live Selfie'
-                : 'Government ID'">
+                                    x-text="
+            (!detail.selfie && !detail.verification_id)
+                ? 'Pending'
+                : (detail.verification_method === 'selfie'
+                    ? 'Live Selfie'
+                    : 'Government ID')
+        ">
                                 </span>
                             </td>
 
