@@ -126,8 +126,8 @@
 
             {{-- Name & Email --}}
             <div class="text-white">
-                <h1 class="text-2xl font-bold">{{ $user->first_name }} {{ $user->last_name }}</h1>
-                <p class="text-sm" style="color:grey;">{{ $user->email }}</p>
+                <h1 class="text-2xl font-bold">{{ $details->display_name }}</h1>
+                {{-- <p class="text-sm" style="color:grey;">{{ $user->email }}</p> --}}
             </div>
 
             @if (Auth::check() && Auth::id() === $user->id)

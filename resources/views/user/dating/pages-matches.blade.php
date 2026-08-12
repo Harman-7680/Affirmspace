@@ -389,7 +389,7 @@
                 get filteredUsers() {
                     const s = this.search.toLowerCase();
                     const list = this.allMatches.filter(u =>
-                        (u.first_name + ' ' + u.last_name).toLowerCase().includes(s)
+                        (u.display_name || '').toLowerCase().includes(s)
                     );
                     return list.slice(0, this.showCount);
                 },
@@ -412,10 +412,14 @@
             
                 seeMore() {
                     const s = this.search.toLowerCase();
+            
                     const list = this.allMatches.filter(u =>
-                        (u.first_name + ' ' + u.last_name).toLowerCase().includes(s)
+                        (u.display_name || '').toLowerCase().includes(s)
                     );
-                    if (this.showCount < list.length) this.showCount += 3;
+            
+                    if (this.showCount < list.length) {
+                        this.showCount += 3;
+                    }
                 },
             
                 async blockUser(id) {
@@ -445,7 +449,7 @@
                     <input type="text" x-model="search" placeholder="Search matched users..."
                         class="flex-1 px-3 py-2 border rounded-lg text-sm">
 
-                    <select x-model="visibility" @change="loadUsers()" class="px-3 py-2 border rounded-lg text-sm">
+                    <select x-model="visibility" @change="loadUsers()" class="px-8 py-2 border rounded-lg text-sm">
 
                         <option value="everyone">Everyone</option>
                         <option value="verified">Verified</option>
@@ -471,7 +475,7 @@
                         <div class="flex items-center space-x-3">
                             <a :href="'/dating/profile/' + user.id" class="relative">
                                 <img :src="(!user.image || user.image === '0') ? '/images/avatars/avatar-1.jpg' :
-                                '/storage/' + user.image"
+                                'storage/' + user.image"
                                     class="w-12 h-12 rounded-full object-cover border">
 
                                 <div x-show="user.UserStatus == 1" class="user-status-icon text-blue-600 text-sm">🎀</div>
@@ -479,7 +483,8 @@
 
                             <div>
                                 <a :href="'/user/' + user.id" class="font-semibold text-gray-900 hover:underline"
-                                    x-text="user.first_name + ' ' + user.last_name"></a>
+                                    x-text="user.display_name">
+                                </a>
 
                                 <p class="text-xs text-gray-500" x-text="user.friend_count + ' Followers'"></p>
 
