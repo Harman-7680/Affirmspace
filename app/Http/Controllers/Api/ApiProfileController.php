@@ -3,11 +3,11 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Block;
+use App\Models\Bookmark;
 use App\Models\Event;
 use App\Models\Friendship;
 use App\Models\Message;
 use App\Models\Mute;
-use App\Models\Bookmark;
 use App\Models\Post;
 use App\Models\Status;
 use App\Models\User;
@@ -1057,6 +1057,7 @@ class ApiProfileController extends Controller
         // --- API Response ---
         return response()->json([
             'status'    => true,
+            $has_new_notification = $auth->unreadNotifications()->exists() ? 1 : 0,
             'user'      => $auth,
             // 'notifications' => $notifications,
             'all_posts' => $all_posts,
@@ -1384,7 +1385,7 @@ class ApiProfileController extends Controller
             // If this is a friend request, fetch friendship ID
             if (isset($data['follower_id'])) {
                 $friendship = \App\Models\Friendship::where('sender_id', $data['follower_id'])
-                    ->where('receiver_id', auth()->id())
+                    ->where('receiver_id', $auth->id)
                     ->where('status', 'pending')
                     ->first();
 
@@ -1402,7 +1403,8 @@ class ApiProfileController extends Controller
             ];
         });
 
-        // --- API Response ---
+        $auth->unreadNotifications->markAsRead();
+
         return response()->json([
             'status'        => true,
             'user'          => $auth,

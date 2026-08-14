@@ -56,7 +56,9 @@ class ApiDatingController extends Controller
 
                     'status'              => 'verification_required',
 
-                    // 'current_step'        => 12,
+                    'current_step'        => 12,
+
+                    'next_step'           => 13,
 
                     'verification_status' => 'not_uploaded',
 
@@ -76,6 +78,8 @@ class ApiDatingController extends Controller
 
                     'current_step'        => 12,
 
+                    'next_step'           => 13,
+
                     'verification_status' => 'pending',
 
                     'next_action'         => 'wait',
@@ -91,6 +95,8 @@ class ApiDatingController extends Controller
                     'status'              => 'verification_rejected',
 
                     'current_step'        => 12,
+
+                    'next_step'           => 13,
 
                     'verification_status' => 'rejected',
 
@@ -109,6 +115,8 @@ class ApiDatingController extends Controller
                     'status'              => 'approved',
 
                     'current_step'        => 12,
+
+                    'next_step'           => 13,
 
                     'verification_status' => 'approved',
 
@@ -1085,8 +1093,7 @@ class ApiDatingController extends Controller
             ], 403);
         }
 
-        $details = UserDetail::where('user_id', $auth->id)
-            ->first();
+        $details = UserDetail::where('user_id', $auth->id)->first();
 
         if (! $details) {
             return response()->json([
@@ -1097,90 +1104,73 @@ class ApiDatingController extends Controller
 
         // Profile complete check
         if (! $details->profile_completed) {
-
             return response()->json([
                 'status'  => 'profile_incomplete',
                 'message' => 'Complete your dating profile first.',
             ], 422);
-
         }
 
         $request->validate([
+            'verify_method' => 'required|in:selfie,id',
 
-            'verification_selfie' => [
-                'required',
-                'image',
-                'mimes:jpg,jpeg,png,webp',
-                'max:5120',
-            ],
-
-            'verification_id'     => [
+            'selfie_file'   => [
+                'required_if:verify_method,selfie',
                 'nullable',
                 'image',
-                'mimes:jpg,jpeg,png,webp',
+                'mimes:jpg,jpeg,png',
                 'max:5120',
             ],
 
+            'id_file'       => [
+                'required_if:verify_method,id',
+                'nullable',
+                'image',
+                'mimes:jpg,jpeg,png',
+                'max:5120',
+            ],
         ]);
 
         if ($details->verification_selfie) {
-
             Storage::disk('public')
                 ->delete($details->verification_selfie);
-
         }
 
         if ($details->verification_id) {
-
             Storage::disk('public')
                 ->delete($details->verification_id);
-
         }
 
-        if ($request->hasFile('verification_selfie')) {
+        if ($request->verify_method === 'selfie') {
 
-            $details->verification_selfie =
-            $request->file('verification_selfie')
-                ->store('verification', 'public');
+            $path = $request->file('selfie_file')
+                ->store('verification/selfies', 'public');
 
+            $details->verification_selfie = $path;
+            $details->verification_id     = null;
         }
 
-        if ($request->hasFile('verification_id')) {
+        if ($request->verify_method === 'id') {
 
-            $details->verification_id =
-            $request->file('verification_id')
-                ->store('verification', 'public');
+            $path = $request->file('id_file')
+                ->store('verification/ids', 'public');
 
+            $details->verification_id     = $path;
+            $details->verification_selfie = null;
         }
 
-        $details->verification_method =
-        $request->hasFile('verification_id')
-            ? 'id'
-            : 'selfie';
-
+        $details->verification_method = $request->verify_method;
         $details->verification_status = 'pending';
-
-        $details->onboarding_step = 12;
-
-        $details->profile_completed = 1;
-
-        // old rejection clear
-        $details->rejection_reason = null;
-
+        $details->rejection_reason    = null;
         $details->save();
+
         Mail::to($auth->email)
             ->send(new \App\Mail\PendingVerificationMail($auth));
 
         return response()->json([
-
             'status'              => 'success',
-
             'verification_status' => 'pending',
-
-            'message'             => 'Verification uploaded successfully. Waiting for approval.',
-
+            'message'             => 'Verification submitted successfully. Waiting for approval.',
         ]);
-
     }
 
     private function getAddressFromLatLng($lat, $lng)
