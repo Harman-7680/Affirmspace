@@ -1056,13 +1056,13 @@ class ApiProfileController extends Controller
 
         // --- API Response ---
         return response()->json([
-            'status'    => true,
-            $has_new_notification = $auth->unreadNotifications()->exists() ? 1 : 0,
-            'user'      => $auth,
+            'status'               => true,
+            'has_new_notification' => $auth->unreadNotifications()->exists() ? 1 : 0,
+            'user'                 => $auth,
             // 'notifications' => $notifications,
-            'all_posts' => $all_posts,
+            'all_posts'            => $all_posts,
             // 'all_users' => $all_users,
-            'statuses'  => $statuses,
+            'statuses'             => $statuses,
             // 'events'    => $events,
         ], 200);
     }
