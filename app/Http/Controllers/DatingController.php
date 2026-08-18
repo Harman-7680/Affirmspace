@@ -487,6 +487,8 @@ class DatingController extends Controller
                 'max_distance'       => $request->max_distance,
                 'hide_distance'      => $request->has('hide_distance') ? 1 : 0,
                 'hide_online_status' => $request->has('hide_online_status') ? 1 : 0,
+                'verified_only'      => $request->has('verified_only') ? 1 : 0,
+                
                 // Bio
                 'bio'                => $request->bio,
                 'identity'           => $request->gender,
