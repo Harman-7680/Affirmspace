@@ -415,9 +415,9 @@ class AdminController extends Controller
     {
         $validated = $request->validate([
             'name'    => 'required|string|max:255',
-            'email'   => 'required|email',
+            'email'   => 'required|email:rfc,dns',
             'subject' => 'required|string|max:255',
-            'message' => 'required|string',
+            'message' => 'required|string|min:10',
         ]);
 
         $adminEmail = 'admin@gmail.com';

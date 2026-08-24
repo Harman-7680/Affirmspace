@@ -393,7 +393,7 @@ Route::get('/about-affirmspace', function () {return view('user.aboutUs');})->na
 Route::get('/privacy', function () {return view('user.privacy');})->name('privacy');
 Route::get('/refundpolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
 Route::get('/contactwithadmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
-Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->name('AdminSend');
+Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->middleware('throttle:3,1')->name('AdminSend');
 
 // seo related routes
 Route::group([], function () {

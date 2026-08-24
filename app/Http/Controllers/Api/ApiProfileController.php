@@ -1056,13 +1056,13 @@ class ApiProfileController extends Controller
 
         // --- API Response ---
         return response()->json([
-            'status'               => true,
-            'has_new_notification' => $auth->unreadNotifications()->exists() ? 1 : 0,
-            'user'                 => $auth,
+            'status'             => true,
+            'notification_count' => $auth->unreadNotifications()->count(),
+            'user'               => $auth,
             // 'notifications' => $notifications,
-            'all_posts'            => $all_posts,
+            'all_posts'          => $all_posts,
             // 'all_users' => $all_users,
-            'statuses'             => $statuses,
+            'statuses'           => $statuses,
             // 'events'    => $events,
         ], 200);
     }
@@ -1377,13 +1377,16 @@ class ApiProfileController extends Controller
     public function fetchNotifications(Request $request)
     {
         $auth = Auth::user();
+
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
-        $notifications = $auth->unreadNotifications->map(function ($notification) {
+        $notifications = $auth->unreadNotifications->map(function ($notification) use ($auth) {
+
             $data = $notification->data;
 
             // If this is a friend request, fetch friendship ID
             if (isset($data['follower_id'])) {
+
                 $friendship = \App\Models\Friendship::where('sender_id', $data['follower_id'])
                     ->where('receiver_id', $auth->id)
                     ->where('status', 'pending')
@@ -1403,7 +1406,7 @@ class ApiProfileController extends Controller
             ];
         });
 
-        $auth->unreadNotifications->markAsRead();
+        // $auth->unreadNotifications->markAsRead();
 
         return response()->json([
             'status'        => true,
