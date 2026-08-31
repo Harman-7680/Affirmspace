@@ -9,6 +9,7 @@ return Application::configure(basePath: dirname(__DIR__))
         web: __DIR__ . '/../routes/web.php',
         api: __DIR__ . '/../routes/api.php',
         commands: __DIR__ . '/../routes/console.php',
+        channels: __DIR__ . '/../routes/channels.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
@@ -34,7 +35,7 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api([
             \App\Http\Middleware\UpdateLastSeen::class,
             \App\Http\Middleware\CheckAccountStatus::class, // This check status on every request for mobile
-            // \App\Http\Middleware\MaintenanceMode::class, // to stop services of app
+                                                            // \App\Http\Middleware\MaintenanceMode::class, // to stop services of app
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

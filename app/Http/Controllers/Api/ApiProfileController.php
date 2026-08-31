@@ -993,6 +993,83 @@ class ApiProfileController extends Controller
         //     $user->average_rating = round($averageRating ?? 0, 1);
         // }
 
+        $counselors = User::where('role', 1)
+            ->where('id', '!=', $auth->id)
+            ->whereNotIn('id', $hiddenUsers)
+            ->with('specialization')
+            ->withAvg('ratingsReceived', 'rating')
+            ->inRandomOrder()
+            ->limit(15)
+            ->get();
+
+        $counselees = User::where('role', 0)
+            ->where('id', '!=', $auth->id)
+            ->whereNotIn('id', $hiddenUsers)
+            ->with('specialization')
+            ->withAvg('ratingsReceived', 'rating')
+            ->inRandomOrder()
+            ->limit(15)
+            ->get();
+
+        $all_users = $counselors
+            ->merge($counselees)
+            ->shuffle();
+
+        $friendships = Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })->get();
+
+        $friendCounts = Friendship::selectRaw("
+    sender_id as user_id,
+    COUNT(*) as total
+")
+            ->where('status', 'accepted')
+            ->groupBy('sender_id')
+            ->pluck('total', 'user_id');
+
+        $receiverCounts = Friendship::selectRaw("
+    receiver_id as user_id,
+    COUNT(*) as total
+")
+            ->where('status', 'accepted')
+            ->groupBy('receiver_id')
+            ->pluck('total', 'user_id');
+
+        foreach ($receiverCounts as $id => $count) {
+            $friendCounts[$id] = ($friendCounts[$id] ?? 0) + $count;
+        }
+
+        $friendIds = array_flip($friends);
+
+        $friendshipMap = [];
+
+        foreach ($friendships as $friendship) {
+            $otherId = $friendship->sender_id == $auth->id
+                ? $friendship->receiver_id
+                : $friendship->sender_id;
+
+            $friendshipMap[$otherId] = $friendship;
+        }
+
+        foreach ($all_users as $user) {
+
+            $user->is_friend = isset($friendIds[$user->id]);
+
+            $user->friend_count = $friendCounts[$user->id] ?? 0;
+
+            $friendship = $friendshipMap[$user->id] ?? null;
+
+            $user->friendship_status = $friendship?->status;
+
+            $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+
+            $user->average_rating = round(
+                $user->ratings_received_avg_rating ?? 0,
+                1
+            );
+        }
+
         // Statuses (last 24h)
         $userId    = auth()->id();
         $friendIds = \DB::table('friendships')
@@ -1060,8 +1137,8 @@ class ApiProfileController extends Controller
             'notification_count' => $auth->unreadNotifications()->count(),
             'user'               => $auth,
             // 'notifications' => $notifications,
+            'all_users'          => $all_users,
             'all_posts'          => $all_posts,
-            // 'all_users' => $all_users,
             'statuses'           => $statuses,
             // 'events'    => $events,
         ], 200);

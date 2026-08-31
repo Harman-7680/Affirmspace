@@ -734,28 +734,58 @@
 
                     @if ($receiver)
                         @if ($isHidden)
-                            <div class="p-4 bg-red-100 text-red-800 rounded" style="text-align: center;">
+                            <div class="p-4 bg-red-100 text-red-800 rounded text-center">
                                 You cannot interact with {{ $receiver->first_name }} {{ $receiver->last_name }}.
                             </div>
                         @else
-                            @if ($receiver && $receiverChatType !== 'dating')
-                                <div class="flex items-center m-4 gap-2">
-                                    <input type="text" id="messageInput"
-                                        class="w-full p-2 border rounded dark:bg-gray-900 dark:border-gray-600"
-                                        placeholder="Type a message..." />
-                                    <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
-                                </div>
-                            @endif
+                            @php
+                                $inputId = $receiverChatType === 'dating' ? 'datingMessage' : 'messageInput';
+                            @endphp
 
-                            @if ($receiver && $receiverChatType === 'dating')
-                                <div class="flex items-center m-4 gap-2">
-                                    <input type="text" id="datingMessage" id="messageInput"
-                                        class="w-full p-2 border rounded dark:bg-gray-900 dark:border-gray-600"
-                                        placeholder="Type a message..." />
-                                    <button onclick="sendDatingMessage()" id="sendButton"
-                                        class="bg-blue-500 text-white px-4 py-2 rounded">Send</button>
+                            <div class="relative m-4 flex items-center gap-2">
+
+                                <!-- Emoji Button -->
+                                <button type="button" id="emojiBtn" class="px-3 py-2 bg-gray-200 rounded text-xl">
+                                    😊
+                                </button>
+
+                                <!-- Input -->
+                                <input type="text" id="{{ $inputId }}"
+                                    class="w-full p-2 border rounded dark:bg-gray-900 dark:border-gray-600"
+                                    placeholder="Type a message..." />
+
+                                <!-- Send -->
+                                @if ($receiverChatType !== 'dating')
+                                    <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded">
+                                        Send
+                                    </button>
+                                @else
+                                    @if ($receiver->has_details && $receiver->sender_has_details)
+                                        <button onclick="sendDatingMessage()"
+                                            class="bg-blue-500 text-white px-4 py-2 rounded">
+                                            Send
+                                        </button>
+                                    @endif
+                                @endif
+
+                                <!-- Emoji Popup -->
+                                <div id="emojiBox"
+                                    class="hidden absolute bottom-20 left-0 w-80 bg-white border rounded shadow-lg p-2 z-50"
+                                    style="margin-bottom:200px">
+
+                                    <!-- Categories (English) -->
+                                    <div class="flex justify-between mb-2 text-xs font-semibold text-gray-600">
+                                        <button onclick="loadEmoji('Smileys')">Smileys</button>
+                                        <button onclick="loadEmoji('People')">People</button>
+                                        <button onclick="loadEmoji('Animals')">Animals</button>
+                                        <button onclick="loadEmoji('Food')">Food</button>
+                                        <button onclick="loadEmoji('Symbols')">Symbols</button>
+                                    </div>
+
+                                    <!-- Emoji Grid -->
+                                    <div id="emojiList" class="grid grid-cols-6 gap-2 text-2xl"></div>
                                 </div>
-                            @endif
+                            </div>
                         @endif
                     @endif
 
@@ -963,4 +993,74 @@
             /* Tailwind's blue-600 */
         }
     </style>
+@endsection
+
+@section('script')
+    <script>
+        const emojiData = {
+            Smileys: ["😀", "😁", "😂", "🤣", "😊", "😍", "😘", "😎", "🤔", "😢", "😭", "😡", "👍", "🙏", "💯"],
+            People: ["👋", "🤝", "🙌", "💪", "🧠", "👀", "🫶", "🧑‍💻"],
+            Animals: ["🐶", "🐱", "🐭", "🐰", "🦊", "🐻", "🐼", "🐸"],
+            Food: ["🍎", "🍔", "🍕", "🍟", "🍩", "🍫", "🍉", "🍗"],
+            Symbols: ["❤️", "🔥", "⭐", "💥", "✨", "🎉", "✔️", "❌"]
+        };
+
+        const emojiBtn = document.getElementById('emojiBtn');
+        const emojiBox = document.getElementById('emojiBox');
+        const emojiList = document.getElementById('emojiList');
+
+        const input = document.getElementById(
+            @json($receiverChatType === 'dating' ? 'datingMessage' : 'messageInput')
+        );
+
+        // toggle popup
+        emojiBtn.addEventListener('click', () => {
+            emojiBox.classList.toggle('hidden');
+        });
+
+        // load emojis
+        function loadEmoji(category) {
+            emojiList.innerHTML = "";
+
+            emojiData[category].forEach(e => {
+                const span = document.createElement('span');
+                span.innerText = e;
+                span.className = "cursor-pointer hover:scale-125 transition";
+
+                span.onclick = () => {
+                    input.value += e;
+                    input.focus();
+
+                    // CLOSE POPUP AFTER SELECT
+                    emojiBox.classList.add('hidden');
+                };
+
+                emojiList.appendChild(span);
+            });
+        }
+
+        // default load
+        loadEmoji('Smileys');
+
+        // ENTER key send
+        input.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+
+                const btn = document.getElementById('sendButton');
+                if (btn) btn.click();
+
+                if (typeof sendDatingMessage === 'function') {
+                    sendDatingMessage();
+                }
+            }
+        });
+
+        // close popup outside click
+        document.addEventListener('click', function(e) {
+            if (!emojiBox.contains(e.target) && e.target !== emojiBtn) {
+                emojiBox.classList.add('hidden');
+            }
+        });
+    </script>
 @endsection
