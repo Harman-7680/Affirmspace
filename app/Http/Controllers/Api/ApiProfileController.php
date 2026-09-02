@@ -585,7 +585,8 @@ class ApiProfileController extends Controller
 
                 $user->friendship_status = $friendship?->status;
                 $user->friendship_sender = $friendship?->sender_id;
-                $user->average_rating    = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+
+                $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
 
                 return $user;
             });
@@ -993,7 +994,16 @@ class ApiProfileController extends Controller
         //     $user->average_rating = round($averageRating ?? 0, 1);
         // }
 
-        $counselors = User::where('role', 1)
+        // $counselors = User::where('role', 1)
+        //     ->where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hiddenUsers)
+        //     ->with('specialization')
+        //     ->withAvg('ratingsReceived', 'rating')
+        //     ->inRandomOrder()
+        //     ->limit(15)
+        //     ->get();
+
+        $all_users = User::where('role', 0)
             ->where('id', '!=', $auth->id)
             ->whereNotIn('id', $hiddenUsers)
             ->with('specialization')
@@ -1002,18 +1012,9 @@ class ApiProfileController extends Controller
             ->limit(15)
             ->get();
 
-        $counselees = User::where('role', 0)
-            ->where('id', '!=', $auth->id)
-            ->whereNotIn('id', $hiddenUsers)
-            ->with('specialization')
-            ->withAvg('ratingsReceived', 'rating')
-            ->inRandomOrder()
-            ->limit(15)
-            ->get();
-
-        $all_users = $counselors
-            ->merge($counselees)
-            ->shuffle();
+        // $all_users = $counselors
+        //     ->merge($counselees)
+        //     ->shuffle();
 
         $friendships = Friendship::where(function ($q) use ($auth) {
             $q->where('sender_id', $auth->id)
