@@ -10,7 +10,7 @@
         </div>
 
         {{-- People Search Component --}}
-        <div class="box p-3 px-4 mt-6 max-w-3xl mx-auto" x-data="{
+        {{-- <div class="box p-3 px-4 mt-6 max-w-3xl mx-auto" x-data="{
             showCount: 2,
             search: '',
             allUsers: {{ Js::from($all_users->where('role', 0)->values()) }},
@@ -56,6 +56,181 @@
                     alert('Something went wrong.');
                 }
             }
+        }"> --}}
+
+        <div class="box p-3 px-4 mt-6 max-w-3xl mx-auto" x-data="{
+            allUsers: {{ Js::from($all_users->items()) }},
+            search: '',
+            get filteredUsers() {
+        
+                const searchTerm = this.search.toLowerCase().trim();
+        
+                if (!searchTerm) {
+                    return this.allUsers;
+                }
+        
+                return this.allUsers.filter(user => {
+        
+                    const fullName =
+                        `${user.first_name ?? ''} ${user.last_name ?? ''}`
+                        .toLowerCase();
+        
+                    return fullName.includes(searchTerm);
+                });
+            },
+        
+            get showSeeMore() {
+                return this.search.trim() === '';
+            },
+        
+            async seeMore() {
+        
+                const btn = document.getElementById('seeMoreBtn');
+        
+                if (!btn) return;
+        
+                const nextPage = btn.dataset.nextPage;
+                const eventToken = btn.dataset.eventToken;
+        
+                btn.disabled = true;
+                btn.innerText = 'Loading...';
+        
+                try {
+        
+                    const response = await fetch(
+                        `{{ route('event') }}?page=${nextPage}&event_token=${encodeURIComponent(eventToken)}&search=${encodeURIComponent(this.search)}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
+                        }
+                    );
+        
+                    const html = await response.text();
+        
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+        
+                    /*
+                     * Get users from backend response
+                     */
+                    const newUsers = JSON.parse(
+                        doc.getElementById('eventUsersData').textContent
+                    );
+        
+                    /*
+                     * Add next 5 users
+                     */
+                    this.allUsers.push(...newUsers);
+        
+                    /*
+                     * Update See More button
+                     */
+                    const newBtn = doc.getElementById('seeMoreBtn');
+        
+                    if (newBtn) {
+        
+                        btn.dataset.nextPage =
+                            newBtn.dataset.nextPage;
+        
+                        btn.dataset.eventToken =
+                            newBtn.dataset.eventToken;
+        
+                        btn.disabled = false;
+                        btn.innerText = 'See more';
+        
+                    } else {
+        
+                        btn.remove();
+                    }
+        
+                } catch (error) {
+        
+                    console.error('See More Error:', error);
+        
+                    btn.disabled = false;
+                    btn.innerText = 'See more';
+                }
+            },
+        
+            async performSearch() {
+        
+                const searchTerm = this.search.trim();
+        
+                const response = await fetch(
+                    `{{ route('event') }}?page=1&event_token={{ $eventToken }}&search=${encodeURIComponent(searchTerm)}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    }
+                );
+        
+                const html = await response.text();
+        
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+        
+                const newUsers = JSON.parse(
+                    doc.getElementById('eventUsersData').textContent
+                );
+        
+                this.allUsers = newUsers;
+        
+                const newBtn = doc.getElementById('seeMoreBtn');
+        
+                const btn = document.getElementById('seeMoreBtn');
+        
+                if (newBtn && btn) {
+        
+                    btn.dataset.nextPage = newBtn.dataset.nextPage;
+                    btn.dataset.eventToken = newBtn.dataset.eventToken;
+        
+                    btn.style.display = '';
+                } else if (btn) {
+        
+                    btn.style.display = 'none';
+                }
+            },
+        
+            async blockUser(userId) {
+        
+                try {
+        
+                    const res = await fetch(
+                        '{{ route('block.user') }}', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json',
+                                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                            },
+                            body: JSON.stringify({
+                                blocked_id: userId
+                            })
+                        }
+                    );
+        
+                    const data = await res.json();
+        
+                    if (data.status === 'success') {
+        
+                        this.allUsers =
+                            this.allUsers.filter(
+                                u => u.id !== userId
+                            );
+        
+                    } else {
+        
+                        alert(
+                            data.message ||
+                            'Failed to block user'
+                        );
+                    }
+        
+                } catch (err) {
+        
+                    console.error(err);
+                    alert('Something went wrong.');
+                }
+            }
         }">
 
             <div class="flex items-center justify-between mb-4">
@@ -63,7 +238,7 @@
             </div>
 
             <div class="mb-4">
-                <input type="text" x-model="search" placeholder="Search users..."
+                <input type="text" x-model="search" @input.debounce.400ms="performSearch()" placeholder="Search users..."
                     class="w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-400">
             </div>
 
@@ -149,11 +324,20 @@
                 </div>
             </template>
 
-            <div class="text-center mt-3"
+            {{-- <div class="text-center mt-3"
                 x-show="filteredUsers.length < allUsers.filter(user => 
             (user.first_name + ' ' + user.last_name).toLowerCase().includes(search.toLowerCase())
             ).length">
                 <button @click="seeMore" class="text-sm text-blue-500 hover:underline">See more</button>
+            </div> --}}
+
+            <div class="text-center mt-3" id="seeMoreWrapper" x-show="showSeeMore"
+                @if (!$all_users->hasMorePages()) style="display:none;" @endif>
+                <button type="button" id="seeMoreBtn" data-next-page="{{ $all_users->currentPage() + 1 }}"
+                    data-event-token="{{ $eventToken }}" @click="seeMore()"
+                    class="text-sm text-blue-500 hover:underline">
+                    See more
+                </button>
             </div>
         </div>
     </div>
@@ -216,6 +400,10 @@
                 })
                 .catch(() => alert("Network error"));
         }
+    </script>
+
+    <script type="application/json" id="eventUsersData">
+    {!! json_encode($all_users->items()) !!}
     </script>
 @endsection
 

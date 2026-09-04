@@ -1599,39 +1599,156 @@ class ProfileController extends Controller
 
         $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
 
-        $all_users = \App\Models\User::where('id', '!=', $auth->id)
-            ->whereNotIn('id', $hiddenUsers) // hide only fully blocked users
+        // $all_users = \App\Models\User::where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hiddenUsers) // hide only fully blocked users
+        //     ->with('ratingsReceived')
+        //     ->inRandomOrder()
+        //     ->get()
+        //     ->map(function ($user) use ($auth) {
+        //         // Friend count
+        //         $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
+        //             $query->where('sender_id', $user->id)
+        //                 ->orWhere('receiver_id', $user->id);
+        //         })->where('status', 'accepted')->count();
+        //         $user->friend_count = $friendCount;
+
+        //         // Friendship status
+        //         $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+        //             $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+        //         })->orWhere(function ($q) use ($auth, $user) {
+        //             $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+        //         })->first();
+
+        //         $user->friendship_status = $friendship?->status;
+        //         $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+
+        //         // Average rating
+        //         $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+
+        //         return $user;
+        //     });
+
+        $eventToken = request()->get('event_token');
+
+        if (empty($eventToken)) {
+            $eventToken = Str::random(32);
+        }
+
+        $perPage = 5;
+
+        $currentPage = max(
+            (int) request()->get('page', 1),
+            1
+        );
+
+        $search = trim(request()->get('search', ''));
+
+        $eligibleUsers = \App\Models\User::where('id', '!=', $auth->id)
+            ->where('role', 0)
+            ->whereNotIn('id', $hiddenUsers)
+            ->when($search !== '', function ($query) use ($search) {
+                $query->where(function ($q) use ($search) {
+                    $q->where('first_name', 'like', '%' . $search . '%')
+                        ->orWhere('last_name', 'like', '%' . $search . '%');
+                });
+            })
             ->with('ratingsReceived')
-            ->inRandomOrder()
-            ->get()
-            ->map(function ($user) use ($auth) {
-                // Friend count
-                $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
-                    $query->where('sender_id', $user->id)
-                        ->orWhere('receiver_id', $user->id);
-                })->where('status', 'accepted')->count();
-                $user->friend_count = $friendCount;
+            ->get();
 
-                // Friendship status
-                $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-                })->orWhere(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-                })->first();
+        $userOrder = $eligibleUsers
+            ->sortBy(function ($user) use ($eventToken) {
+                return sprintf(
+                    '%u',
+                    crc32($eventToken . '-' . $user->id)
+                );
+            })
+            ->pluck('id')
+            ->values()
+            ->toArray();
 
-                $user->friendship_status = $friendship?->status;
-                $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+        $offset = ($currentPage - 1) * $perPage;
 
-                // Average rating
-                $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+        $pageUserIds = array_slice(
+            $userOrder,
+            $offset,
+            $perPage
+        );
 
-                return $user;
-            });
+        $all_users = collect();
+
+        if (! empty($pageUserIds)) {
+
+            $all_users = \App\Models\User::with('ratingsReceived')
+                ->whereIn('id', $pageUserIds)
+                ->whereNotIn('id', $hiddenUsers)
+                ->get()
+                ->sortBy(function ($user) use ($userOrder) {
+
+                    return array_search(
+                        $user->id,
+                        $userOrder
+                    );
+                })
+                ->values()
+                ->map(function ($user) use ($auth) {
+
+                    // Friend count
+                    $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
+                        $query->where('sender_id', $user->id)
+                            ->orWhere('receiver_id', $user->id);
+                    })
+                        ->where('status', 'accepted')
+                        ->count();
+
+                    $user->friend_count = $friendCount;
+
+                    // Friendship status
+                    $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+
+                        $q->where('sender_id', $auth->id)
+                            ->where('receiver_id', $user->id);
+
+                    })
+                        ->orWhere(function ($q) use ($auth, $user) {
+
+                            $q->where('sender_id', $user->id)
+                                ->where('receiver_id', $auth->id);
+
+                        })
+                        ->first();
+
+                    $user->friendship_status = $friendship?->status;
+
+                    $user->friendship_sender = (int) (
+                        $friendship->sender_id ?? 0
+                    );
+
+                    // Average rating
+                    $user->average_rating = round(
+                        $user->ratingsReceived->avg('rating') ?? 0,
+                        1
+                    );
+
+                    return $user;
+                });
+        }
+
+        $all_users = new \Illuminate\Pagination\LengthAwarePaginator(
+            $all_users,
+            count($userOrder),
+            $perPage,
+            $currentPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
 
         return view('user.event', [
             'user'          => $auth,
             'all_users'     => $all_users,
             'notifications' => $notifications,
+            'eventToken'    => $eventToken,
         ]);
     }
 
