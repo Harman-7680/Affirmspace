@@ -303,4 +303,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasOne(BankDetail::class);
     }
+
+    public function tweets()
+    {
+        return $this->hasMany(Tweet::class);
+    }
 }

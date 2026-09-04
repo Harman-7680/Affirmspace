@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
 use App\Http\Controllers\Api\ApiProfileController;
 use App\Http\Controllers\Api\ApiStatusController;
+use App\Http\Controllers\Api\ApiTweetController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\Api\AuthController;
 use App\Http\Controllers\Api\SocialLoginController;
@@ -159,6 +160,13 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/group-rooms', [ApiJitsiRoomController::class, 'rooms']);
     Route::post('/group-rooms/create', [ApiJitsiRoomController::class, 'create']);
     Route::post('/group-rooms/join/{room}', [ApiJitsiRoomController::class, 'join']);
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/tweets', [ApiTweetController::class, 'index']);
+    Route::post('/tweets', [ApiTweetController::class, 'store']);
+    Route::delete('/tweets/{tweet}', [ApiTweetController::class, 'destroy']);
+    Route::get('/tweets/feed', [ApiTweetController::class, 'feedTweets']);
 });
 
 // this route for both app and website

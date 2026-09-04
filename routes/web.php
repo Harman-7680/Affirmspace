@@ -26,6 +26,7 @@ use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationPaymentController;
 use App\Http\Controllers\SocialLoginController;
 use App\Http\Controllers\StatusController;
+use App\Http\Controllers\TweetController;
 use App\Http\Middleware\UpdateLastSeen;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -293,6 +294,12 @@ Route::middleware('auth')->group(function () {
     Route::post('/mute-user/{id}', [PostActionController::class, 'muteUser'])->name('mute.user');
     Route::post('/unblock/{id}', [PostActionController::class, 'unblockUser']);
     Route::post('/unmute/{id}', [PostActionController::class, 'unmuteUser']);
+});
+
+// tweet related routes
+Route::middleware('auth')->group(function () {
+    Route::post('/tweet', [TweetController::class, 'store'])->name('tweet.store');
+    Route::delete('/tweets/{tweet}', [TweetController::class, 'destroy'])->name('tweets.destroy');
 });
 
 // friendship related routes
