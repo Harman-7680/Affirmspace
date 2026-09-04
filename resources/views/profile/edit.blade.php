@@ -119,8 +119,10 @@
                             <li class="w-auto pl-4"> <a href="#"> Description </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Appointments </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Password </a> </li>
-                            <li class="w-auto pl-4"> <a href="#"> Upload Post </a> </li>
+                            <li class="w-auto pl-4"> <a href="#"> Post </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Update Posts </a> </li>
+                            <li class="w-auto pl-4"> <a href="#"> Thought </a> </li>
+                            <li class="w-auto pl-4"> <a href="#"> Update Thought </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Friends </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Blocked </a> </li>
                             <li class="w-auto pl-4"> <a href="#"> Muted </a> </li>
@@ -748,6 +750,144 @@
                             </form>
                         </div>
                     @endforeach
+                </div>
+
+                <!-- tab tweets -->
+
+                <form method="POST" action="{{ route('tweet.store') }}">
+                    @csrf
+
+                    <div class="space-y-6 w-full mx-auto">
+
+                        {{-- Title --}}
+                        <div class="md:flex items-center gap-16 justify-between max-md:space-y-3">
+
+                            <label class="md:w-40 text-right" for="tweet_title">
+                                Title
+                            </label>
+
+                            <div class="flex-1 max-md:mt-4">
+
+                                <input id="tweet_title" name="title" type="text"
+                                    value="{{ old('title', auth()->user()->tweet?->title) }}"
+                                    placeholder="Enter thought title" class="w-full border rounded px-3 py-2"
+                                    maxlength="255">
+
+                                @error('title', 'tweet')
+                                    <p class="text-red-500 text-sm mt-1">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+
+                            </div>
+                        </div>
+
+
+                        {{-- Paragraph --}}
+                        <div class="md:flex items-start gap-16 justify-between max-md:space-y-3">
+
+                            <label class="md:w-40 text-right pt-2" for="tweet_paragraph">
+                                Paragraph
+                            </label>
+
+                            <div class="flex-1 max-md:mt-4">
+
+                                <textarea id="tweet_paragraph" name="paragraph" rows="5" maxlength="500" placeholder="Write your thought..."
+                                    class="w-full border rounded px-3 py-2 resize-none">{{ old('paragraph', auth()->user()->tweet?->paragraph) }}</textarea>
+
+                                @error('paragraph', 'tweet')
+                                    <p class="text-red-500 text-sm mt-1">
+                                        {{ $message }}
+                                    </p>
+                                @enderror
+
+                                <p class="text-gray-500 text-sm mt-1">
+                                    Maximum 500 characters.
+                                </p>
+
+                            </div>
+                        </div>
+
+                    </div>
+
+                    <div class="flex items-center justify-center gap-4 mt-16">
+                        <button type="submit" class="button lg:px-10 bg-primary text-white max-md:flex-1">
+                            Save
+                        </button>
+                    </div>
+
+                </form>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+                    @forelse ($tweets as $tweet)
+                        <div class="bg-white shadow-sm rounded-xl p-4 border border-gray-200 w-full max-w-sm mx-auto">
+
+                            {{-- Profile Image --}}
+                            <div class="flex justify-center mb-2">
+
+                                <img src="{{ $tweet->user->image ? asset('storage/' . $tweet->user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                    alt="" class="w-14 h-14 object-cover rounded-full border shadow-sm">
+
+                            </div>
+
+                            {{-- User Info --}}
+                            <div class="text-center mb-3">
+
+                                <h3 class="text-base font-semibold text-gray-800 truncate">
+                                    {{ $tweet->user->first_name }}
+                                    {{ $tweet->user->last_name }}
+                                </h3>
+
+                                <p class="text-xs text-gray-500 truncate">
+                                    {{ $tweet->created_at->diffForHumans() }}
+                                </p>
+
+                            </div>
+
+                            {{-- Tweet Content --}}
+                            <div class="border-t border-gray-100 pt-3">
+
+                                <h4 class="text-sm font-semibold text-gray-800 mb-1">
+                                    {{ $tweet->title }}
+                                </h4>
+
+                                <p class="text-sm text-gray-600 break-words">
+                                    {{ $tweet->paragraph }}
+                                </p>
+
+                            </div>
+
+                            {{-- Delete Button --}}
+                            <div class="text-center mt-4">
+
+                                <form action="{{ route('tweets.destroy', $tweet->id) }}" method="POST"
+                                    onsubmit="return confirm('Are you sure you want to delete this thought?');">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button type="submit"
+                                        class="px-4 py-2 bg-red-600 text-white text-sm rounded-md
+                               hover:bg-red-700 shadow-md">
+
+                                        Delete
+
+                                    </button>
+
+                                </form>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <p class="text-gray-500 text-sm">
+                            No thoughts found.
+                        </p>
+                    @endforelse
+
                 </div>
 
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">

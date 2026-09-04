@@ -11,6 +11,7 @@ use App\Models\Message;
 use App\Models\Post;
 use App\Models\Rating;
 use App\Models\Status;
+use App\Models\Tweet;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\RedirectResponse;
@@ -20,6 +21,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
+use Illuminate\Support\Str;
 use Illuminate\View\View;
 
 class ProfileController extends Controller
@@ -151,6 +153,10 @@ class ProfileController extends Controller
             ->pluck('post')
             ->filter();
 
+        $tweets = Tweet::where('user_id', auth()->id())
+            ->latest()
+            ->get();
+
         return view('profile.edit', [
             'user'            => $user,
             'uploaded_post'   => $posts,
@@ -160,6 +166,7 @@ class ProfileController extends Controller
             'blockedUsers'    => $blockedUsers,
             'mutedUsers'      => $mutedUsers,
             'bookmarkedPosts' => $bookmarkedPosts,
+            'tweets'          => $tweets,
         ]);
     }
 
@@ -626,42 +633,303 @@ class ProfileController extends Controller
             $blockedByUsers
         ));
 
-        $all_posts = Post::with([
-            'user',
-            'likes',
-            'comments' => function ($q) use ($auth, $friends, $blockedUserIds) {
-                // $blockedUserIds = Block::where('user_id', $auth->id)
-                //     ->whereNotNull('blocked_id')
-                //     ->pluck('blocked_id')
-                //     ->merge(
-                //         Block::where('blocked_id', $auth->id)
-                //             ->whereNotNull('user_id')
-                //             ->pluck('user_id')
-                //     )
-                //     ->unique()
-                //     ->toArray();
+        $feedToken = request()->get('feed_token');
 
-                $q->whereNull('parent_id')
-                    ->whereNotIn('user_id', $blockedUserIds)
-                    ->whereHas('user', function ($userQuery) use ($auth, $friends) {
-                        $userQuery->where('is_private', 0)
-                            ->orWhere('id', $auth->id)
-                            ->orWhereIn('id', $friends);
-                    })
-                    ->with(['user', 'replies' => function ($r) use ($blockedUserIds, $auth, $friends) {
-                        $r->whereNotIn('user_id', $blockedUserIds)
-                            ->whereHas('user', function ($userQuery) use ($auth, $friends) {
-                                $userQuery->where('is_private', 0)
-                                    ->orWhere('id', $auth->id)
-                                    ->orWhereIn('id', $friends);
-                            })
-                            ->with('user');
-                    }])
-                    ->latest();
-            },
-        ])
+        if (empty($feedToken)) {
+            $feedToken = Str::random(32);
+        }
+
+        $eligiblePosts = Post::query()
             ->whereNotIn('user_id', $hiddenUsers)
             ->whereNotIn('id', $blockedPosts)
+
+            ->where(function ($q) use ($auth, $friends) {
+                $q->where('user_id', $auth->id)
+                    ->orWhereHas('user', function ($u) use ($friends) {
+                        $u->where('is_private', 0)
+                            ->orWhereIn('users.id', $friends);
+                    });
+            })
+
+            ->whereDoesntHave('user', function ($q) use ($auth) {
+                $q->whereHas('blockedUsers', function ($q2) use ($auth) {
+                    $q2->where('blocks.blocked_id', $auth->id);
+                });
+            })
+
+            ->whereDoesntHave('user', function ($q) use ($auth) {
+                $q->whereHas('blockedByUsers', function ($q2) use ($auth) {
+                    $q2->where('blocks.user_id', $auth->id);
+                });
+            })
+
+            ->get([
+                'id',
+                'user_id',
+                'created_at',
+            ]);
+
+        $boostedPosts = $eligiblePosts
+            ->filter(function ($post) use ($friends, $boostHours) {
+                return in_array($post->user_id, $friends)
+                && $post->created_at >= now()->subHours($boostHours);
+            })
+            ->sortBy(function ($post) use ($feedToken) {
+                return sprintf(
+                    '%u',
+                    crc32($feedToken . '-' . $post->id)
+                );
+            })
+            ->values();
+
+        $normalPosts = $eligiblePosts
+            ->reject(function ($post) use ($friends, $boostHours) {
+                return in_array($post->user_id, $friends)
+                && $post->created_at >= now()->subHours($boostHours);
+            })
+            ->sortBy(function ($post) use ($feedToken) {
+                return sprintf(
+                    '%u',
+                    crc32($feedToken . '-' . $post->id)
+                );
+            })
+            ->values();
+
+        $postOrder = $boostedPosts
+            ->concat($normalPosts)
+            ->pluck('id')
+            ->values()
+            ->toArray();
+
+        $perPage = 5;
+
+        $currentPage = max(
+            (int) request()->get('page', 1),
+            1
+        );
+
+        $offset = ($currentPage - 1) * $perPage;
+
+        $pagePostIds = array_slice(
+            $postOrder,
+            $offset,
+            $perPage
+        );
+
+        $posts = collect();
+
+        if (! empty($pagePostIds)) {
+
+            $posts = Post::with([
+
+                'user',
+
+                'likes',
+
+                'comments' => function ($q) use (
+                    $auth,
+                    $friends,
+                    $blockedUserIds
+                ) {
+
+                    $q->whereNull('parent_id')
+
+                        ->whereNotIn(
+                            'user_id',
+                            $blockedUserIds
+                        )
+
+                        ->whereHas('user', function ($userQuery) use (
+                            $auth,
+                            $friends
+                        ) {
+
+                            $userQuery->where('is_private', 0)
+                                ->orWhere('id', $auth->id)
+                                ->orWhereIn('id', $friends);
+                        })
+
+                        ->with([
+                            'user',
+
+                            'replies' => function ($r) use (
+                                $blockedUserIds,
+                                $auth,
+                                $friends
+                            ) {
+
+                                $r->whereNotIn(
+                                    'user_id',
+                                    $blockedUserIds
+                                )
+
+                                    ->whereHas('user', function ($userQuery) use (
+                                        $auth,
+                                        $friends
+                                    ) {
+
+                                        $userQuery->where('is_private', 0)
+                                            ->orWhere('id', $auth->id)
+                                            ->orWhereIn('id', $friends);
+                                    })
+
+                                    ->with('user');
+                            },
+                        ])
+
+                        ->latest();
+                },
+
+            ])
+
+                ->whereIn('posts.id', $pagePostIds)
+
+                ->whereNotIn('user_id', $hiddenUsers)
+
+                ->whereNotIn('id', $blockedPosts)
+
+                ->where(function ($q) use ($auth, $friends) {
+
+                    $q->where('user_id', $auth->id)
+
+                        ->orWhereHas('user', function ($u) use ($friends) {
+
+                            $u->where('is_private', 0)
+                                ->orWhereIn('users.id', $friends);
+                        });
+                })
+
+                ->whereDoesntHave('user', function ($q) use ($auth) {
+
+                    $q->whereHas(
+                        'blockedUsers',
+                        fn($q2) =>
+                        $q2->where(
+                            'blocks.blocked_id',
+                            $auth->id
+                        )
+                    );
+                })
+
+                ->whereDoesntHave('user', function ($q) use ($auth) {
+
+                    $q->whereHas(
+                        'blockedByUsers',
+                        fn($q2) =>
+                        $q2->where(
+                            'blocks.user_id',
+                            $auth->id
+                        )
+                    );
+                })
+
+                ->get()
+                ->sortBy(function ($post) use ($postOrder) {
+
+                    return array_search(
+                        $post->id,
+                        $postOrder
+                    );
+                })
+
+                ->values()
+                ->map(function ($p) {
+
+                    $p->total_comments =
+                    $p->comments->count()
+                     +
+                    $p->comments->sum(
+                        fn($c) =>
+                        $c->replies->count()
+                    );
+
+                    return $p;
+                });
+        }
+
+        $all_posts = new \Illuminate\Pagination\LengthAwarePaginator(
+            $posts,
+            count($postOrder),
+            $perPage,
+            $currentPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        //     $all_posts = Post::with([
+        //         'user',
+        //         'likes',
+        //         'comments' => function ($q) use ($auth, $friends, $blockedUserIds) {
+        //             // $blockedUserIds = Block::where('user_id', $auth->id)
+        //             //     ->whereNotNull('blocked_id')
+        //             //     ->pluck('blocked_id')
+        //             //     ->merge(
+        //             //         Block::where('blocked_id', $auth->id)
+        //             //             ->whereNotNull('user_id')
+        //             //             ->pluck('user_id')
+        //             //     )
+        //             //     ->unique()
+        //             //     ->toArray();
+
+        //             $q->whereNull('parent_id')
+        //                 ->whereNotIn('user_id', $blockedUserIds)
+        //                 ->whereHas('user', function ($userQuery) use ($auth, $friends) {
+        //                     $userQuery->where('is_private', 0)
+        //                         ->orWhere('id', $auth->id)
+        //                         ->orWhereIn('id', $friends);
+        //                 })
+        //                 ->with(['user', 'replies' => function ($r) use ($blockedUserIds, $auth, $friends) {
+        //                     $r->whereNotIn('user_id', $blockedUserIds)
+        //                         ->whereHas('user', function ($userQuery) use ($auth, $friends) {
+        //                             $userQuery->where('is_private', 0)
+        //                                 ->orWhere('id', $auth->id)
+        //                                 ->orWhereIn('id', $friends);
+        //                         })
+        //                         ->with('user');
+        //                 }])
+        //                 ->latest();
+        //         },
+        //     ])
+        //         ->whereNotIn('user_id', $hiddenUsers)
+        //         ->whereNotIn('id', $blockedPosts)
+        //         ->where(function ($q) use ($auth, $friends) {
+        //             $q->where('user_id', $auth->id)
+        //                 ->orWhereHas('user', function ($u) use ($friends) {
+        //                     $u->where('is_private', 0)
+        //                         ->orWhereIn('users.id', $friends);
+        //                 });
+        //         })
+        //         ->whereDoesntHave('user', function ($q) use ($auth) {
+        //             $q->whereHas('blockedUsers', fn($q2) => $q2->where('blocks.blocked_id', $auth->id));
+        //         })
+        //         ->whereDoesntHave('user', function ($q) use ($auth) {
+        //             $q->whereHas('blockedByUsers', fn($q2) => $q2->where('blocks.user_id', $auth->id));
+        //         })
+        //     // Smart dynamic friend priority
+        //         ->when(! empty($friends), function ($q) use ($friends, $boostHours) {
+        //             $friendIds = implode(',', array_map('intval', $friends));
+
+        //             $q->orderByRaw("
+        //     CASE
+        //         WHEN user_id IN ($friendIds)
+        //              AND created_at >= NOW() - INTERVAL $boostHours HOUR
+        //         THEN 1
+        //         ELSE 0
+        //     END DESC
+        // ");
+        //         })
+        //         ->inRandomOrder() // randomize only within same priority
+        //         ->orderBy('posts.created_at', 'desc')
+        //         ->paginate(4)
+        //         ->through(function ($p) {
+        //             $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
+        //             return $p;
+        //         });
+
+        $tweets = Tweet::with('user')
+            ->whereNotIn('user_id', $hiddenUsers)
             ->where(function ($q) use ($auth, $friends) {
                 $q->where('user_id', $auth->id)
                     ->orWhereHas('user', function ($u) use ($friends) {
@@ -670,31 +938,17 @@ class ProfileController extends Controller
                     });
             })
             ->whereDoesntHave('user', function ($q) use ($auth) {
-                $q->whereHas('blockedUsers', fn($q2) => $q2->where('blocks.blocked_id', $auth->id));
+                $q->whereHas('blockedUsers', function ($q2) use ($auth) {
+                    $q2->where('blocks.blocked_id', $auth->id);
+                });
             })
             ->whereDoesntHave('user', function ($q) use ($auth) {
-                $q->whereHas('blockedByUsers', fn($q2) => $q2->where('blocks.user_id', $auth->id));
+                $q->whereHas('blockedByUsers', function ($q2) use ($auth) {
+                    $q2->where('blocks.user_id', $auth->id);
+                });
             })
-        // Smart dynamic friend priority
-            ->when(! empty($friends), function ($q) use ($friends, $boostHours) {
-                $friendIds = implode(',', array_map('intval', $friends));
-
-                $q->orderByRaw("
-        CASE
-            WHEN user_id IN ($friendIds)
-                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
-            THEN 1
-            ELSE 0
-        END DESC
-    ");
-            })
-            ->inRandomOrder() // randomize only within same priority
-            ->orderBy('posts.created_at', 'desc')
-            ->paginate(15)
-            ->through(function ($p) {
-                $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
-                return $p;
-            });
+            ->latest()
+            ->get();
 
         // Fetch all visible users
         // $all_users = \App\Models\User::where('id', '!=', $auth->id)
@@ -899,6 +1153,8 @@ class ProfileController extends Controller
             'notifications' => $notifications,
             'statuses'      => $statuses,
             // 'events'        => $events,
+            'tweets'        => $tweets,
+            'feedToken'     => $feedToken,
         ]);
     }
 

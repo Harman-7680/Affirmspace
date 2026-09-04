@@ -148,10 +148,18 @@
                 <div id="post-container"
                     class="md:max-w-[580px] mx-auto flex-1 xl:space-y-6 space-y-3 overflow-y-auto h-screen no-scrollbar">
 
+                    @php
+                        $tweetIndex = 0;
+                        $postCounter = 0;
+                    @endphp
+
                     <!-- post heading -->
                     @foreach ($other_users as $post)
+                        @php
+                            $postCounter++;
+                        @endphp
                         <!--  post image-->
-                        <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1 dark:bg-dark2 post-item"
+                        <div class="bg-white rounded-xl shadow-sm text-sm font-medium border1 dark:bg-dark2 feed-item post-item"
                             data-post-id="{{ $post->id }}" data-user-id="{{ $post->user->id }}">
 
                             <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
@@ -476,12 +484,126 @@
                                 </div>
                             </form>
                         </div>
+
+                        {{-- TWEET AFTER EVERY 5 POSTS --}}
+                        @if ($postCounter % 2 === 0 && $tweets->isNotEmpty())
+                            @php
+                                $tweet = $tweets->random();
+                            @endphp
+
+                            <div class="feed-item bg-white rounded-xl shadow-sm text-sm font-medium border1 dark:bg-dark2"
+                                data-tweet-id="{{ $tweet->id }}" data-user-id="{{ $tweet->user_id }}">
+
+                                {{-- Tweet Header --}}
+                                <div class="flex gap-3 sm:p-4 p-2.5 text-sm font-medium">
+
+                                    <a
+                                        href="{{ $tweet->user->id === auth()->id() ? route('timeline') : route('user.profile', ['id' => $tweet->user->id]) }}">
+
+                                        <img src="{{ $tweet->user->image ? asset('storage/' . $tweet->user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                            class="w-10 h-10 rounded-full object-cover" alt="">
+                                    </a>
+
+                                    <div class="flex-1">
+
+                                        <h4 class="text-black dark:text-white">
+                                            {{ $tweet->user->first_name }}
+                                            {{ $tweet->user->last_name }}
+                                        </h4>
+
+                                        <div class="text-xs text-gray-500 dark:text-white/80">
+                                            Thought
+                                        </div>
+
+                                    </div>
+
+                                    {{-- Three dots --}}
+                                    @if ($tweet->user_id != auth()->id())
+                                        <div x-data="{ mainOpen: false }" class="relative">
+
+                                            {{-- Three Dot Button --}}
+                                            <button type="button" @click="mainOpen = !mainOpen"
+                                                class="text-gray-500 hover:text-gray-700 dark:hover:text-white">
+
+                                                <ion-icon name="ellipsis-vertical" class="text-2xl"></ion-icon>
+                                            </button>
+
+                                            {{-- Main Menu --}}
+                                            <div x-show="mainOpen" @click.away="mainOpen = false" x-transition
+                                                class="absolute right-0 top-10 w-44
+                   bg-white dark:bg-dark2
+                   border border-gray-200 dark:border-gray-700
+                   rounded-lg shadow-lg py-2 z-50">
+
+                                                {{-- Block User --}}
+                                                <button type="button"
+                                                    class="block-user-btn block w-full text-left
+                       px-4 py-2 text-sm
+                       text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    data-user-id="{{ $tweet->user->id }}">
+
+                                                    Block User
+                                                </button>
+
+                                                {{-- Report User --}}
+                                                <button type="button"
+                                                    class="report-user-btn block w-full text-left
+                       px-4 py-2 text-sm
+                       text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    data-user-id="{{ $tweet->user->id }}" data-reason="User Report">
+
+                                                    Report User
+                                                </button>
+
+                                                {{-- Mute User --}}
+                                                <button type="button"
+                                                    class="mute-user-btn block w-full text-left
+                       px-4 py-2 text-sm
+                       text-gray-700 dark:text-gray-200
+                       hover:bg-gray-100 dark:hover:bg-gray-700"
+                                                    data-user-id="{{ $tweet->user->id }}">
+
+                                                    Mute User
+                                                </button>
+
+                                            </div>
+                                        </div>
+                                    @endif
+
+                                </div>
+
+                                {{-- Tweet Content --}}
+                                <div class="sm:px-4 px-2.5 pb-4">
+
+                                    <h3 class="text-base font-semibold text-black dark:text-white mb-2">
+                                        {{ $tweet->title }}
+                                    </h3>
+
+                                    <p class="text-sm text-gray-700 dark:text-gray-200 whitespace-pre-line">
+                                        {{ $tweet->paragraph }}
+                                    </p>
+
+                                </div>
+
+                                {{-- Tweet Footer --}}
+                                <div class="sm:px-4 px-2.5 py-3 border-t border-gray-100 dark:border-slate-700/40">
+
+                                    <span class="text-xs text-gray-500">
+                                        {{ $tweet->created_at->diffForHumans() }}
+                                    </span>
+
+                                </div>
+
+                            </div>
+                        @endif
                     @endforeach
 
                     @if ($other_users->hasMorePages())
                         <div class="text-center mt-6" id="loadMoreWrapper">
-                            <button type="button" id="loadMoreBtn"
-                                data-next-page="{{ $other_users->currentPage() + 1 }}"
+                            <button type="button" id="loadMoreBtn" data-next-page="{{ $other_users->currentPage() + 1 }}"
+                                data-feed-token="{{ $feedToken }}"
                                 class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
                                 Load More
                             </button>
@@ -1495,45 +1617,71 @@
 
             const loadMoreBtn = document.getElementById('loadMoreBtn');
             const wrapper = document.getElementById('loadMoreWrapper');
-            if (!loadMoreBtn) return;
+
+            if (!loadMoreBtn || !wrapper) return;
 
             loadMoreBtn.addEventListener('click', function() {
 
                 const page = this.dataset.nextPage;
-
-                // Save scroll position
+                const feedToken = this.dataset.feedToken;
                 const scrollY = window.scrollY;
 
-                fetch(`{{ route('feed') }}?page=${page}`, {
-                        headers: {
-                            'X-Requested-With': 'XMLHttpRequest'
+                loadMoreBtn.disabled = true;
+                loadMoreBtn.innerText = 'Loading...';
+
+                fetch(
+                        `{{ route('feed') }}?page=${page}&feed_token=${encodeURIComponent(feedToken)}`, {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest'
+                            }
                         }
-                    })
+                    )
                     .then(res => res.text())
                     .then(html => {
 
                         const parser = new DOMParser();
                         const doc = parser.parseFromString(html, 'text/html');
 
-                        const newPosts = doc.querySelectorAll('.post-item');
-                        const container = document.getElementById('post-container');
+                        const newItems = doc.querySelectorAll('.feed-item');
 
-                        newPosts.forEach(post => wrapper.before(post));
+                        newItems.forEach(item => {
+                            wrapper.before(item);
+                        });
 
-                        // Restore scroll position
                         window.scrollTo({
                             top: scrollY,
                             behavior: 'instant'
                         });
 
                         const newBtn = doc.getElementById('loadMoreBtn');
-                        if (newBtn) {
-                            loadMoreBtn.dataset.nextPage = newBtn.dataset.nextPage;
+
+                        if (newBtn && newBtn.dataset.nextPage) {
+
+                            loadMoreBtn.dataset.nextPage =
+                                newBtn.dataset.nextPage;
+
+                            loadMoreBtn.dataset.feedToken =
+                                newBtn.dataset.feedToken;
+
+                            loadMoreBtn.disabled = false;
+                            loadMoreBtn.innerText = 'Load More';
+
                         } else {
+
                             loadMoreBtn.remove();
                         }
+
+                    })
+                    .catch(error => {
+
+                        console.error('Load More Error:', error);
+
+                        loadMoreBtn.disabled = false;
+                        loadMoreBtn.innerText = 'Load More';
                     });
+
             });
+
         });
     </script>
 
