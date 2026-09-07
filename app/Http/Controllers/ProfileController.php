@@ -964,25 +964,156 @@ class ProfileController extends Controller
         //     ->inRandomOrder()
         //     ->get();
 
+        $search = trim(request()->get('search', ''));
+
+        $usersToken     = request()->get('users_token');
+        $counselorToken = request()->get('counselor_token');
+
+        if (empty($counselorToken)) {
+            $counselorToken = Str::random(32);
+        }
+
+        $selectedPrice          = request()->get('price', '');
+        $selectedRating         = request()->get('rating', '');
+        $selectedSpecialization = request()->get('specialization', '');
+
+        if (empty($usersToken)) {
+            $usersToken = Str::random(32);
+        }
+
         $counselors = User::where('role', 1)
+            ->where('documents_status', 3)
             ->where('id', '!=', $auth->id)
             ->whereNotIn('id', $hidden_Users)
+
+        // PRICE
+            ->when($selectedPrice !== '', function ($q) use ($selectedPrice) {
+
+                if ($selectedPrice === '0-499') {
+                    $q->where(function ($query) {
+                        $query->where('price', '<', 500)
+                            ->orWhereNull('price');
+                    });
+                }
+
+                if ($selectedPrice === '500-999') {
+                    $q->whereBetween('price', [500, 999]);
+                }
+
+                if ($selectedPrice === '1000-999999') {
+                    $q->where('price', '>=', 1000);
+                }
+            })
+
+        // SPECIALIZATION
+            ->when($selectedSpecialization !== '', function ($q) use ($selectedSpecialization) {
+                $q->whereHas('specialization', function ($query) use ($selectedSpecialization) {
+                    $query->where('name', $selectedSpecialization);
+                });
+            })
+
             ->with('specialization')
             ->withAvg('ratingsReceived', 'rating')
-            ->inRandomOrder()
-            ->limit(15)
+
             ->get();
+
+        if ($selectedRating !== '') {
+
+            $counselors = $counselors->filter(function ($user) use ($selectedRating) {
+
+                $rating = (float) ($user->ratings_received_avg_rating ?? 0);
+
+                if ($selectedRating === '4') {
+                    return $rating >= 4;
+                }
+
+                if ($selectedRating === '3') {
+                    return $rating >= 3 && $rating < 4;
+                }
+
+                if ($selectedRating === '0') {
+                    return $rating < 3;
+                }
+
+                return true;
+            })->values();
+        }
+
+        $counselors = $counselors
+            ->sortBy(function ($user) use ($counselorToken) {
+                return sprintf('%u', crc32($counselorToken . '-' . $user->id));
+            })
+            ->values();
+        $counselorsForView = $counselors->values();
+        $counselorPerPage  = 3;
+
+        $counselorPage = max(
+            (int) request()->get('counselor_page', 1),
+            1
+        );
+
+        $pageCounselors = $counselorsForView
+            ->forPage($counselorPage, $counselorPerPage)
+            ->values();
+
+        $counselorsPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pageCounselors,
+            $counselorsForView->count(),
+            $counselorPerPage,
+            $counselorPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
 
         $counselees = User::where('role', 0)
             ->where('id', '!=', $auth->id)
             ->whereNotIn('id', $hidden_Users)
+            ->when($search !== '', function ($q) use ($search) {
+                $q->where(function ($query) use ($search) {
+                    $query->where('first_name', 'like', '%' . $search . '%')
+                        ->orWhere('last_name', 'like', '%' . $search . '%');
+                });
+            })
             ->with('specialization')
             ->withAvg('ratingsReceived', 'rating')
-            ->inRandomOrder()
-            ->limit(15)
             ->get();
 
-        $all_users = $counselors->merge($counselees)->shuffle();
+        $counselees = $counselees
+            ->sortBy(function ($user) use ($usersToken) {
+                return sprintf('%u', crc32($usersToken . '-' . $user->id));
+            })
+            ->values();
+
+        $usersPerPage = 3;
+
+        $usersPage = max(
+            (int) request()->get('users_page', 1),
+            1
+        );
+
+        $pageCounselees = $counselees
+            ->forPage($usersPage, $usersPerPage)
+            ->values();
+
+        $counseleesPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pageCounselees,
+            $counselees->count(),
+            $usersPerPage,
+            $usersPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        $all_users = $counselors
+            ->merge($counselees)
+            ->sortBy(function ($user) use ($usersToken) {
+                return sprintf('%u', crc32($usersToken . '-' . $user->id));
+            })
+            ->values();
 
         $friendships = Friendship::where(function ($q) use ($auth) {
             $q->where('sender_id', $auth->id)
@@ -1147,14 +1278,18 @@ class ProfileController extends Controller
         // });
 
         return view('user.feed', [
-            'user'          => $auth,
-            'other_users'   => $all_posts,
-            'all_users'     => $all_users,
-            'notifications' => $notifications,
-            'statuses'      => $statuses,
+            'user'              => $auth,
+            'other_users'       => $all_posts,
+            'all_users'         => $counseleesPaginator,
+            'notifications'     => $notifications,
+            'statuses'          => $statuses,
             // 'events'        => $events,
-            'tweets'        => $tweets,
-            'feedToken'     => $feedToken,
+            'tweets'            => $tweets,
+            'feedToken'         => $feedToken,
+            'usersToken'        => $usersToken,
+            'counselorsForView' => $counselorsForView,
+            'counselors'        => $counselorsPaginator,
+            'counselorToken'    => $counselorToken,
         ]);
     }
 
@@ -1506,61 +1641,276 @@ class ProfileController extends Controller
         ]);
     }
 
+    // public function video()
+    // {
+    //     $auth = Auth::user();
+
+    //     // Optional: restrict route if only role=0 users can access
+    //     abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+    //     $notifications = $auth->unreadNotifications;
+
+    //     // Get all counselors (role = 1)
+    //     $all_users = \App\Models\User::where('id', '!=', $auth->id)
+    //         ->where('role', 1)
+    //         ->where('documents_status', 3)
+    //         ->get();
+
+    //     // Attach friend count, friendship status, and rating
+    //     foreach ($all_users as $user) {
+    //         $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
+    //             $query->where('sender_id', $user->id)
+    //                 ->orWhere('receiver_id', $user->id);
+    //         })->where('status', 'accepted')->count();
+    //         $user->friend_count = $friendCount;
+
+    //         $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+    //             $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+    //         })->orWhere(function ($q) use ($auth, $user) {
+    //             $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+    //         })->first();
+
+    //         $user->friendship_status = $friendship ? $friendship->status : null;
+    //         $user->friendship_sender = $friendship ? $friendship->sender_id : null;
+
+    //         $averageRating        = $user->ratingsReceived()->avg('rating');
+    //         $user->average_rating = round($averageRating ?? 0, 1);
+
+    //         $appointments = [
+    //             'accepted' => Message::where('receiver_id', $user->id)
+    //                 ->where('status', 'accepted')
+    //                 ->count(),
+    //             'pending'  => Message::where('receiver_id', $user->id)
+    //                 ->where('status', 'pending')
+    //                 ->count(),
+    //             'rejected' => Message::where('receiver_id', $user->id)
+    //                 ->where('status', 'rejected')
+    //                 ->count(),
+    //         ];
+    //         $user->appointments = $appointments;
+    //     }
+
+    //     // Fetch posts (in case you want videos from posts)
+    //     $all_posts = \App\Models\Post::with(['user', 'likes', 'comments.user'])
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
+
+    //     // Fetch statuses (if needed)
+    //     $statuses = \App\Models\Status::with('user')
+    //         ->where('created_at', '>=', now()->subDay())
+    //         ->latest()
+    //         ->get()
+    //         ->groupBy('user_id')
+    //         ->map(fn($group) => collect($group));
+
+    //     return view('user.video', [
+    //         'user'          => $auth,
+    //         'notifications' => $notifications,
+    //         'all_users'     => $all_users,
+    //         'all_posts'     => $all_posts,
+    //         'statuses'      => $statuses,
+    //     ]);
+    // }
+
     public function video()
     {
         $auth = Auth::user();
 
-        // Optional: restrict route if only role=0 users can access
+        // Only role=0 users can access
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
-        $notifications = $auth->unreadNotifications;
+        $notifications          = $auth->unreadNotifications;
+        $selectedPrice          = request()->get('price', '');
+        $selectedRating         = request()->get('rating', '');
+        $selectedSpecialization = request()->get('specialization', '');
+        $counselorToken         = request()->get('counselor_token');
 
-        // Get all counselors (role = 1)
-        $all_users = \App\Models\User::where('id', '!=', $auth->id)
+        if (empty($counselorToken)) {
+            $counselorToken = Str::random(32);
+        }
+
+        $counselors = \App\Models\User::where('id', '!=', $auth->id)
             ->where('role', 1)
             ->where('documents_status', 3)
+
+        // PRICE
+            ->when($selectedPrice !== '', function ($q) use ($selectedPrice) {
+
+                if ($selectedPrice === '0-499') {
+                    $q->where(function ($query) {
+                        $query->where('price', '<', 500)
+                            ->orWhereNull('price');
+                    });
+                }
+
+                if ($selectedPrice === '500-999') {
+                    $q->whereBetween('price', [500, 999]);
+                }
+
+                if ($selectedPrice === '1000-999999') {
+                    $q->where('price', '>=', 1000);
+                }
+            })
+
+        // SPECIALIZATION
+            ->when($selectedSpecialization !== '', function ($q) use ($selectedSpecialization) {
+
+                $q->whereHas('specialization', function ($query) use ($selectedSpecialization) {
+                    $query->where('name', $selectedSpecialization);
+                });
+            })
+
+            ->with('specialization')
+            ->withAvg('ratingsReceived', 'rating')
             ->get();
 
-        // Attach friend count, friendship status, and rating
-        foreach ($all_users as $user) {
+        if ($selectedRating !== '') {
+
+            $counselors = $counselors
+                ->filter(function ($user) use ($selectedRating) {
+
+                    $rating = (float) ($user->ratings_received_avg_rating ?? 0);
+
+                    if ($selectedRating === '4') {
+                        return $rating >= 4;
+                    }
+
+                    if ($selectedRating === '3') {
+                        return $rating >= 3 && $rating < 4;
+                    }
+
+                    if ($selectedRating === '0') {
+                        return $rating < 3;
+                    }
+
+                    return true;
+                })
+                ->values();
+        }
+
+        $counselors = $counselors
+            ->sortBy(function ($user) use ($counselorToken) {
+                return sprintf(
+                    '%u',
+                    crc32($counselorToken . '-' . $user->id)
+                );
+            })
+            ->values();
+
+        $counselorPerPage = 3;
+
+        $counselorPage = max(
+            (int) request()->get('counselor_page', 1),
+            1
+        );
+
+        $pageCounselors = $counselors
+            ->forPage($counselorPage, $counselorPerPage)
+            ->values();
+
+        foreach ($pageCounselors as $user) {
+
             $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
                 $query->where('sender_id', $user->id)
                     ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->count();
+            })
+                ->where('status', 'accepted')
+                ->count();
+
             $user->friend_count = $friendCount;
 
             $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-            })->first();
 
-            $user->friendship_status = $friendship ? $friendship->status : null;
-            $user->friendship_sender = $friendship ? $friendship->sender_id : null;
+                $q->where('sender_id', $auth->id)
+                    ->where('receiver_id', $user->id);
 
-            $averageRating        = $user->ratingsReceived()->avg('rating');
-            $user->average_rating = round($averageRating ?? 0, 1);
+            })
+                ->orWhere(function ($q) use ($auth, $user) {
+
+                    $q->where('sender_id', $user->id)
+                        ->where('receiver_id', $auth->id);
+
+                })
+                ->first();
+
+            $user->friendship_status = $friendship
+                ? $friendship->status
+                : null;
+
+            $user->friendship_sender = $friendship
+                ? $friendship->sender_id
+                : null;
+
+            $averageRating = $user->ratingsReceived()->avg('rating');
+
+            $user->average_rating = round(
+                $averageRating ?? 0,
+                1
+            );
 
             $appointments = [
+
                 'accepted' => Message::where('receiver_id', $user->id)
                     ->where('status', 'accepted')
                     ->count(),
+
                 'pending'  => Message::where('receiver_id', $user->id)
                     ->where('status', 'pending')
                     ->count(),
+
                 'rejected' => Message::where('receiver_id', $user->id)
                     ->where('status', 'rejected')
                     ->count(),
             ];
+
             $user->appointments = $appointments;
         }
 
-        // Fetch posts (in case you want videos from posts)
-        $all_posts = \App\Models\Post::with(['user', 'likes', 'comments.user'])
+        $counselorsPaginator = new \Illuminate\Pagination\LengthAwarePaginator(
+            $pageCounselors,
+            $counselors->count(),
+            $counselorPerPage,
+            $counselorPage,
+            [
+                'path'  => request()->url(),
+                'query' => request()->query(),
+            ]
+        );
+
+        if (request()->ajax()) {
+            return response()->json([
+                'counselors' => $pageCounselors->map(function ($user) {
+                    return [
+                        'id'             => $user->id,
+                        'first_name'     => $user->first_name,
+                        'last_name'      => $user->last_name,
+                        'average_rating' => $user->average_rating,
+                        'image'          => $user->image
+                            ? asset('storage/' . $user->image)
+                            : asset('images/avatars/avatar-1.jpg'),
+                        'price'          => $user->price ?? 0,
+                        'profileUrl'     => route('counselor.profile', $user->id),
+                        'appointments'   => $user->appointments['accepted'] ?? 0,
+                        'specialization' => $user->specialization?->name ?? '',
+                    ];
+                })->values(),
+
+                'has_more'   => $counselorsPaginator->hasMorePages(),
+
+                'next_page'  => $counselorsPaginator->hasMorePages()
+                    ? $counselorsPaginator->currentPage() + 1
+                    : null,
+            ]);
+        }
+
+        $all_posts = \App\Models\Post::with([
+            'user',
+            'likes',
+            'comments.user',
+        ])
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Fetch statuses (if needed)
         $statuses = \App\Models\Status::with('user')
             ->where('created_at', '>=', now()->subDay())
             ->latest()
@@ -1569,11 +1919,15 @@ class ProfileController extends Controller
             ->map(fn($group) => collect($group));
 
         return view('user.video', [
-            'user'          => $auth,
-            'notifications' => $notifications,
-            'all_users'     => $all_users,
-            'all_posts'     => $all_posts,
-            'statuses'      => $statuses,
+            'user'                   => $auth,
+            'notifications'          => $notifications,
+            'all_users'              => $counselorsPaginator,
+            'all_posts'              => $all_posts,
+            'statuses'               => $statuses,
+            'counselorToken'         => $counselorToken,
+            'selectedPrice'          => $selectedPrice,
+            'selectedRating'         => $selectedRating,
+            'selectedSpecialization' => $selectedSpecialization,
         ]);
     }
 
@@ -1928,6 +2282,10 @@ class ProfileController extends Controller
             )
             ->values();
 
+        $tweets = Tweet::where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
         return view('user.timeline', [
             'user'            => $auth,
             'authFriendCount' => $authFriendCount,
@@ -1937,6 +2295,7 @@ class ProfileController extends Controller
             'statuses'        => $statuses,
             'friends'         => $friends,
             'posts_count'     => $posts_count,
+            'tweets'          => $tweets,
         ]);
     }
 

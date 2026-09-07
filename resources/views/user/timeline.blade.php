@@ -420,149 +420,300 @@
             </div>
 
             {{-- Tabs --}}
-            <div class="flex justify-center gap-4 mt-8 border-b pb-2">
-                <button class="text-indigo-600 font-semibold border-b-2 border-indigo-600 pb-1">Posts</button>
-                <button class="text-gray-500 hover:text-indigo-600 transition">Tweets</button>
-            </div>
+            <div x-data="{ activeTab: 'posts' }" class="mt-8">
 
-            {{-- POSTS GRID --}}
-            <div class="grid sm:grid-cols-3 gap-4 mt-6">
-                @forelse($all_posts as $post)
-                    <div id="post-{{ $post->id }}" class="rounded-xl overflow-hidden shadow bg-white p-3 post-item">
+                <div class="flex justify-center gap-4 border-b pb-2">
 
-                        {{-- POST MEDIA --}}
-                        @php
-                            $ext = pathinfo($post->post_image, PATHINFO_EXTENSION);
-                            $isVideo = in_array(strtolower($ext), ['mp4', 'mov', 'avi', 'webm']);
-                        @endphp
+                    <button type="button" @click="activeTab = 'posts'"
+                        :class="activeTab === 'posts'
+                            ?
+                            'text-indigo-600 font-semibold border-b-2 border-indigo-600' :
+                            'text-gray-500 hover:text-indigo-600'"
+                        class="pb-1 transition">
+                        Posts
+                    </button>
 
-                        @if ($post->post_image)
-                            @if ($isVideo)
-                                <video controls class="w-full h-40 rounded-lg object-cover">
-                                    <source src="{{ asset('storage/' . $post->post_image) }}">
-                                </video>
-                            @else
-                                <img src="{{ asset('storage/' . $post->post_image) }}"
-                                    class="w-full h-40 rounded-lg object-cover">
-                            @endif
-                        @endif
+                    <button type="button" @click="activeTab = 'thoughts'"
+                        :class="activeTab === 'thoughts'
+                            ?
+                            'text-indigo-600 font-semibold border-b-2 border-indigo-600' :
+                            'text-gray-500 hover:text-indigo-600'"
+                        class="pb-1 transition">
+                        Thoughts
+                    </button>
 
-                        {{-- LIKE + COMMENT BUTTONS --}}
-                        <div class="flex items-center gap-6 mt-3 text-sm text-gray-700">
+                </div>
 
-                            <div x-data="{ open: false }" class="flex items-center gap-2">
+                {{-- POSTS SECTION --}}
+                <div x-show="activeTab === 'posts'">
 
-                                <button type="button" @click="open=true"
-                                    class="button-icon bg-red-100 text-red-600 hover:bg-red-200 rounded-full p-2 transition">
-                                    <ion-icon class="text-lg" name="heart"></ion-icon>
-                                </button>
+                    {{-- POSTS GRID --}}
+                    <div class="grid sm:grid-cols-3 gap-4 mt-6">
 
-                                <span>{{ $post->likes->count() }}</span>
+                        @forelse($all_posts as $post)
+                            <div id="post-{{ $post->id }}"
+                                class="rounded-xl overflow-hidden shadow bg-white p-3 post-item">
 
-                                {{-- LIKE POPUP --}}
-                                <div x-show="open" x-transition
-                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                                    style="display:none">
+                                {{-- POST MEDIA --}}
+                                @php
+                                    $ext = pathinfo($post->post_image, PATHINFO_EXTENSION);
+                                    $isVideo = in_array(strtolower($ext), ['mp4', 'mov', 'avi', 'webm']);
+                                @endphp
 
-                                    <div class="bg-white rounded-2xl w-full max-w-xl h-[70vh] flex flex-col">
+                                @if ($post->post_image)
+                                    @if ($isVideo)
+                                        <video controls class="w-full h-40 rounded-lg object-cover">
+                                            <source src="{{ asset('storage/' . $post->post_image) }}">
+                                        </video>
+                                    @else
+                                        <img src="{{ asset('storage/' . $post->post_image) }}"
+                                            class="w-full h-40 rounded-lg object-cover">
+                                    @endif
+                                @endif
 
-                                        <div class="flex justify-between items-center px-6 py-4 border-b">
-                                            <h2 class="font-semibold text-lg">Liked by</h2>
-                                            <button @click="open=false" class="text-2xl">&times;</button>
-                                        </div>
+                                {{-- LIKE + COMMENT BUTTONS --}}
+                                <div class="flex items-center gap-6 mt-3 text-sm text-gray-700">
 
-                                        <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
-                                            @forelse($post->likes as $like)
-                                                <div class="flex items-center gap-4">
-                                                    <img src="{{ $like->user->image ? asset('storage/' . $like->user->image) : asset('images/avatars/avatar-1.jpg') }}"
-                                                        class="w-10 h-10 rounded-full">
-                                                    <span class="font-medium">
-                                                        {{ $like->user->first_name }} {{ $like->user->last_name }}
-                                                    </span>
+                                    {{-- LIKE --}}
+                                    <div x-data="{ open: false }" class="flex items-center gap-2">
+
+                                        <button type="button" @click="open=true"
+                                            class="button-icon bg-red-100 text-red-600 hover:bg-red-200 rounded-full p-2 transition">
+
+                                            <ion-icon class="text-lg" name="heart"></ion-icon>
+
+                                        </button>
+
+                                        <span>{{ $post->likes->count() }}</span>
+
+                                        {{-- LIKE POPUP --}}
+                                        <div x-show="open" x-transition
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                            style="display:none">
+
+                                            <div class="bg-white rounded-2xl w-full max-w-xl h-[70vh] flex flex-col">
+
+                                                <div class="flex justify-between items-center px-6 py-4 border-b">
+
+                                                    <h2 class="font-semibold text-lg">
+                                                        Liked by
+                                                    </h2>
+
+                                                    <button @click="open=false" class="text-2xl">
+                                                        &times;
+                                                    </button>
+
                                                 </div>
-                                            @empty
-                                                <p class="text-center text-gray-500">No likes yet</p>
-                                            @endforelse
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
 
-                            <div x-data="{ open: false }" class="flex items-center gap-2">
-                                <button type="button" @click="open=true"
-                                    class="button-icon bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full p-2 transition">
-                                    <ion-icon class="text-lg" name="chatbubble-ellipses"></ion-icon>
-                                </button>
+                                                <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
 
-                                <span>
-                                    {{ $post->comments->count() + $post->comments->sum(fn($c) => $c->replies->count()) }}
-                                </span>
+                                                    @forelse($post->likes as $like)
+                                                        <div class="flex items-center gap-4">
 
-                                {{-- COMMENT POPUP --}}
-                                <div x-show="open" x-transition
-                                    class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
-                                    style="display:none">
+                                                            <img src="{{ $like->user->image ? asset('storage/' . $like->user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                                                class="w-10 h-10 rounded-full">
 
-                                    <div class="bg-white rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col">
+                                                            <span class="font-medium">
+                                                                {{ $like->user->first_name }}
+                                                                {{ $like->user->last_name }}
+                                                            </span>
 
-                                        <div class="flex justify-between items-center px-6 py-4 border-b">
-                                            <h2 class="font-semibold text-lg">Comments</h2>
-                                            <button @click="open=false" class="text-2xl">&times;</button>
-                                        </div>
-
-                                        <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-
-                                            @forelse($post->comments as $comment)
-                                                {{-- COMMENT --}}
-                                                <div>
-                                                    <div class="flex gap-4">
-                                                        <img src="{{ $comment->user->image ? asset('storage/' . $comment->user->image) : asset('images/avatars/avatar-1.jpg') }}"
-                                                            class="w-9 h-9 rounded-full">
-
-                                                        <div class="bg-gray-100 rounded-xl px-4 py-2 w-full">
-                                                            <p class="text-sm font-semibold">
-                                                                {{ $comment->user->first_name }}
-                                                                {{ $comment->user->last_name }}
-                                                            </p>
-                                                            <p class="text-sm">{{ $comment->body }}</p>
                                                         </div>
-                                                    </div>
 
-                                                    {{-- REPLIES --}}
-                                                    @if ($comment->replies->count())
-                                                        <div class="ml-14 mt-3 space-y-3 border-l pl-4">
-                                                            @foreach ($comment->replies as $reply)
-                                                                <div class="flex gap-3">
-                                                                    <img src="{{ $reply->user->image ? asset('storage/' . $reply->user->image) : asset('images/avatars/avatar-1.jpg') }}"
-                                                                        class="w-7 h-7 rounded-full">
+                                                    @empty
 
-                                                                    <div class="bg-gray-50 rounded-xl px-3 py-2 w-full">
-                                                                        <p class="text-xs font-semibold">
-                                                                            {{ $reply->user->first_name }}
-                                                                            {{ $reply->user->last_name }}
-                                                                        </p>
-                                                                        <p class="text-xs">{{ $reply->body }}</p>
-                                                                    </div>
+                                                        <p class="text-center text-gray-500">
+                                                            No likes yet
+                                                        </p>
+                                                    @endforelse
+
+                                                </div>
+
+                                            </div>
+
+                                        </div>
+
+                                    </div>
+
+                                    {{-- COMMENTS --}}
+                                    <div x-data="{ open: false }" class="flex items-center gap-2">
+
+                                        <button type="button" @click="open=true"
+                                            class="button-icon bg-blue-100 text-blue-600 hover:bg-blue-200 rounded-full p-2 transition">
+
+                                            <ion-icon class="text-lg" name="chatbubble-ellipses">
+                                            </ion-icon>
+
+                                        </button>
+
+                                        <span>
+                                            {{ $post->comments->count() + $post->comments->sum(fn($c) => $c->replies->count()) }}
+                                        </span>
+
+                                        {{-- COMMENT POPUP --}}
+                                        <div x-show="open" x-transition
+                                            class="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+                                            style="display:none">
+
+                                            <div class="bg-white rounded-2xl w-full max-w-2xl h-[80vh] flex flex-col">
+
+                                                <div class="flex justify-between items-center px-6 py-4 border-b">
+
+                                                    <h2 class="font-semibold text-lg">
+                                                        Comments
+                                                    </h2>
+
+                                                    <button @click="open=false" class="text-2xl">
+                                                        &times;
+                                                    </button>
+
+                                                </div>
+
+                                                <div class="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+
+                                                    @forelse($post->comments as $comment)
+                                                        <div>
+
+                                                            {{-- COMMENT --}}
+                                                            <div class="flex gap-4">
+
+                                                                <img src="{{ $comment->user->image ? asset('storage/' . $comment->user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                                                    class="w-9 h-9 rounded-full">
+
+                                                                <div class="bg-gray-100 rounded-xl px-4 py-2 w-full">
+
+                                                                    <p class="text-sm font-semibold">
+                                                                        {{ $comment->user->first_name }}
+                                                                        {{ $comment->user->last_name }}
+                                                                    </p>
+
+                                                                    <p class="text-sm">
+                                                                        {{ $comment->body }}
+                                                                    </p>
+
                                                                 </div>
-                                                            @endforeach
+
+                                                            </div>
+
+                                                            {{-- REPLIES --}}
+                                                            @if ($comment->replies->count())
+                                                                <div class="ml-14 mt-3 space-y-3 border-l pl-4">
+
+                                                                    @foreach ($comment->replies as $reply)
+                                                                        <div class="flex gap-3">
+
+                                                                            <img src="{{ $reply->user->image ? asset('storage/' . $reply->user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                                                                class="w-7 h-7 rounded-full">
+
+                                                                            <div
+                                                                                class="bg-gray-50 rounded-xl px-3 py-2 w-full">
+
+                                                                                <p class="text-xs font-semibold">
+                                                                                    {{ $reply->user->first_name }}
+                                                                                    {{ $reply->user->last_name }}
+                                                                                </p>
+
+                                                                                <p class="text-xs">
+                                                                                    {{ $reply->body }}
+                                                                                </p>
+
+                                                                            </div>
+
+                                                                        </div>
+                                                                    @endforeach
+
+                                                                </div>
+                                                            @endif
+
                                                         </div>
-                                                    @endif
+
+                                                    @empty
+
+                                                        <p class="text-center text-gray-500">
+                                                            No comments yet
+                                                        </p>
+                                                    @endforelse
+
                                                 </div>
-                                            @empty
-                                                <p class="text-center text-gray-500">No comments yet</p>
-                                            @endforelse
+
+                                            </div>
 
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </div>
-                        </div>
+
+                        @empty
+
+                            <p class="col-span-3 text-center text-gray-500">
+                                No posts yet
+                            </p>
+                        @endforelse
+
                     </div>
-                @empty
-                    <p class="col-span-3 text-center text-gray-500">
-                        No posts yet
-                    </p>
-                @endforelse
+
+                </div>
+
+
+                {{-- THOUGHTS SECTION --}}
+                <div x-show="activeTab === 'thoughts'" style="display:none" class="mt-6">
+
+                    <div class="grid sm:grid-cols-3 gap-4">
+
+                        @forelse($tweets as $tweet)
+                            {{-- THOUGHT BOX --}}
+                            <div class="rounded-xl overflow-hidden shadow bg-white dark:bg-dark2 p-4">
+
+                                {{-- USER --}}
+                                <div class="flex items-center gap-3 mb-4">
+
+                                    <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/avatars/avatar-1.jpg') }}"
+                                        alt="Profile Picture" class="w-10 h-10 rounded-full object-cover">
+
+                                    <div class="min-w-0">
+
+                                        <h4 class="font-semibold text-gray-900 dark:text-white truncate">
+                                            {{ $user->first_name }} {{ $user->last_name }}
+                                        </h4>
+
+                                        <p class="text-xs text-gray-500">
+                                            {{ $tweet->created_at?->diffForHumans() }}
+                                        </p>
+
+                                    </div>
+
+                                </div>
+
+                                {{-- THOUGHT TITLE --}}
+                                @if ($tweet->title)
+                                    <h3 class="text-lg font-bold text-gray-900 dark:text-white mb-2">
+                                        {{ $tweet->title }}
+                                    </h3>
+                                @endif
+
+                                {{-- THOUGHT PARAGRAPH --}}
+                                @if ($tweet->paragraph)
+                                    <p class="text-sm text-gray-700 dark:text-gray-300 whitespace-pre-line">
+                                        {{ $tweet->paragraph }}
+                                    </p>
+                                @endif
+
+                            </div>
+
+                        @empty
+
+                            <p class="col-span-3 text-center text-gray-500 py-8">
+                                No thoughts yet
+                            </p>
+                        @endforelse
+
+                    </div>
+
+                </div>
+
             </div>
         </div>
     </main>

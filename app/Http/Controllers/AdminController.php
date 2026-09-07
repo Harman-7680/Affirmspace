@@ -62,7 +62,7 @@ class AdminController extends Controller
         $totalFriendships = Friendship::count();
         $totalRatings     = Rating::count();
 
-        $users = User::where('role', 0)->get()->map(function ($u) {
+        $users = User::where('role', 0)->latest('created_at')->get()->map(function ($u) {
             // Friend count (accepted friendships)
             $sentFriends     = $u->sentFriendships()->where('status', 'accepted')->count();
             $receivedFriends = $u->receivedFriendships()->where('status', 'accepted')->count();
@@ -123,7 +123,7 @@ class AdminController extends Controller
         $totalFriendships = Friendship::count();
         $totalRatings     = Rating::count();
 
-        $users = User::with('documents')->where('role', 1)->get()->map(function ($u) {
+        $users = User::with('documents')->latest('created_at')->where('role', 1)->get()->map(function ($u) {
             return [
                 'id'                    => $u->id,
                 'first_name'            => $u->first_name,

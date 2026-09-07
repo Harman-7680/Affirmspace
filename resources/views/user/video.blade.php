@@ -106,65 +106,209 @@
 
         {{-- Counselors Section --}}
         <div class="box p-3 px-4 mt-6 max-w-3xl mx-auto" x-data="{
-            showAll: false,
-            selectedPrice: '',
-            selectedRating: '',
-            selectedSpecialization: '',
+            selectedPrice: @js($selectedPrice),
+            selectedRating: @js($selectedRating),
+            selectedSpecialization: @js($selectedSpecialization),
             specializations: [],
         
-            counselors: {{ $all_users->map(function ($u) {
-                    return [
-                        'id' => $u->id,
-                        'first_name' => $u->first_name,
-                        'last_name' => $u->last_name,
-                        'average_rating' => $u->average_rating,
-                        'image' => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
-                        'price' => $u->price ?? 0,
-                        'profileUrl' => route('counselor.profile', $u->id),
-                        'appointments' => $u->appointments['accepted'],
-                        // Add Specialization
-                        'specialization' => $u->specialization?->name ?? '',
-                    ];
-                })->toJson() }},
+            counselors: @js(
+    $all_users
+        ->getCollection()
+        ->values()
+        ->map(function ($u) {
+            return [
+                'id' => $u->id,
+                'first_name' => $u->first_name,
+                'last_name' => $u->last_name,
+                'average_rating' => $u->average_rating,
+                'image' => $u->image ? asset('storage/' . $u->image) : asset('images/avatars/avatar-1.jpg'),
+                'price' => $u->price ?? 0,
+                'profileUrl' => route('counselor.profile', $u->id),
+                'appointments' => $u->appointments['accepted'] ?? 0,
+                'specialization' => $u->specialization?->name ?? '',
+            ];
+        })
+        ->values(),
+),
         
-            // Fetch specializations from API route
-            async loadSpecializations() {
+            loading: false,
+        
+            async loadMoreCounselors(button) {
+        
+                if (this.loading) {
+                    return;
+                }
+        
+                this.loading = true;
+        
+                const nextPage = button.dataset.nextPage;
+                const counselorToken = button.dataset.counselorToken;
+        
+                const params = new URLSearchParams();
+        
+                params.set('counselor_page', nextPage);
+                params.set('counselor_token', counselorToken);
+        
+                if (this.selectedPrice !== '') {
+                    params.set('price', this.selectedPrice);
+                }
+        
+                if (this.selectedRating !== '') {
+                    params.set('rating', this.selectedRating);
+                }
+        
+                if (this.selectedSpecialization !== '') {
+                    params.set('specialization', this.selectedSpecialization);
+                }
+        
+                if (price) {
+                    params.set('price', price);
+                }
+        
+                if (rating) {
+                    params.set('rating', rating);
+                }
+        
+                if (specialization) {
+                    params.set('specialization', specialization);
+                }
+        
                 try {
-                    let res = await fetch('{{ route('specializations.fetch') }}');
-                    this.specializations = await res.json();
-                } catch (e) {
-                    console.error('Failed to load specializations', e);
+        
+                    button.disabled = true;
+                    button.textContent = 'Loading...';
+        
+                    const response = await fetch(
+                        '{{ route('video') }}?' + params.toString(), {
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+        
+                    if (!response.ok) {
+                        throw new Error('Failed to load counselors');
+                    }
+        
+                    const data = await response.json();
+        
+                    this.counselors.push(...data.counselors);
+        
+                    if (data.has_more) {
+        
+                        button.dataset.nextPage = data.next_page;
+                        button.disabled = false;
+                        button.textContent = 'See More';
+        
+                    } else {
+        
+                        button.remove();
+        
+                    }
+        
+                } catch (error) {
+        
+                    console.error(error);
+        
+                    button.disabled = false;
+                    button.textContent = 'See More';
+        
+                } finally {
+        
+                    this.loading = false;
+        
                 }
             },
         
-            // Initialize
+            async applyFilters() {
+                if (this.loading) {
+                    return;
+                }
+        
+                this.loading = true;
+        
+                const params = new URLSearchParams();
+        
+                params.set('counselor_page', '1');
+                params.set('counselor_token', @js($counselorToken));
+        
+                if (this.selectedPrice !== '') {
+                    params.set('price', this.selectedPrice);
+                }
+        
+                if (this.selectedRating !== '') {
+                    params.set('rating', this.selectedRating);
+                }
+        
+                if (this.selectedSpecialization !== '') {
+                    params.set('specialization', this.selectedSpecialization);
+                }
+        
+                try {
+                    const response = await fetch(
+                        '{{ route('video') }}?' + params.toString(), {
+                            method: 'GET',
+                            headers: {
+                                'X-Requested-With': 'XMLHttpRequest',
+                                'Accept': 'application/json'
+                            }
+                        }
+                    );
+        
+                    if (!response.ok) {
+                        throw new Error('Failed to load counselors');
+                    }
+        
+                    const data = await response.json();
+        
+                    // Purane counselors remove
+                    this.counselors = data.counselors;
+        
+                    // See More button update
+                    const button = this.$el.querySelector(
+                        '[data-counselor-load-more]'
+                    );
+        
+                    if (button) {
+                        if (data.has_more) {
+                            button.dataset.nextPage = data.next_page;
+                            button.dataset.counselorToken = @js($counselorToken);
+        
+                            button.disabled = false;
+                            button.textContent = 'See More';
+                            button.style.display = '';
+                        } else {
+                            button.style.display = 'none';
+                        }
+                    }
+        
+                } catch (error) {
+                    console.error(error);
+                } finally {
+                    this.loading = false;
+                }
+            },
+        
+        
+            async loadSpecializations() {
+                try {
+                    const response = await fetch('{{ route('specializations.fetch') }}');
+        
+                    if (!response.ok) {
+                        throw new Error('Failed to load specializations');
+                    }
+        
+                    this.specializations = await response.json();
+        
+                } catch (error) {
+                    console.error(error);
+                }
+            },
+        
             init() {
                 this.loadSpecializations();
             },
-        
-            // Filtering Logic
-            filteredCounselors() {
-                return this.counselors.filter(c => {
-                    const price = parseInt(c.price);
-                    const rating = parseFloat(c.average_rating ?? 0);
-        
-                    // Price filters
-                    if (this.selectedPrice === '0-499' && price >= 500) return false;
-                    if (this.selectedPrice === '500-999' && (price < 500 || price > 999)) return false;
-                    if (this.selectedPrice === '1000-999999' && price < 1000) return false;
-        
-                    // Rating filters
-                    if (this.selectedRating === '4' && rating < 4) return false;
-                    if (this.selectedRating === '3' && (rating < 3 || rating >= 4)) return false;
-                    if (this.selectedRating === '0' && rating >= 3) return false;
-        
-                    // Specialization filter
-                    if (this.selectedSpecialization && c.specialization !== this.selectedSpecialization)
-                        return false;
-        
-                    return true;
-                });
-            }
         }">
 
             <div class="flex items-center justify-between mb-4">
@@ -174,7 +318,7 @@
             <div class="flex gap-2 mb-4">
 
                 <!-- Specialization Filter -->
-                <select x-model="selectedSpecialization"
+                <select x-model="selectedSpecialization" @change="applyFilters()"
                     class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-sm bg-white dark:bg-dark2 dark:text-white">
                     <option value="">All Specializations</option>
                     <template x-for="spec in specializations" :key="spec.id">
@@ -183,7 +327,7 @@
                 </select>
 
                 <!-- Price Filter -->
-                <select x-model="selectedPrice"
+                <select x-model="selectedPrice" @change="applyFilters()"
                     class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-sm bg-white dark:bg-dark2 dark:text-white">
                     <option value="">All Prices</option>
                     <option value="0-499">Below ₹500</option>
@@ -192,7 +336,7 @@
                 </select>
 
                 <!-- Rating Filter -->
-                <select x-model="selectedRating"
+                <select x-model="selectedRating" @change="applyFilters()"
                     class="flex-1 border border-gray-300 dark:border-gray-700 rounded-lg p-2 text-sm bg-white dark:bg-dark2 dark:text-white">
                     <option value="">All Ratings</option>
                     <option value="4">4★ & above</option>
@@ -203,7 +347,7 @@
 
             {{-- Counselors List --}}
             <div class="j-allCounselors-profile">
-                <template x-for="(user, index) in filteredCounselors()" :key="user.id">
+                <template x-for="(user, index) in counselors" :key="user.id">
                     <div class="j-counselor-profile">
 
                         <div class="j-counselor-details">
@@ -242,7 +386,7 @@
                         <div class="counselor-rating flex items-center">
                             <template x-for="i in 5" :key="i">
                                 <span class="relative inline-block text-[24px] leading-none">
-                                    
+
                                     <!-- EMPTY STAR -->
                                     <span class="text-gray-300">★</span>
 
@@ -281,11 +425,16 @@
                     </div>
                 </template>
 
-                <div class="text-center mt-3" x-show="!showAll && filteredCounselors().length > 3">
-                    <button @click="showAll = true" class="text-blue-500 hover:underline text-sm">
-                        See More
-                    </button>
-                </div>
+                @if ($all_users->hasMorePages())
+                    <div class="text-center mt-3">
+                        <button type="button" class="text-blue-500 hover:underline text-sm" data-counselor-load-more
+                            @click="loadMoreCounselors($event.currentTarget)"
+                            data-next-page="{{ $all_users->currentPage() + 1 }}"
+                            data-counselor-token="{{ $counselorToken }}">
+                            See More
+                        </button>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

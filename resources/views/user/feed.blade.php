@@ -641,25 +641,151 @@
 
                         {{-- if scroller needed to every box give this class to box inner-scroll --}}
                         <div class="box p-5 px-6 inner-scroll" x-data="{
-                            showCount: 2,
+                        
                             search: '',
-                            allUsers: {{ Js::from($all_users->where('role', 0)->values()) }},
-                            get filteredUsers() {
-                                const searchTerm = this.search.toLowerCase();
-                                const matched = this.allUsers.filter(user => {
-                                    return (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm);
-                                });
-                                return matched.slice(0, this.showCount);
-                            },
-                            seeMore() {
-                                const searchTerm = this.search.toLowerCase();
-                                const matched = this.allUsers.filter(user => {
-                                    return (user.first_name + ' ' + user.last_name).toLowerCase().includes(searchTerm);
-                                });
-                                if (this.showCount < matched.length) {
-                                    this.showCount += 3;
+                        
+                            allUsers: {{ Js::from($all_users->getCollection()->values()) }},
+                        
+                            async performSearch() {
+                        
+                                const searchTerm = this.search.trim();
+                        
+                                try {
+                        
+                                    const response = await fetch(
+                                        `{{ route('feed') }}?users_page=1&users_token={{ $usersToken }}&search=${encodeURIComponent(searchTerm)}`, {
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        }
+                                    );
+                        
+                                    const html = await response.text();
+                        
+                                    const parser = new DOMParser();
+                        
+                                    const doc = parser.parseFromString(html, 'text/html');
+                        
+                                    const usersData = doc.getElementById('feedUsersData');
+                        
+                                    if (!usersData) {
+                                        console.error('feedUsersData not found');
+                                        return;
+                                    }
+                        
+                                    const newUsers = JSON.parse(usersData.textContent);
+                        
+                                    this.allUsers = newUsers.filter(user => user.role == 0);
+                        
+                                    const newBtn = doc.getElementById('seeMoreBtn');
+                        
+                                    const btn = document.getElementById('seeMoreBtn');
+                        
+                                    if (btn) {
+                        
+                                        if (searchTerm !== '') {
+                        
+                                            btn.style.display = 'none';
+                        
+                                        } else if (newBtn) {
+                        
+                                            btn.style.display = '';
+                        
+                                            btn.dataset.nextPage =
+                                                newBtn.dataset.nextPage;
+                        
+                                            btn.dataset.usersToken =
+                                                newBtn.dataset.usersToken;
+                        
+                                        }
+                        
+                                    }
+                        
+                                } catch (error) {
+                        
+                                    console.error('Search Error:', error);
+                        
                                 }
+                        
+                            },
+                        
+                            async seeMore() {
+                        
+                                const btn = document.getElementById('seeMoreBtn');
+                        
+                                if (!btn) return;
+                        
+                                const nextPage = btn.dataset.nextPage;
+                        
+                                const usersToken = btn.dataset.usersToken;
+                        
+                                btn.disabled = true;
+                        
+                                btn.innerText = 'Loading...';
+                        
+                                try {
+                        
+                                    const response = await fetch(
+                                        `{{ route('feed') }}?users_page=${nextPage}&users_token=${encodeURIComponent(usersToken)}`, {
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        }
+                                    );
+                        
+                                    const html = await response.text();
+                        
+                                    const parser = new DOMParser();
+                        
+                                    const doc = parser.parseFromString(html, 'text/html');
+                        
+                                    const usersData =
+                                        doc.getElementById('feedUsersData');
+                        
+                                    if (!usersData) {
+                                        throw new Error('feedUsersData not found');
+                                    }
+                        
+                                    const newUsers =
+                                        JSON.parse(usersData.textContent);
+                        
+                                    this.allUsers.push(
+                                        ...newUsers.filter(user => user.role == 0)
+                                    );
+                        
+                                    const newBtn =
+                                        doc.getElementById('seeMoreBtn');
+                        
+                                    if (newBtn) {
+                        
+                                        btn.dataset.nextPage =
+                                            newBtn.dataset.nextPage;
+                        
+                                        btn.dataset.usersToken =
+                                            newBtn.dataset.usersToken;
+                        
+                                        btn.disabled = false;
+                        
+                                        btn.innerText = 'See more';
+                        
+                                    } else {
+                        
+                                        btn.remove();
+                        
+                                    }
+                        
+                                } catch (error) {
+                        
+                                    console.error('See More Error:', error);
+                        
+                                    btn.disabled = false;
+                        
+                                    btn.innerText = 'See more';
+                        
+                                }
+                        
                             }
+                        
                         }">
                             <div class="flex items-baseline justify-between text-black dark:text-white mb-4">
                                 <i data-lucide="users" class="w-6 h-6"></i>
@@ -667,11 +793,12 @@
                             </div>
 
                             <div class="mb-4">
-                                <input type="text" x-model="search" placeholder="Search user..."
+                                <input type="text" x-model="search" @input.debounce.400ms="performSearch()"
+                                    placeholder="Search user..."
                                     class="w-full px-3 py-2 border rounded text-sm focus:outline-none focus:ring focus:border-blue-300">
                             </div>
 
-                            <template x-for="user in filteredUsers" :key="user.id">
+                            <template x-for="user in allUsers" :key="user.id">
                                 <div class="side-list-item flex items-center space-x-3 mb-4">
                                     <a :href="'/user/' + user.id" class="user-avatar relative inline-block">
                                         <!-- User Image -->
@@ -744,11 +871,10 @@
                                 </div>
                             </template>
 
-                            <div class="text-center"
-                                x-show="filteredUsers.length < allUsers.filter(user => 
-                            (user.first_name + ' ' + user.last_name).toLowerCase().includes(search.toLowerCase())
-                            ).length">
-                                <button @click="seeMore" class="text-sm text-blue-500 hover:underline">
+                            <div class="text-center" @if (!$all_users->hasMorePages()) style="display:none;" @endif>
+                                <button type="button" id="seeMoreBtn" @click="seeMore()"
+                                    data-next-page="{{ $all_users->currentPage() + 1 }}"
+                                    data-users-token="{{ $usersToken }}" class="text-sm text-blue-500 hover:underline">
                                     See more
                                 </button>
                             </div>
@@ -761,7 +887,171 @@
                             selectedRating: '',
                             selectedSpecialization: '',
                             specializations: [],
-                            counselors: {{ $all_users->where('role', 1)->where('documents_status', 3)->values()->map(function ($u) {
+                            async applyCounselorFilters() {
+                        
+                                const params = new URLSearchParams();
+                        
+                                params.set('counselor_page', 1);
+                                params.set('counselor_token', '{{ $counselorToken }}');
+                        
+                                if (this.selectedPrice) {
+                                    params.set('price', this.selectedPrice);
+                                }
+                        
+                                if (this.selectedRating) {
+                                    params.set('rating', this.selectedRating);
+                                }
+                        
+                                if (this.selectedSpecialization) {
+                                    params.set('specialization', this.selectedSpecialization);
+                                }
+                        
+                                try {
+                        
+                                    const response = await fetch(
+                                        `{{ route('feed') }}?${params.toString()}`, {
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        }
+                                    );
+                        
+                                    const html = await response.text();
+                        
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(html, 'text/html');
+                        
+                                    const counselorsData =
+                                        doc.getElementById('counselorsData');
+                        
+                                    if (!counselorsData) {
+                                        console.error('counselorsData not found');
+                                        return;
+                                    }
+                        
+                                    this.counselors =
+                                        JSON.parse(counselorsData.textContent);
+                        
+                                    const newBtn =
+                                        doc.getElementById('counselorSeeMoreBtn');
+                        
+                                    const btn =
+                                        document.getElementById('counselorSeeMoreBtn');
+                        
+                                    if (btn) {
+                        
+                                        if (newBtn) {
+                        
+                                            btn.style.display = '';
+                        
+                                            btn.dataset.nextPage =
+                                                newBtn.dataset.nextPage;
+                        
+                                            btn.dataset.counselorToken =
+                                                newBtn.dataset.counselorToken;
+                        
+                                        } else {
+                        
+                                            btn.style.display = 'none';
+                                        }
+                                    }
+                        
+                                } catch (error) {
+                        
+                                    console.error('Counselor Filter Error:', error);
+                                }
+                            },
+                            async seeMoreCounselors() {
+                        
+                                const btn =
+                                    document.getElementById('counselorSeeMoreBtn');
+                        
+                                if (!btn) return;
+                        
+                                const nextPage =
+                                    btn.dataset.nextPage;
+                        
+                                const counselorToken =
+                                    btn.dataset.counselorToken;
+                        
+                                btn.disabled = true;
+                                btn.innerText = 'Loading...';
+                        
+                                try {
+                        
+                                    const params = new URLSearchParams();
+                        
+                                    params.set('counselor_page', nextPage);
+                                    params.set('counselor_token', counselorToken);
+                        
+                                    if (this.selectedPrice) {
+                                        params.set('price', this.selectedPrice);
+                                    }
+                        
+                                    if (this.selectedRating) {
+                                        params.set('rating', this.selectedRating);
+                                    }
+                        
+                                    if (this.selectedSpecialization) {
+                                        params.set('specialization', this.selectedSpecialization);
+                                    }
+                        
+                                    const response = await fetch(
+                                        `{{ route('feed') }}?${params.toString()}`, {
+                                            headers: {
+                                                'X-Requested-With': 'XMLHttpRequest'
+                                            }
+                                        }
+                                    );
+                        
+                                    const html = await response.text();
+                        
+                                    const parser = new DOMParser();
+                                    const doc = parser.parseFromString(html, 'text/html');
+                        
+                                    const counselorsData =
+                                        doc.getElementById('counselorsData');
+                        
+                                    if (!counselorsData) {
+                                        throw new Error('counselorsData not found');
+                                    }
+                        
+                                    const newCounselors =
+                                        JSON.parse(counselorsData.textContent);
+                        
+                                    this.counselors.push(...newCounselors);
+                        
+                                    const newBtn =
+                                        doc.getElementById('counselorSeeMoreBtn');
+                        
+                                    if (newBtn) {
+                        
+                                        btn.dataset.nextPage =
+                                            newBtn.dataset.nextPage;
+                        
+                                        btn.dataset.counselorToken =
+                                            newBtn.dataset.counselorToken;
+                        
+                                        btn.disabled = false;
+                                        btn.innerText = 'See More';
+                        
+                                    } else {
+                        
+                                        btn.remove();
+                                    }
+                        
+                                } catch (error) {
+                        
+                                    console.error(
+                                        'Counselor See More Error:',
+                                        error
+                                    );
+                        
+                                    btn.disabled = false;
+                                    btn.innerText = 'See More';
+                                }
+                            },
+                            counselors: {{ $counselors->getCollection()->values()->map(function ($u) {
                                     return [
                                         'id' => $u->id,
                                         'first_name' => $u->first_name,
@@ -773,28 +1063,6 @@
                                         'specialization' => $u->specialization->name ?? 'General',
                                     ];
                                 })->toJson() }},
-                        
-                            filteredCounselors() {
-                                return this.counselors.filter(c => {
-                                    const price = parseInt(c.price);
-                                    const rating = parseFloat(c.average_rating ?? 0);
-                        
-                                    // Price filter
-                                    if (this.selectedPrice === '0-499' && price >= 500) return false;
-                                    if (this.selectedPrice === '500-999' && (price < 500 || price > 999)) return false;
-                                    if (this.selectedPrice === '1000-999999' && price < 1000) return false;
-                        
-                                    // Rating filter
-                                    if (this.selectedRating === '4' && rating < 4) return false;
-                                    if (this.selectedRating === '3' && (rating < 3 || rating >= 4)) return false;
-                                    if (this.selectedRating === '0' && rating >= 3) return false;
-                        
-                                    // Specialization filter
-                                    if (this.selectedSpecialization && c.specialization !== this.selectedSpecialization) return false;
-                        
-                                    return true;
-                                });
-                            }
                         }">
 
                             <div class="flex items-baseline justify-between text-black dark:text-white mb-3">
@@ -812,7 +1080,7 @@
                                         Specialization:
                                     </label>
 
-                                    <select x-model="selectedSpecialization"
+                                    <select x-model="selectedSpecialization" @change="applyCounselorFilters()"
                                         class="w-full mt-1 border border-gray-300 rounded p-2">
                                         <option value="">All Specializations</option>
 
@@ -827,7 +1095,7 @@
                                     <!-- Price Filter -->
                                     <div class="w-1/2">
                                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Price:</label>
-                                        <select x-model="selectedPrice"
+                                        <select x-model="selectedPrice" @change="applyCounselorFilters()"
                                             class="w-full mt-1 border border-gray-300 rounded p-2">
                                             <option value="">All Prices</option>
                                             <option value="0-499">Below ₹500</option>
@@ -839,7 +1107,7 @@
                                     <!-- Rating Filter -->
                                     <div class="w-1/2">
                                         <label class="text-sm font-medium text-gray-700 dark:text-gray-300">Rating:</label>
-                                        <select x-model="selectedRating"
+                                        <select x-model="selectedRating" @change="applyCounselorFilters()"
                                             class="w-full mt-1 border border-gray-300 rounded p-2">
                                             <option value="">All Ratings</option>
                                             <option value="4">4 ★ & above</option>
@@ -852,9 +1120,8 @@
 
                             <!-- Counselor List -->
                             <div class="side-list">
-                                <template x-for="(user, index) in filteredCounselors()" :key="user.id">
-                                    <div class="side-list-item" x-show="(!showAll && index < 2) || (showAll && index < 3)"
-                                        x-cloak>
+                                <template x-for="(user, index) in counselors" :key="user.id">
+                                    <div class="side-list-item" x-show="index < counselors.length" x-cloak>
                                         <a :href="user.profileUrl">
                                             <img :src="user.image" alt=""
                                                 class="side-list-image rounded-full w-10 h-10 object-cover">
@@ -875,9 +1142,14 @@
                                         <a :href="user.profileUrl" class="button bg-blue-500 text-white">Contact</a>
                                     </div>
                                 </template>
-                                <div class="text-center mt-3" x-show="!showAll && filteredCounselors().length > 2">
-                                    <button @click="showAll = true" class="text-blue-500 hover:underline text-sm">See
-                                        More</button>
+                                <div class="text-center mt-3"
+                                    @if (!$counselors->hasMorePages()) style="display:none;" @endif>
+                                    <button type="button" id="counselorSeeMoreBtn" @click="seeMoreCounselors()"
+                                        data-next-page="{{ $counselors->currentPage() + 1 }}"
+                                        data-counselor-token="{{ $counselorToken }}"
+                                        class="text-sm text-blue-500 hover:underline">
+                                        See More
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -1841,6 +2113,28 @@
                 }
             }
         }
+    </script>
+
+    <script type="application/json" id="counselorsData">
+{!! json_encode(
+    $counselors->getCollection()->values()->map(function ($u) {
+        return [
+            'id' => $u->id,
+            'first_name' => $u->first_name,
+            'last_name' => $u->last_name,
+            'average_rating' => $u->average_rating,
+            'image' => $u->image
+                ? asset('storage/' . $u->image)
+                : asset('images/avatars/avatar-1.jpg'),
+            'price' => $u->price ?? 0,
+            'profileUrl' => route('counselor.profile', $u->id),
+            'specialization' => $u->specialization->name ?? 'General',
+        ];
+    })
+) !!}
+</script>
+    <script type="application/json" id="feedUsersData">
+    {!! json_encode($all_users->items()) !!}
     </script>
 @endsection
 
