@@ -2078,7 +2078,7 @@
                             });
 
                             const eventData = await eventRes.json();
-                            console.log(eventData);
+                            // console.log(eventData);
 
                             if (eventData.success) {
 
