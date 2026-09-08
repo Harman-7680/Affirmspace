@@ -555,12 +555,11 @@ class ApiProfileController extends Controller
             })
             ->toArray();
 
-        $allowedUserIds = User::where(function ($q) use ($friendIds) {
-            $q->where('is_private', 0)     // public
+        $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
+            $q->where('id', $auth->id)     // own posts always allowed
+                ->orWhere('is_private', 0)     // public users
                 ->orWhereIn('id', $friendIds); // friends
-        })
-            ->pluck('id')
-            ->toArray();
+        })->pluck('id')->toArray();
 
         // --- Fetch all users ---
         $all_users = \App\Models\User::where('id', '!=', $auth->id)
