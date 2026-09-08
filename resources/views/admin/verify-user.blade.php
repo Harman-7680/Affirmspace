@@ -97,7 +97,7 @@
                             <td>
                                 <span class="badge bg-info"
                                     x-text="
-            (!detail.selfie && !detail.verification_id)
+            (!detail.verification_selfie && !detail.verification_id)
                 ? 'Pending'
                 : (detail.verification_method === 'selfie'
                     ? 'Live Selfie'
