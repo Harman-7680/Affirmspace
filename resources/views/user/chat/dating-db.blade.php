@@ -7,18 +7,38 @@
             {{ $receiver->first_name }} {{ $receiver->last_name }}
         </a>
     </div>
-    
-    @if ($receiver->has_details && $receiver->sender_has_details)
+
+    @if (!$receiver->has_details && !$receiver->sender_has_details)
         <div class="mt-3.5">
-            {{-- Dating profile --}}
+            <p class="text-gray-500 text-sm">
+                Your dating account deleted
+            </p>
+        </div>
+    @elseif (!$receiver->has_details)
+        <div class="mt-3.5">
+            <p class="text-gray-500 text-sm">
+                Dating account deleted
+            </p>
+        </div>
+    @elseif (!$receiver->sender_has_details)
+        <div class="mt-3.5">
+            <p class="text-gray-500 text-sm">
+                Your dating account deleted
+            </p>
+        </div>
+    @else
+        <div class="mt-3.5">
+
             <a href="{{ url('/dating/profile/' . $receiver->id) }}"
                 class="inline-block rounded-lg px-4 py-1.5 text-sm font-semibold bg-secondery">
                 View profile
             </a>
+
             <p
                 class="text-gray-700 text-sm leading-relaxed px-3 py-2 rounded-lg bg-gradient-to-r from-pink-50 to-blue-50">
                 Connect as friends to enable real-time messaging.
             </p>
+
         </div>
     @endif
 </div>
@@ -34,8 +54,22 @@
 </div> --}}
 
 <script>
+    const datingChatAllowed =
+        {{ $receiver->has_details && $receiver->sender_has_details ? 'true' : 'false' }};
+
     async function sendDatingMessage() {
-        const msg = document.getElementById('datingMessage').value.trim();
+
+        // Dating account deleted on either side
+        if (!datingChatAllowed) {
+            return;
+        }
+
+        const input = document.getElementById('datingMessage');
+
+        if (!input) return;
+
+        const msg = input.value.trim();
+
         if (!msg) return;
 
         const res = await fetch("{{ route('dating.message.send') }}", {
@@ -50,25 +84,55 @@
             })
         });
 
-        document.getElementById('datingMessage').value = '';
+        if (!res.ok) {
+            return;
+        }
+
+        input.value = '';
+
         loadDatingChat();
     }
 
+
+    // Enter key
+    document.getElementById('datingMessage')?.addEventListener('keydown', function(e) {
+
+        if (e.key === 'Enter') {
+
+            // Account deleted on either side
+            if (!datingChatAllowed) {
+                e.preventDefault();
+                return;
+            }
+
+            e.preventDefault();
+
+            sendDatingMessage();
+        }
+
+    });
+
+
     async function loadDatingChat() {
+
         const res = await fetch("{{ route('dating.chat', $receiver->id) }}");
+
         const data = await res.json();
 
         const box = document.getElementById('dating-messages');
+
         box.innerHTML = '';
 
         data.forEach(m => {
+
             box.innerHTML += `
-            <div class="${m.sender_id == {{ auth()->id() }} ? 'text-right' : 'text-left'}">
-                <span class="inline-block bg-gray-200 px-3 py-2 rounded">
-                    ${m.message}
-                </span>
-            </div>
-        `;
+                <div class="${m.sender_id == {{ auth()->id() }} ? 'text-right' : 'text-left'}">
+                    <span class="inline-block bg-gray-200 px-3 py-2 rounded">
+                        ${m.message}
+                    </span>
+                </div>
+            `;
+
         });
     }
 
