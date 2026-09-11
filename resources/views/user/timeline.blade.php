@@ -714,7 +714,7 @@
 
                         @empty
 
-                            <p class="col-span-3 text-center text-gray-500 py-8">
+                            <p class="col-span-3 text-center text-gray-500">
                                 No thoughts yet
                             </p>
                         @endforelse
@@ -806,8 +806,8 @@
 
                         @empty
 
-                            <p class="col-span-3 text-center text-gray-500 py-8">
-                                You haven't been tagged in any posts yet.
+                            <p class="col-span-3 text-center text-gray-500">
+                                No tagged yet
                             </p>
                         @endforelse
 
