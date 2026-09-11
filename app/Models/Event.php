@@ -25,4 +25,9 @@ class Event extends Model
     {
         return $this->belongsTo(User::class);
     }
+
+    public function chats()
+    {
+        return $this->hasMany(EventChat::class);
+    }
 }

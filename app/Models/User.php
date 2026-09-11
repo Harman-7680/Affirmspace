@@ -308,4 +308,9 @@ class User extends Authenticatable implements MustVerifyEmail
     {
         return $this->hasMany(Tweet::class);
     }
+
+    public function eventChats()
+    {
+        return $this->hasMany(EventChat::class, 'sender_id');
+    }
 }

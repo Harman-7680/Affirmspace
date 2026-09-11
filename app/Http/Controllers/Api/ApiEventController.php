@@ -219,4 +219,67 @@ class ApiEventController extends Controller
 
         return null;
     }
+
+    public function sendEventMessage(Request $request, Event $event)
+    {
+        $user = Auth::user();
+
+        abort_if(
+            $user->role != 0,
+            403,
+            'Unauthorized access'
+        );
+
+        if ($event->status !== 'approved') {
+            return response()->json([
+                'success' => false,
+                'message' => 'This event is not available.',
+            ], 422);
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:5000',
+        ]);
+
+        $authId       = (int) $user->id;
+        $eventOwnerId = (int) $event->user_id;
+
+        if ($authId === $eventOwnerId) {
+            return response()->json([
+                'success' => false,
+                'message' => 'You cannot send a message to your own event.',
+            ], 422);
+        }
+
+        $chat = \App\Models\EventChat::create([
+            'event_id'             => $event->id,
+            'sender_id'            => $authId,
+            'conversation_user_id' => $eventOwnerId,
+            'message'              => $request->message,
+        ]);
+
+        $chat->load('sender');
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Message sent successfully.',
+            'data'    => $chat,
+        ]);
+    }
+
+    public function show($id)
+    {
+        $user = Auth::user();
+
+        abort_if($user->role != 0, 403, 'Unauthorized access');
+
+        $event = Event::where('id', $id)
+            ->where('status', 'approved')
+            ->firstOrFail();
+
+        return response()->json([
+            'success' => true,
+            'event'   => $event,
+        ]);
+    }
 }

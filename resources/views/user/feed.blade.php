@@ -1231,19 +1231,20 @@
                                     <div class="side-list-item flex items-center justify-between mb-3"
                                         x-show="(!showAll && index < 3) || showAll" x-cloak>
 
-                                        <a>
-                                            <img :src="event.image" alt=""
+                                        <a :href="`/events/${event.id}`">
+                                            <img :src="event.image" :alt="event.name"
                                                 class="side-list-image rounded w-64 h-32 object-cover">
                                         </a>
 
                                         <div class="flex-1 ml-3">
-                                            <a>
+                                            <a :href="`/events/${event.id}`">
                                                 <h4 class="side-list-title font-semibold text-gray-800 dark:text-white"
                                                     x-text="event.name"></h4>
                                             </a>
 
                                             <div class="side-list-info text-sm text-gray-600 dark:text-gray-300">
-                                                <span x-text="event.city"></span> <br>
+                                                <span x-text="event.city"></span>
+                                                <br>
                                                 <span x-text="event.timing"></span>
                                             </div>
                                         </div>

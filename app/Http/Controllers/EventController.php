@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use App\Models\AreaPrice;
 use App\Models\Event;
+use App\Models\EventChat;
 use Auth;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
@@ -242,5 +243,58 @@ class EventController extends Controller
                 ? $response->json()
                 : []
         );
+    }
+
+    public function show(Event $event)
+    {
+        abort_if($event->status !== 'approved', 404);
+
+        $user = Auth::user();
+
+        $notifications = $user->unreadNotifications;
+
+        return view('user.event-details', [
+            'event'         => $event,
+            'user'          => $user,
+            'notifications' => $notifications,
+        ]);
+    }
+
+    public function sendEventMessage(Request $request, Event $event)
+    {
+        if (Auth::user()->role != 0) {
+            return redirect()->back()
+                ->with('error', 'You are not allowed to send messages.');
+        }
+
+        if ($event->status !== 'approved') {
+            return redirect()->back()
+                ->with('error', 'This event is not available.');
+        }
+
+        $request->validate([
+            'message' => 'required|string|max:5000',
+        ]);
+
+        $authId = (int) Auth::id();
+
+        // Event owner
+        $eventOwnerId = (int) $event->user_id;
+
+        // Cannot message yourself
+        if ($authId === $eventOwnerId) {
+            return redirect()->back()
+                ->with('error', 'You cannot send a message to your own event.');
+        }
+
+        EventChat::create([
+            'event_id'             => $event->id,
+            'sender_id'            => $authId,
+            'conversation_user_id' => $eventOwnerId,
+            'message'              => $request->message,
+        ]);
+
+        return redirect()->back()
+            ->with('success', 'Message sent successfully.');
     }
 }

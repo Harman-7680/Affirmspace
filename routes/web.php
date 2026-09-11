@@ -15,6 +15,7 @@ use App\Http\Controllers\CounselorAvailabilityController;
 use App\Http\Controllers\CounselorController;
 use App\Http\Controllers\DatingController;
 use App\Http\Controllers\DatingMessageController;
+use App\Http\Controllers\EventChatController;
 use App\Http\Controllers\EventController;
 use App\Http\Controllers\FriendController;
 use App\Http\Controllers\HomeController;
@@ -371,6 +372,10 @@ Route::middleware(['auth', 'profile.complete'])->group(function () {
     Route::get('/event/cancel/{id}', [EventController::class, 'cancel'])->name('event.cancel');
     Route::post('/event/verify', [EventController::class, 'verify'])->name('event.verify');
     Route::get('/location-search', [EventController::class, 'locationSearch']);
+    Route::get('/events/chats', [EventChatController::class, 'index'])->name('events.chats');
+    Route::post('/events/chats/send', [EventChatController::class, 'sendMessage'])->name('events.chats.send');
+    Route::get('/events/{event}', [EventController::class, 'show'])->name('events.show');
+    Route::post('/events/{event}/message', [EventController::class, 'sendEventMessage'])->name('events.message.send');
 });
 
 // public route for mobile videocall

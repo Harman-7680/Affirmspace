@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\Api\ApiDatingController;
 use App\Http\Controllers\Api\ApiDatingMessageController;
 use App\Http\Controllers\Api\ApiEventController;
+use App\Http\Controllers\Api\ApiEventChatController;
 use App\Http\Controllers\Api\ApiFriendController;
 use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
@@ -136,6 +137,13 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
 Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registration.paid', 'profile.complete')->group(function () {
     Route::get('/events/feed', [ApiEventController::class, 'feed']);
     Route::post('/events', [ApiEventController::class, 'store']); // create event + razorpay order
+});
+
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/events/chats', [ApiEventChatController::class, 'index'])->name('api.events.chats');
+    Route::post('/events/chats/send', [ApiEventChatController::class, 'sendMessage'])->name('api.events.chats.send');
+    Route::get('/events/{event}', [ApiEventController::class, 'show'])->name('api.events.show');
+    Route::post('/events/{event}/message', [ApiEventController::class, 'sendEventMessage'])->name('api.events.message.send');
 });
 
 Route::post('/verify-payment', [ApiEventController::class, 'verifyPayment']); // razorpay verify

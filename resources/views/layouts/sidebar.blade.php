@@ -73,6 +73,17 @@
                         </a>
                     </li>
 
+                    <li class="{{ $current === 'events.chats' ? 'active' : '' }}">
+                        <a href="{{ route('events.chats') }}"
+                            class="{{ $current === 'events.chats' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
+                            <i data-lucide="messages-square"
+                                class="w-6 h-6 {{ $current === 'events.chats' ? 'icon-bg-remove' : '' }}"></i>
+                            <span class="{{ $current === 'events.chats' ? 'active' : '' }}">
+                                Event Messages
+                            </span>
+                        </a>
+                    </li>
+
                     <li class="{{ $current === 'timeline' ? 'active' : '' }}">
                         <a href="{{ route('timeline') }}"
                             class="{{ $current === 'timeline' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
