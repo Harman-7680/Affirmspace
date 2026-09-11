@@ -8,6 +8,7 @@ use App\Notifications\FollowNotification;
 use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class FriendController extends Controller
@@ -127,14 +128,48 @@ class FriendController extends Controller
 
     public function unfriend($id, Request $request)
     {
+        $authId = auth()->id();
+
+        // Remove all tags between these two users
+        DB::table('post_tags')
+            ->where(function ($q) use ($authId, $id) {
+
+                // My posts where I tagged this friend
+                $q->whereIn('post_id', function ($sub) use ($authId) {
+                    $sub->select('id')
+                        ->from('posts')
+                        ->where('user_id', $authId);
+                })
+                    ->where('user_id', $id);
+
+            })
+            ->orWhere(function ($q) use ($authId, $id) {
+
+                // Friend's posts where they tagged me
+                $q->whereIn('post_id', function ($sub) use ($id) {
+                    $sub->select('id')
+                        ->from('posts')
+                        ->where('user_id', $id);
+                })
+                    ->where('user_id', $authId);
+
+            })
+            ->delete();
+
+        // Unfriend
         Friendship::where(function ($q) use ($id) {
-            $q->where('sender_id', auth()->id())->where('receiver_id', $id);
-        })->orWhere(function ($q) use ($id) {
-            $q->where('sender_id', $id)->where('receiver_id', auth()->id());
-        })->delete();
+            $q->where('sender_id', $authId)
+                ->where('receiver_id', $id);
+        })
+            ->orWhere(function ($q) use ($id) {
+                $q->where('sender_id', $id)
+                    ->where('receiver_id', $authId);
+            })
+            ->delete();
 
         // Check if request is AJAX
         if ($request->ajax()) {
+
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Unfriended successfully',

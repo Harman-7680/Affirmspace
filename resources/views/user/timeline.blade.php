@@ -442,6 +442,15 @@
                         Thoughts
                     </button>
 
+                    <button type="button" @click="activeTab = 'tagged'"
+                        :class="activeTab === 'tagged'
+                            ?
+                            'text-indigo-600 font-semibold border-b-2 border-indigo-600' :
+                            'text-gray-500 hover:text-indigo-600'"
+                        class="pb-1 transition">
+
+                        Tagged
+                    </button>
                 </div>
 
                 {{-- POSTS SECTION --}}
@@ -714,6 +723,97 @@
 
                 </div>
 
+                <div x-show="activeTab === 'tagged'" style="display:none" class="mt-6">
+
+                    <div class="grid sm:grid-cols-3 gap-4">
+
+                        @forelse($taggedPosts as $post)
+                            <div class="rounded-xl overflow-hidden shadow bg-white p-3">
+
+                                {{-- POST CREATOR --}}
+                                <div class="flex items-center gap-3 mb-3">
+
+                                    <img src="{{ $post->user->image && $post->user->image !== '0'
+                                        ? asset('storage/' . $post->user->image)
+                                        : asset('images/avatars/avatar-1.jpg') }}"
+                                        class="w-10 h-10 rounded-full object-cover">
+
+                                    <div>
+                                        <p class="text-sm font-semibold text-gray-800">
+                                            {{ $post->user->first_name }}
+                                            {{ $post->user->last_name }}
+                                        </p>
+
+                                        <p class="text-xs text-gray-400">
+                                            {{ $post->created_at->diffForHumans() }}
+                                        </p>
+                                    </div>
+
+                                </div>
+
+
+                                {{-- POST --}}
+                                @if ($post->post_image)
+                                    @php
+                                        $ext = strtolower(pathinfo($post->post_image, PATHINFO_EXTENSION));
+                                        $isVideo = in_array($ext, ['mp4', 'mov', 'avi', 'webm']);
+                                    @endphp
+
+                                    @if ($isVideo)
+                                        <video controls class="w-full h-40 rounded-lg object-cover">
+
+                                            <source src="{{ asset('storage/' . $post->post_image) }}">
+
+                                        </video>
+                                    @else
+                                        <img src="{{ asset('storage/' . $post->post_image) }}"
+                                            class="w-full h-40 rounded-lg object-cover">
+                                    @endif
+                                @endif
+
+
+                                {{-- CAPTION --}}
+                                @if ($post->caption)
+                                    <p class="text-sm text-gray-700 mt-3">
+                                        {{ $post->caption }}
+                                    </p>
+                                @endif
+
+
+                                {{-- TAGGED FRIENDS --}}
+                                @if ($post->taggedUsers->count())
+                                    <div class="mt-3 text-xs text-gray-500">
+
+                                        Tagged:
+
+                                        @foreach ($post->taggedUsers as $taggedUser)
+                                            <span class="font-medium text-indigo-600">
+
+                                                {{ $taggedUser->first_name }}
+                                                {{ $taggedUser->last_name }}
+
+                                            </span>
+
+                                            @if (!$loop->last)
+                                                ,
+                                            @endif
+                                        @endforeach
+
+                                    </div>
+                                @endif
+
+                            </div>
+
+                        @empty
+
+                            <p class="col-span-3 text-center text-gray-500 py-8">
+                                You haven't been tagged in any posts yet.
+                            </p>
+                        @endforelse
+
+                    </div>
+
+                </div>
             </div>
         </div>
     </main>

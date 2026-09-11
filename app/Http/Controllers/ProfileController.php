@@ -41,45 +41,116 @@ class ProfileController extends Controller
 
         $user = \App\Models\User::findOrFail($id);
 
-        // Check if the authenticated user has blocked the profile owner
+        $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+        // Check if authenticated user blocked profile owner
         $hasBlockedUser = \App\Models\Block::where('user_id', $auth->id)
             ->where('blocked_id', $user->id)
             ->exists();
 
-        // Check if the profile owner has blocked the authenticated user
+        // Check if profile owner blocked authenticated user
         $isBlockedByUser = \App\Models\Block::where('user_id', $user->id)
             ->where('blocked_id', $auth->id)
             ->exists();
 
+        // Default empty collections
+        $posts       = collect();
+        $thoughts    = collect();
+        $taggedPosts = collect();
+
         // If blocked in either direction
         if ($hasBlockedUser || $isBlockedByUser) {
-            $posts        = collect();
+
             $canViewPosts = false;
             $message      = "You can’t interact with this user.";
-        } else {
-            // By default, allow viewing if public OR if it's the user's own profile
-            $canViewPosts = ! $user->is_private || $auth->id === $user->id;
-            $message      = null;
 
-            // If the account is private and it's not the auth user
+        } else {
+
+            // Public account can be viewed
+            $canViewPosts = ! $user->is_private || $auth->id === $user->id;
+
+            $message = null;
+
+            // Private account
             if ($user->is_private && $auth->id !== $user->id) {
-                                                       // Check if auth user is a friend
-                $friendsOfUser = $user->friendsList(); // accepted friends of the user
-                $canViewPosts  = $friendsOfUser->contains(fn($friend) => $friend->id === $auth->id);
+
+                $friendsOfUser = $user->friendsList();
+
+                $canViewPosts = $friendsOfUser->contains(
+                    fn($friend) => $friend->id === $auth->id
+                );
 
                 if (! $canViewPosts) {
                     $message = "This account is private.";
                 }
             }
 
-            // Load posts if allowed
-            $posts = $canViewPosts
-                ? \App\Models\Post::with(['user', 'comments.user', 'likes'])
-                ->withCount(['likes', 'comments'])
-                ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get()
-                : collect(); // empty collection if not allowed
+            // Only load content if allowed
+            if ($canViewPosts) {
+
+                // --------------------------------
+                // NORMAL POSTS
+                // --------------------------------
+
+                $posts = \App\Models\Post::with([
+                    'user',
+                    'comments.user',
+                    'likes',
+                ])
+                    ->withCount(['likes', 'comments'])
+                    ->where('user_id', $user->id)
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+
+                // --------------------------------
+                // THOUGHTS
+                // --------------------------------
+
+                $thoughts = \App\Models\Tweet::where('user_id', $user->id)
+                    ->latest()
+                    ->get();
+
+                // --------------------------------
+                // TAGGED POSTS
+                // --------------------------------
+
+                $taggedPosts = \App\Models\Post::with([
+                    'user',
+                    'likes',
+                    'comments' => function ($q) use ($hiddenUsers) {
+
+                        $q->whereNull('parent_id')
+                            ->whereNotIn('user_id', $hiddenUsers)
+                            ->with([
+                                'user',
+                                'replies' => function ($r) use ($hiddenUsers) {
+
+                                    $r->whereNotIn('user_id', $hiddenUsers)
+                                        ->with('user');
+                                },
+                            ])
+                            ->latest();
+                    },
+                    'taggedUsers',
+                ])
+                    ->whereHas('taggedUsers', function ($q) use ($user) {
+
+                        $q->where('users.id', $user->id);
+
+                    })
+                    ->orderBy('created_at', 'desc')
+                    ->get();
+            }
         }
 
         $notifications = $auth->unreadNotifications;
@@ -87,6 +158,8 @@ class ProfileController extends Controller
         return view('user.profile', [
             'userProfile'     => $user,
             'posts'           => $posts,
+            'thoughts'        => $thoughts,
+            'taggedPosts'     => $taggedPosts,
             'notifications'   => $notifications,
             'canViewPosts'    => $canViewPosts,
             'message'         => $message,
@@ -100,7 +173,15 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         // User posts & notifications
-        $posts         = Post::where('user_id', $user->id)->latest()->get();
+        $posts = Post::where('user_id', $user->id)
+            ->with('taggedUsers')
+            ->latest()
+            ->get();
+
+        $taggedPosts = $user->taggedPosts()
+            ->with(['user', 'taggedUsers'])
+            ->latest()
+            ->get();
         $notifications = $user->unreadNotifications;
 
         // Friendships
@@ -160,6 +241,7 @@ class ProfileController extends Controller
         return view('profile.edit', [
             'user'            => $user,
             'uploaded_post'   => $posts,
+            'taggedPosts'     => $taggedPosts,
             'notifications'   => $notifications,
             'followers'       => $followers,
             'appointments'    => $appointments,
@@ -2245,6 +2327,58 @@ class ProfileController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // $taggedPosts = \App\Models\Post::with([
+        //     'user',
+        //     'likes',
+        //     'comments' => function ($q) use ($hiddenUsers) {
+        //         $q->whereNull('parent_id')
+        //             ->whereNotIn('user_id', $hiddenUsers)
+        //             ->with([
+        //                 'user',
+        //                 'replies' => function ($r) use ($hiddenUsers) {
+        //                     $r->whereNotIn('user_id', $hiddenUsers)
+        //                         ->with('user');
+        //                 },
+        //             ])
+        //             ->latest();
+        //     },
+        //     'taggedUsers',
+        // ])
+        //     ->where('user_id', $auth->id)
+        //     ->whereHas('taggedUsers')
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
+
+        $taggedPosts = \App\Models\Post::with([
+            'user',
+            'likes',
+            'comments' => function ($q) use ($hiddenUsers) {
+
+                $q->whereNull('parent_id')
+                    ->whereNotIn('user_id', $hiddenUsers)
+                    ->with([
+                        'user',
+                        'replies' => function ($r) use ($hiddenUsers) {
+
+                            $r->whereNotIn('user_id', $hiddenUsers)
+                                ->with('user');
+                        },
+                    ])
+                    ->latest();
+            },
+            'taggedUsers',
+        ])
+            ->whereHas('taggedUsers', function ($q) use ($auth) {
+
+                // Only posts where logged-in user is tagged
+                $q->where('users.id', $auth->id);
+
+            })
+            ->where('user_id', '!=', $auth->id)
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $posts_count = \App\Models\Post::with(['user', 'likes', 'comments.user'])
             ->where('user_id', $auth->id)
             ->count();
@@ -2291,6 +2425,7 @@ class ProfileController extends Controller
             'authFriendCount' => $authFriendCount,
             'all_users'       => $all_users,
             'all_posts'       => $all_posts, // now only user's posts
+            'taggedPosts'     => $taggedPosts,
             'notifications'   => $notifications,
             'statuses'        => $statuses,
             'friends'         => $friends,

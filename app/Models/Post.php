@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -36,4 +37,8 @@ class Post extends Model
         return $this->hasMany(Bookmark::class, 'post_id');
     }
 
+    public function taggedUsers()
+    {
+        return $this->belongsToMany(User::class, 'post_tags', 'post_id', 'user_id');
+    }
 }

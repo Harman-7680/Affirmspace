@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Models\Post;
 use App\Notifications\CustomVerifyEmail;
 use Carbon\Carbon;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
@@ -312,5 +313,12 @@ class User extends Authenticatable implements MustVerifyEmail
     public function eventChats()
     {
         return $this->hasMany(EventChat::class, 'sender_id');
+    }
+
+    public function taggedPosts()
+    {
+        return $this->belongsToMany(Post::class, 'post_tags', 'user_id', 'post_id')
+            ->with('user')
+            ->latest();
     }
 }

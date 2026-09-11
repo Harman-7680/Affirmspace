@@ -23,8 +23,10 @@ class ApiPostController extends Controller
         $auth = Auth::user();
 
         $request->validate([
-            'media'   => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:102400',
-            'caption' => 'nullable|string|max:255',
+            'media'          => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:102400',
+            'caption'        => 'nullable|string|max:255',
+            'tagged_users'   => 'nullable|array',
+            'tagged_users.*' => 'integer|exists:users,id',
         ]);
 
         // Upload media
@@ -37,10 +39,31 @@ class ApiPostController extends Controller
             'post_image' => $path,
         ]);
 
+        // Only allow tagging friends
+        $friendIds = $auth->friendsList()
+            ->pluck('id')
+            ->toArray();
+
+        $taggedUserIds = collect($request->tagged_users ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($friendIds)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        // Attach tagged users
+        if (! empty($taggedUserIds)) {
+            $post->taggedUsers()->attach($taggedUserIds);
+        }
+
+        // Notify friends about new post
         $friends = $auth->friendsList();
 
         foreach ($friends as $friend) {
-            $friend->notify(new FriendNewPostNotification($post));
+
+            $friend->notify(
+                new FriendNewPostNotification($post)
+            );
 
             $this->sendFirebaseSafe(
                 $friend->id,

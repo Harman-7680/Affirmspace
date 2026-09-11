@@ -23,8 +23,10 @@ class PostController extends Controller
         $auth = Auth::user();
 
         $request->validate([
-            'media'   => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:102400',
-            'caption' => 'nullable|string|max:255',
+            'media'          => 'required|file|mimes:jpeg,png,jpg,gif,mp4,mov,avi,wmv|max:102400',
+            'caption'        => 'nullable|string|max:255',
+            'tagged_users'   => 'nullable|array',
+            'tagged_users.*' => 'integer|exists:users,id',
         ]);
 
         $path = $request->file('media')->store('posts', 'public');
@@ -35,9 +37,23 @@ class PostController extends Controller
             'post_image' => $path,
         ]);
 
+        $friendIds = $auth->friendsList()->pluck('id')->toArray();
+
+        $taggedUserIds = collect($request->tagged_users ?? [])
+            ->map(fn($id) => (int) $id)
+            ->intersect($friendIds)
+            ->unique()
+            ->values()
+            ->toArray();
+
+        if (! empty($taggedUserIds)) {
+            $post->taggedUsers()->attach($taggedUserIds);
+        }
+
         $friends = $auth->friendsList();
 
         foreach ($friends as $friend) {
+
             $friend->notify(new FriendNewPostNotification($post));
 
             $this->sendFirebaseSafe(
@@ -51,7 +67,10 @@ class PostController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Post uploaded successfully.');
+        return redirect()->back()->with(
+            'success',
+            'Post uploaded successfully.'
+        );
     }
 
     public function update(Request $request, $id)

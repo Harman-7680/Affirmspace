@@ -129,94 +129,176 @@
         </div>
 
         {{-- Posts Section --}}
-        <div>
-            <h3 class="text-lg font-semibold mb-4">Posts</h3>
+        @if (!$canViewPosts)
+            {{-- PRIVATE / BLOCKED MESSAGE --}}
+            <div class="mt-6">
+                <p class="text-gray-500 text-center">
+                    {{ $message }}
+                </p>
+            </div>
+        @else
+            {{-- TABS --}}
+            <div class="mt-6 mb-6">
 
-            {{-- Privacy check --}}
-            @if (!$canViewPosts)
-                <p class="text-gray-500 text-center">{{ $message }}</p>
-            @else
+                <div class="flex justify-center border-b border-gray-200">
+
+                    {{-- POSTS TAB --}}
+                    <button type="button" onclick="showProfileTab('posts')" id="postsTab"
+                        class="profile-tab px-6 py-3 text-sm font-semibold border-b-2 border-blue-500 text-blue-600">
+                        Posts
+                    </button>
+
+                    {{-- THOUGHTS TAB --}}
+                    <button type="button" onclick="showProfileTab('thoughts')" id="thoughtsTab"
+                        class="profile-tab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500">
+                        Thoughts
+                    </button>
+
+                    {{-- TAGGED TAB --}}
+                    <button type="button" onclick="showProfileTab('tagged')" id="taggedTab"
+                        class="profile-tab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500">
+                        Tagged
+                    </button>
+
+                </div>
+
+            </div>
+
+
+            {{-- ========================================================= --}}
+            {{-- POSTS CONTENT --}}
+            {{-- ========================================================= --}}
+
+            <div id="postsContent" class="profile-content">
+
+                <h3 class="text-lg font-semibold mb-4">
+                    Posts
+                </h3>
+
                 <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
                     @forelse ($posts as $post)
                         <div id="post-{{ $post->id }}" class="bg-white rounded shadow p-3 transition-all duration-500">
-                            {{-- Post Image --}}
+
+                            {{-- POST IMAGE --}}
                             @if ($post->post_image)
                                 <img src="{{ asset('storage/' . $post->post_image) }}" alt="Post Image"
                                     class="w-full h-40 object-cover rounded mb-2">
                             @endif
-                            {{-- Caption --}}
+
+
+                            {{-- CAPTION --}}
                             @if ($post->caption)
-                                <p class="text-gray-800 text-sm">{{ $post->caption }}</p>
+                                <p class="text-gray-800 text-sm">
+                                    {{ $post->caption }}
+                                </p>
                             @endif
 
-                            {{-- Timestamp --}}
-                            <p class="text-xs text-gray-400 mt-1">{{ $post->created_at->diffForHumans() }}</p>
 
-                            {{-- Like + Comment Counts --}}
+                            {{-- DATE --}}
+                            <p class="text-xs text-gray-400 mt-1">
+                                {{ $post->created_at->diffForHumans() }}
+                            </p>
+
+
+                            {{-- LIKE + COMMENT --}}
                             <div class="flex items-center justify-start mt-3 space-x-4 text-sm text-gray-600">
-                                <!-- ❤️ Like Section -->
+
+
+                                {{-- ================================================= --}}
+                                {{-- LIKE SECTION --}}
+                                {{-- ================================================= --}}
+
                                 <div x-data="{ open: false }">
+
                                     <div class="flex items-center gap-2.5">
+
                                         <button @click="open = true" type="button"
                                             class="button-icon text-red-500 bg-red-100 dark:bg-slate-700 rounded-full p-2">
-                                            <ion-icon class="text-lg" name="heart"></ion-icon>
+
+                                            <ion-icon class="text-lg" name="heart">
+                                            </ion-icon>
+
                                         </button>
+
                                         <a href="javascript:void(0);" @click="open = true">
+
                                             {{ $post->likes->count() }}
+
                                         </a>
+
                                     </div>
 
-                                    <!-- Likes Modal -->
+
+                                    {{-- LIKES MODAL --}}
                                     <div x-show="open" x-transition
                                         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
                                         style="display:none">
 
-                                        <!-- MODAL BOX -->
                                         <div
                                             class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl max-h-[80vh] overflow-hidden">
 
-                                            <!-- HEADER -->
+                                            {{-- MODAL HEADER --}}
                                             <div
                                                 class="flex justify-between items-center px-5 py-4 border-b dark:border-gray-700">
+
                                                 <h2 class="text-lg font-semibold text-gray-900 dark:text-white">
                                                     Liked by
                                                 </h2>
+
                                                 <button @click="open = false"
                                                     class="text-gray-500 hover:text-gray-700 text-2xl leading-none">
+
                                                     &times;
+
                                                 </button>
+
                                             </div>
 
-                                            <!-- BODY (SCROLLABLE) -->
+
+                                            {{-- LIKES LIST --}}
                                             <div class="p-5 overflow-y-auto max-h-[65vh] space-y-4">
 
                                                 @forelse($post->likes as $like)
                                                     <div class="flex items-center gap-4">
 
-                                                        <!-- USER IMAGE -->
                                                         <img src="{{ $like->user->image ? asset('storage/' . $like->user->image) : asset('images/avatars/avatar-1.jpg') }}"
                                                             class="w-10 h-10 rounded-full object-cover">
 
-                                                        <!-- USER NAME -->
                                                         <div>
+
                                                             <p
                                                                 class="text-sm font-semibold text-gray-800 dark:text-gray-200">
-                                                                {{ $like->user->first_name }} {{ $like->user->last_name }}
+
+                                                                {{ $like->user->first_name }}
+                                                                {{ $like->user->last_name }}
+
                                                             </p>
+
                                                         </div>
 
                                                     </div>
+
                                                 @empty
+
                                                     <p class="text-sm text-gray-500 text-center">
                                                         No likes yet
                                                     </p>
                                                 @endforelse
+
                                             </div>
+
                                         </div>
+
                                     </div>
+
                                 </div>
 
-                                {{-- Comment Section --}}
+
+                                {{-- ================================================= --}}
+                                {{-- COMMENT SECTION --}}
+                                {{-- ================================================= --}}
+
                                 <div x-data="{
                                     openComments: false,
                                     comments: [],
@@ -224,60 +306,75 @@
                                     avatarPath: '{{ asset('images/avatars/avatar-1.jpg') }}'
                                 }">
 
-                                    <!-- Comment Button -->
                                     <div class="flex items-center gap-2 cursor-pointer">
+
                                         <button type="button"
                                             @click="
-                openComments = true;
-                fetch('/post/{{ $post->id }}/comment')
-                    .then(res => res.json())
-                    .then(data => comments = data);
-            "
+                                        openComments = true;
+                                        fetch('/post/{{ $post->id }}/comment')
+                                            .then(res => res.json())
+                                            .then(data => comments = data);
+                                    "
                                             class="button-icon bg-blue-100 text-blue-600 hover:bg-blue-200 dark:bg-slate-700 rounded-full p-2">
-                                            <ion-icon class="text-lg" name="chatbubble-ellipses"></ion-icon>
+
+                                            <ion-icon class="text-lg" name="chatbubble-ellipses">
+                                            </ion-icon>
+
                                         </button>
 
-                                        <span>{{ $post->comments_count ?? 0 }}</span>
+                                        <span>
+                                            {{ $post->comments_count ?? 0 }}
+                                        </span>
+
                                     </div>
 
-                                    <!-- COMMENTS MODAL -->
+
+                                    {{-- COMMENTS MODAL --}}
                                     <div x-show="openComments" x-transition
                                         class="fixed inset-0 z-50 flex items-center justify-center bg-black/40"
                                         style="display:none">
 
-                                        <!-- MODAL BOX -->
                                         <div
-                                            class="bg-white dark:bg-gray-800 rounded-xl shadow-xl 
-                   w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col">
+                                            class="bg-white dark:bg-gray-800 rounded-xl shadow-xl w-full max-w-2xl mx-4 max-h-[85vh] flex flex-col">
 
-                                            <!-- HEADER -->
+
+                                            {{-- MODAL HEADER --}}
                                             <div
                                                 class="flex justify-between items-center px-5 py-3 border-b dark:border-gray-700">
+
                                                 <h2 class="text-lg font-semibold text-gray-800 dark:text-white">
                                                     Comments
                                                 </h2>
+
                                                 <button @click="openComments = false"
                                                     class="text-2xl text-gray-500 hover:text-gray-700">
+
                                                     &times;
+
                                                 </button>
+
                                             </div>
 
-                                            <!-- COMMENTS BODY (SCROLL AREA) -->
+
+                                            {{-- COMMENTS --}}
                                             <div class="flex-1 overflow-y-auto px-5 py-4 space-y-4">
 
-                                                <!-- NO COMMENTS -->
                                                 <template x-if="comments.length === 0">
+
                                                     <p class="text-sm text-gray-500 text-center">
                                                         No comments yet
                                                     </p>
+
                                                 </template>
 
-                                                <!-- COMMENTS LIST -->
+
                                                 <template x-for="comment in comments" :key="comment.id">
+
                                                     <div class="space-y-2">
 
-                                                        <!-- MAIN COMMENT -->
+                                                        {{-- COMMENT --}}
                                                         <div class="flex gap-3">
+
                                                             <img :src="comment.user.image ?
                                                                 storagePath + '/' + comment.user.image :
                                                                 avatarPath"
@@ -285,20 +382,28 @@
 
                                                             <div
                                                                 class="bg-gray-100 dark:bg-gray-700 rounded-lg px-3 py-2 w-full">
+
                                                                 <p class="text-sm font-semibold text-gray-800 dark:text-gray-200"
                                                                     x-text="comment.user.first_name + ' ' + comment.user.last_name">
                                                                 </p>
+
                                                                 <p class="text-sm text-gray-700 dark:text-gray-300"
                                                                     x-text="comment.body">
                                                                 </p>
+
                                                             </div>
+
                                                         </div>
 
-                                                        <!-- REPLIES -->
+
+                                                        {{-- REPLIES --}}
                                                         <div class="ml-12 pl-4 space-y-2">
+
                                                             <template x-for="reply in comment.replies"
                                                                 :key="reply.id">
+
                                                                 <div class="flex gap-2">
+
                                                                     <img :src="reply.user.image ?
                                                                         storagePath + '/' + reply.user.image :
                                                                         avatarPath"
@@ -306,31 +411,232 @@
 
                                                                     <div
                                                                         class="bg-gray-50 dark:bg-gray-600 rounded-lg px-3 py-2 w-full">
+
                                                                         <p class="text-xs font-semibold text-gray-800 dark:text-gray-200"
                                                                             x-text="reply.user.first_name + ' ' + reply.user.last_name">
                                                                         </p>
+
                                                                         <p class="text-xs text-gray-600 dark:text-gray-300"
                                                                             x-text="reply.body">
                                                                         </p>
+
                                                                     </div>
+
                                                                 </div>
+
                                                             </template>
+
                                                         </div>
 
                                                     </div>
+
                                                 </template>
+
                                             </div>
+
                                         </div>
+
                                     </div>
+
                                 </div>
+
                             </div>
+
                         </div>
+
                     @empty
-                        <p class="text-center text-gray-500">No posts yet.</p>
+
+                        <p class="text-center text-gray-500 col-span-full">
+                            No posts yet.
+                        </p>
                     @endforelse
+
                 </div>
-            @endif
-        </div>
+
+            </div>
+
+
+
+            {{-- ========================================================= --}}
+            {{-- THOUGHTS CONTENT --}}
+            {{-- ========================================================= --}}
+
+            <div id="thoughtsContent" class="profile-content hidden">
+
+                <h3 class="text-lg font-semibold mb-4">
+                    Thoughts
+                </h3>
+
+
+                <div class="space-y-4">
+
+                    @forelse ($thoughts as $thought)
+                        <div class="bg-white rounded shadow p-4">
+
+                            {{-- USER --}}
+                            <div class="flex items-center gap-3 mb-3">
+
+                                <img src="{{ $userProfile->image && $userProfile->image !== '0'
+                                    ? asset('storage/' . $userProfile->image)
+                                    : asset('images/avatars/avatar-1.jpg') }}"
+                                    class="w-10 h-10 rounded-full object-cover">
+
+                                <div>
+
+                                    <p class="text-sm font-semibold text-gray-800">
+
+                                        {{ $userProfile->first_name }}
+                                        {{ $userProfile->last_name }}
+
+                                    </p>
+
+                                    <p class="text-xs text-gray-400">
+
+                                        {{ $thought->created_at->diffForHumans() }}
+
+                                    </p>
+
+                                    <p class="text-sm font-semibold text-gray-800">
+                                        Title : {{ $thought->title }}
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- THOUGHT --}}
+                            <p class="text-gray-800 text-sm whitespace-pre-line">
+
+                                {{ $thought->paragraph }}
+
+                            </p>
+
+                        </div>
+
+                    @empty
+
+                        <p class="text-center text-gray-500">
+                            No thoughts yet.
+                        </p>
+                    @endforelse
+
+                </div>
+
+            </div>
+
+
+
+            {{-- ========================================================= --}}
+            {{-- TAGGED CONTENT --}}
+            {{-- ========================================================= --}}
+
+            <div id="taggedContent" class="profile-content hidden">
+
+                <h3 class="text-lg font-semibold mb-4">
+                    Tagged Posts
+                </h3>
+
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+                    @forelse ($taggedPosts as $post)
+                        <div class="bg-white rounded shadow p-3">
+
+                            {{-- POST USER --}}
+                            <div class="flex items-center gap-2 mb-3">
+
+                                <img src="{{ $post->user->image && $post->user->image !== '0'
+                                    ? asset('storage/' . $post->user->image)
+                                    : asset('images/avatars/avatar-1.jpg') }}"
+                                    class="w-9 h-9 rounded-full object-cover">
+
+                                <div>
+
+                                    <p class="text-sm font-semibold text-gray-800">
+
+                                        {{ $post->user->first_name }}
+                                        {{ $post->user->last_name }}
+
+                                    </p>
+
+                                    <p class="text-xs text-gray-400">
+
+                                        {{ $post->created_at->diffForHumans() }}
+
+                                    </p>
+
+                                </div>
+
+                            </div>
+
+
+                            {{-- IMAGE --}}
+                            @if ($post->post_image)
+                                <img src="{{ asset('storage/' . $post->post_image) }}" alt="Tagged Post"
+                                    class="w-full h-40 object-cover rounded mb-2">
+                            @endif
+
+
+                            {{-- CAPTION --}}
+                            @if ($post->caption)
+                                <p class="text-sm text-gray-800">
+                                    {{ $post->caption }}
+                                </p>
+                            @endif
+
+
+                            {{-- TAGGED USERS --}}
+                            @if ($post->taggedUsers->count())
+                                <div class="mt-3">
+
+                                    <p class="text-xs text-gray-500 mb-1">
+                                        Tagged:
+                                    </p>
+
+                                    <div class="flex flex-wrap gap-1">
+
+                                        @foreach ($post->taggedUsers as $taggedUser)
+                                            <span class="text-xs bg-blue-100 text-blue-600 px-2 py-1 rounded-full">
+
+                                                {{ $taggedUser->first_name }}
+                                                {{ $taggedUser->last_name }}
+
+                                            </span>
+                                        @endforeach
+
+                                    </div>
+
+                                </div>
+                            @endif
+
+
+                            {{-- LIKE / COMMENT COUNT --}}
+                            <div class="flex items-center gap-4 mt-3 text-sm text-gray-600">
+
+                                <span>
+                                    ❤️ {{ $post->likes->count() }}
+                                </span>
+
+                                <span>
+                                    💬 {{ $post->comments_count ?? $post->comments->count() }}
+                                </span>
+
+                            </div>
+
+                        </div>
+
+                    @empty
+
+                        <p class="text-center text-gray-500 col-span-full">
+                            No tagged posts yet.
+                        </p>
+                    @endforelse
+
+                </div>
+
+            </div>
+        @endif
     </div>
 @endsection
 
@@ -551,6 +857,47 @@
                 }
             }
         });
+    </script>
+
+    <script>
+        function showProfileTab(tab) {
+
+            // Hide all content
+            document.querySelectorAll('.profile-content').forEach(function(content) {
+                content.classList.add('hidden');
+            });
+
+            // Reset all tabs
+            document.querySelectorAll('.profile-tab').forEach(function(button) {
+
+                button.classList.remove(
+                    'border-blue-500',
+                    'text-blue-600'
+                );
+
+                button.classList.add(
+                    'border-transparent',
+                    'text-gray-500'
+                );
+
+            });
+
+            // Show selected content
+            document.getElementById(tab + 'Content').classList.remove('hidden');
+
+            // Activate selected tab
+            const activeTab = document.getElementById(tab + 'Tab');
+
+            activeTab.classList.remove(
+                'border-transparent',
+                'text-gray-500'
+            );
+
+            activeTab.classList.add(
+                'border-blue-500',
+                'text-blue-600'
+            );
+        }
     </script>
 @endsection
 

@@ -10,6 +10,7 @@ use App\Models\Message;
 use App\Models\Mute;
 use App\Models\Post;
 use App\Models\Status;
+use App\Models\Tweet;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
@@ -121,16 +122,54 @@ class ApiProfileController extends Controller
                 ->orderBy('created_at', 'desc')
                 ->get()
                 : collect();
+
+            // Thoughts
+            $thoughts = \App\Models\Tweet::where('user_id', $user->id)
+                ->latest()
+                ->get();
+
+// Tagged Posts
+            $taggedPosts = \App\Models\Post::with([
+                'user',
+                'likes',
+                'comments' => function ($q) use ($hiddenUsers) {
+
+                    $q->whereNull('parent_id')
+                        ->whereNotIn('user_id', $hiddenUsers)
+                        ->latest()
+                        ->with([
+                            'user',
+                            'replies' => function ($r) use ($hiddenUsers) {
+
+                                $r->whereNotIn('user_id', $hiddenUsers)
+                                    ->latest()
+                                    ->with('user');
+                            },
+                        ]);
+                },
+                'taggedUsers',
+            ])
+                ->whereHas('taggedUsers', function ($q) use ($user) {
+
+                    $q->where('users.id', $user->id);
+
+                })
+                ->orderBy('created_at', 'desc')
+                ->get();
         }
 
         // Notifications
         $notifications = $auth->unreadNotifications;
-        $friends       = $user->friendsList();
+        $friends       = $user->friendsList()
+            ->filter(fn($friend) => ! in_array($friend->id, $hiddenUsers))
+            ->values();
 
         return response()->json([
             'success'           => true,
             'userProfile'       => $user,
             'posts'             => $posts,
+            'thoughts'          => $thoughts,
+            'taggedPosts'       => $taggedPosts,
             'notifications'     => $notifications,
             'isMuted'           => $isMuted,
             'friendship_status' => $friendship_status,
@@ -161,7 +200,21 @@ class ApiProfileController extends Controller
         // If Counselee (role = 0, for example)
         if ($user->role == 0) {
             // User posts
-            $posts = Post::where('user_id', $user->id)->latest()->get();
+            $posts = Post::where('user_id', $user->id)
+                ->with('taggedUsers')
+                ->latest()
+                ->get();
+
+            // Thoughts
+            $tweets = Tweet::where('user_id', $user->id)
+                ->latest()
+                ->get();
+
+// Tagged Posts
+            $taggedPosts = $user->taggedPosts()
+                ->with(['user', 'taggedUsers'])
+                ->latest()
+                ->get();
 
             // Friendships
             $friendships = Friendship::where(function ($query) use ($user) {
@@ -218,6 +271,8 @@ class ApiProfileController extends Controller
                 'mutedUsers'      => $mutedUsers,
                 'appointments'    => $appointments,
                 'bookmarkedPosts' => $bookmarkedPosts,
+                'thoughts'        => $tweets,
+                'taggedPosts'     => $taggedPosts,
             ]);
         }
 
@@ -343,6 +398,32 @@ class ApiProfileController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        $taggedPosts = \App\Models\Post::with([
+            'user',
+            'likes',
+            'comments' => function ($q) use ($hiddenUsers) {
+                $q->whereNull('parent_id')
+                    ->whereNotIn('user_id', $hiddenUsers)
+                    ->with([
+                        'user',
+                        'replies' => function ($r) use ($hiddenUsers) {
+                            $r->whereNotIn('user_id', $hiddenUsers)
+                                ->with('user');
+                        },
+                    ])
+                    ->latest();
+            },
+            'taggedUsers',
+        ])
+            ->whereHas('taggedUsers', function ($q) use ($auth) {
+                // Only posts where logged-in user is tagged
+                $q->where('users.id', $auth->id);
+            })
+            ->where('user_id', '!=', $auth->id)
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->orderBy('created_at', 'desc')
+            ->get();
+
         $posts_count = \App\Models\Post::with(['user', 'likes', 'comments.user'])
             ->where('user_id', $auth->id)
             ->count();
@@ -387,6 +468,7 @@ class ApiProfileController extends Controller
             'authFriendCount' => $authFriendCount,
             'all_users'       => $all_users,
             'all_posts'       => $all_posts,
+            'taggedPosts'     => $taggedPosts,
             'notifications'   => $notifications,
             'statuses'        => $statuses,
             'friends'         => $friends,

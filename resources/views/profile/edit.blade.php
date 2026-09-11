@@ -588,6 +588,43 @@
                             @enderror
                         </div>
 
+                        {{-- Tag Friends --}}
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2">
+                                Tag Friends
+                            </label>
+
+                            <div class="border rounded-xl p-3 max-h-48 overflow-y-auto bg-gray-50">
+
+                                @forelse($followers as $friend)
+                                    <label class="flex items-center gap-3 py-2 cursor-pointer">
+
+                                        <input type="checkbox" name="tagged_users[]" value="{{ $friend->id }}"
+                                            class="rounded border-gray-300">
+
+                                        <img src="{{ $friend->image ? asset('storage/' . $friend->image) : asset('images/avatars/avatar-2.jpg') }}"
+                                            class="w-9 h-9 rounded-full object-cover">
+
+                                        <span class="text-sm text-gray-700">
+                                            {{ $friend->first_name }} {{ $friend->last_name }}
+                                        </span>
+
+                                    </label>
+                                @empty
+
+                                    <p class="text-sm text-gray-500">
+                                        You don't have any friends to tag.
+                                    </p>
+                                @endforelse
+
+                            </div>
+
+                            @error('tagged_users')
+                                <p class="text-red-500 text-sm mt-1">{{ $message }}</p>
+                            @enderror
+
+                        </div>
+
                         <!-- Media Upload -->
                         <div class="mt-4">
                             <label class="block text-sm font-semibold text-gray-700 mb-2">
@@ -708,6 +745,28 @@
                                             class="w-full h-48 object-cover rounded-md border">
                                     @endif
                                 </div>
+
+                                {{-- Tagged Users --}}
+                                @if ($post->taggedUsers->count())
+                                    <div class="mt-2">
+
+                                        <p class="text-sm text-gray-500 mb-1">
+                                            Tagged:
+                                        </p>
+
+                                        <div class="flex flex-wrap gap-2">
+
+                                            @foreach ($post->taggedUsers as $taggedUser)
+                                                <span class="text-sm font-medium text-indigo-600">
+                                                    {{ $taggedUser->first_name }}
+                                                    {{ $taggedUser->last_name }}
+                                                </span>
+                                            @endforeach
+
+                                        </div>
+
+                                    </div>
+                                @endif
 
                                 <!-- Caption Input -->
                                 <div>
