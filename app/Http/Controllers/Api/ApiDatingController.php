@@ -234,8 +234,8 @@ class ApiDatingController extends Controller
                 'max_distance'       => $request->max_distance,
                 'hide_distance'      => $request->has('hide_distance') ? 1 : 0,
                 'hide_online_status' => $request->has('hide_online_status') ? 1 : 0,
-                'verified_only' => $request->has('verified_only') ? 1 : 0,
-                
+                'verified_only'      => $request->has('verified_only') ? 1 : 0,
+
                 // Bio
                 'bio'                => $request->bio,
                 'identity'           => $request->gender,
@@ -935,6 +935,22 @@ class ApiDatingController extends Controller
             ->where('user_id', '!=', $auth->id)
             ->whereNotIn('user_id', $hiddenUsers);
 
+        // Exclude already accepted friends
+        $friendIds = Friendship::where('status', 'accepted')
+            ->where(function ($q) use ($auth) {
+                $q->where('sender_id', $auth->id)
+                    ->orWhere('receiver_id', $auth->id);
+            })
+            ->get()
+            ->map(function ($friendship) use ($auth) {
+                return $friendship->sender_id == $auth->id
+                    ? $friendship->receiver_id
+                    : $friendship->sender_id;
+            })
+            ->toArray();
+
+        $query->whereNotIn('user_id', $friendIds);
+
         $query->selectRaw("
     user_details.*,
 
@@ -1266,6 +1282,47 @@ class ApiDatingController extends Controller
             $hiddenUsers,
             $request->visibility ?? 'everyone'
         );
+
+        $scoredMatches = collect();
+
+        foreach ($allUsers as $other) {
+
+            $score = 0;
+
+            if (
+                $other->identity == $details->preference &&
+                $details->identity == $other->preference
+            ) {
+                $score += 40;
+            }
+
+            if ($other->relationship_type == $details->relationship_type) {
+                $score += 20;
+            }
+
+            $myInterests    = $details->interest ?? [];
+            $theirInterests = $other->interest ?? [];
+            $common         = count(array_intersect($myInterests ?? [], $theirInterests ?? []));
+
+            if ($common >= 3) {
+                $score += 30;
+            } elseif ($common == 2) {
+                $score += 20;
+            } elseif ($common == 1) {
+                $score += 10;
+            }
+
+            if ($other->verification_status == 'approved') {
+                $score += 20;
+            }
+
+            if ($score >= 40) {
+                $other->match_score = $score;
+                $scoredMatches->push($other);
+            }
+        }
+
+        $matches = $scoredMatches->sortByDesc('match_score')->take(50)->values();
 
         return response()->json([
             'success' => true,
