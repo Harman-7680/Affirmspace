@@ -1276,7 +1276,7 @@ class ApiDatingController extends Controller
             )
         );
 
-        $matches = $this->getVisibleProfiles(
+        $allUsers = $this->getVisibleProfiles(
             $auth,
             $details,
             $hiddenUsers,

@@ -1059,7 +1059,7 @@ class DatingController extends Controller
 
         $visibilityFilter = $request->visibility ?? 'everyone';
 
-        $matches = $this->getVisibleProfiles(
+        $allUsers = $this->getVisibleProfiles(
             $auth,
             $details,
             $hiddenUsers,
