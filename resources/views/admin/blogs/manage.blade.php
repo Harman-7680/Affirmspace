@@ -8,55 +8,93 @@
         <div x-data="blogManager()">
 
             {{-- Add Blog --}}
+            <div class="d-flex align-items-start gap-3 w-100">
 
-            <div class="d-flex align-items-center gap-3 flex-nowrap w-100">
+                {{-- LEFT SIDE : 4 INPUTS --}}
+                <div style="width:30%;">
 
-                <input type="text" x-model="slug" placeholder="Slug" class="form-control"
-                    style="width:12%; height:40px; margin-right:10px;">
+                    {{-- Slug --}}
+                    <div class="mb-2">
+                        <input type="text" x-model="slug" placeholder="Slug" class="form-control" style="height:40px;">
+                    </div>
 
-                <input type="text" x-model="short_description" placeholder="Title" class="form-control"
-                    style="width:12%; height:40px; margin-right:10px;">
+                    {{-- Title --}}
+                    <div class="mb-2">
+                        <input type="text" x-model="short_description" placeholder="Title" class="form-control"
+                            style="height:40px;">
+                    </div>
 
-                <input type="text" x-model="long_description" placeholder="Description" class="form-control"
-                    style="width:12%; height:40px; margin-right:10px;">
+                    {{-- Link --}}
+                    <div class="mb-2">
+                        <input type="text" x-model="link" placeholder="Link" class="form-control" style="height:40px;">
+                    </div>
 
-                <input type="text" x-model="link" placeholder="Link" class="form-control"
-                    style="width:12%; height:40px; margin-right:10px;">
+                    {{-- Browser --}}
+                    <div class="mb-2">
+                        <input type="file" @change="handleImage" class="form-control" style="height:40px;">
+                    </div>
 
-                <input type="file" @change="handleImage" class="form-control"
-                    style="width:15%; height:40px; margin-right:10px;">
+                </div>
 
-                <select x-model="category" class="form-control" style="width:15%; height:40px; margin-right:10px;">
-                    <option value="">Select Category</option>
-                    <option value="LGBTQ Basics">LGBTQ Basics</option>
-                    <option value="Identity & Expression">Identity & Expression</option>
-                    <option value="Mental Health & Support">Mental Health & Support</option>
-                    <option value="Dating & Relationships">Dating & Relationships</option>
-                    <option value="Safety & Coming Out">Safety & Coming Out</option>
-                    <option value="Community & Culture">Community & Culture</option>
-                    <option value="Legal Rights India">Legal Rights India</option>
-                    <option value="Gender Affirming Care">Gender Affirming Care</option>
-                </select>
 
-                <button class="btn btn-primary" @click="addBlog()" style="height:40px;">
-                    Add
-                </button>
+                {{-- RIGHT SIDE : QUILL + CATEGORY --}}
+                <div style="width:30%; margin-left:20px;">
 
-                {{-- Pagination --}}
-                <div class="my-2 flex items-center justify-end gap-2">
+                    {{-- Quill --}}
+                    <div id="description-editor" style="height:120px; background:white;">
+                    </div>
+
+                    {{-- Category --}}
+                    <div class="mt-2">
+                        <select x-model="category" class="form-control" style="height:40px;">
+
+                            <option value="">Select Category</option>
+                            <option value="LGBTQ Basics">LGBTQ Basics</option>
+                            <option value="Identity & Expression">Identity & Expression</option>
+                            <option value="Mental Health & Support">Mental Health & Support</option>
+                            <option value="Dating & Relationships">Dating & Relationships</option>
+                            <option value="Safety & Coming Out">Safety & Coming Out</option>
+                            <option value="Community & Culture">Community & Culture</option>
+                            <option value="Legal Rights India">Legal Rights India</option>
+                            <option value="Gender Affirming Care">Gender Affirming Care</option>
+
+                        </select>
+                    </div>
+
+                </div>
+
+
+                {{-- Yahan Left Side space (Gap) ke liye empty spacer add kiya hai --}}
+                <div style="width: 30px;"></div>
+
+
+                {{-- ADD BUTTON --}}
+                <div style="width:auto; ">
+                    <button class="btn btn-primary px-4" @click="addBlog()" style="height:40px; min-width: 90px;">
+                        Add
+                    </button>
+                </div>
+
+
+                {{-- PAGINATION : RIGHT END --}}
+                <div class="my-2 d-flex align-items-center justify-content-end gap-2"
+                    style="margin-left:auto; white-space:nowrap;">
+
                     <button class="pagination-btn pagination-btn-outline mx-1" :disabled="currentPage === 1"
                         @click="prevPage">
                         Prev
                     </button>
 
                     <span>
-                        Page <strong x-text="currentPage"></strong> of <strong x-text="totalPages"></strong>
+                        Page <strong x-text="currentPage"></strong>
+                        of <strong x-text="totalPages"></strong>
                     </span>
 
                     <button class="pagination-btn pagination-btn-outline mx-1" :disabled="currentPage === totalPages"
                         @click="nextPage">
                         Next
                     </button>
+
                 </div>
 
             </div>
@@ -134,7 +172,8 @@
                                 <div class="card-body">
                                     <h6 class="fw-bold text-dark" x-text="blog.short_description"></h6>
 
-                                    <p class="text-muted small" x-text="blog.long_description.substring(0, 80) + '...'"></p>
+                                    <p class="text-muted small" x-text="stripHtml(blog.long_description)">
+                                    </p>
                                 </div>
 
                                 <div class="card-footer bg-white d-flex justify-content-between">
@@ -151,22 +190,39 @@
             </div>
 
             <template x-if="showModal">
+
                 <div
                     style="position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 9999;
         display:flex; align-items:center; justify-content:center;">
 
                     <div @click.stop
-                        style="background:white; padding:20px; width:400px; border-radius:10px; 
-            box-shadow:0 10px 30px rgba(0,0,0,0.2);">
+                        style="background:white; padding:20px; width:600px; max-width:95%;
+            border-radius:10px; box-shadow:0 10px 30px rgba(0,0,0,0.2);">
 
-                        <h4>Edit Blog</h4>
+                        <h4 class="mb-3">Edit Blog</h4>
 
-                        <input type="text" x-model="editBlog.slug" class="form-control mb-2">
-                        <input type="text" x-model="editBlog.short_description" class="form-control mb-2">
-                        <input type="text" x-model="editBlog.long_description" class="form-control mb-2">
+                        {{-- Slug --}}
+                        <input type="text" x-model="editBlog.slug" class="form-control mb-2" placeholder="Slug">
+
+                        {{-- Title --}}
+                        <input type="text" x-model="editBlog.short_description" class="form-control mb-2"
+                            placeholder="Title">
+
+                        {{-- Link --}}
                         <input type="text" x-model="editBlog.link" class="form-control mb-2" placeholder="Link">
+
+                        {{-- Image --}}
                         <input type="file" @change="handleEditImage" class="form-control mb-2">
-                        <select x-model="editBlog.category" class="form-control mb-2">
+
+                        {{-- Description --}}
+                        <label class="fw-bold mb-1">Description</label>
+
+                        <div id="edit-description-editor" style="height:200px; background:white; margin-bottom:10px;">
+                        </div>
+
+                        {{-- Category --}}
+                        <select x-model="editBlog.category" class="form-control mb-3">
+
                             <option value="LGBTQ Basics">LGBTQ Basics</option>
                             <option value="Identity & Expression">Identity & Expression</option>
                             <option value="Mental Health & Support">Mental Health & Support</option>
@@ -175,14 +231,25 @@
                             <option value="Community & Culture">Community & Culture</option>
                             <option value="Legal Rights India">Legal Rights India</option>
                             <option value="Gender Affirming Care">Gender Affirming Care</option>
+
                         </select>
+
                         <div class="text-end">
-                            <button class="btn btn-secondary" @click="showModal = false">Cancel</button>
-                            <button class="btn btn-primary" @click="updateBlog()">Update</button>
+
+                            <button class="btn btn-secondary" @click="showModal = false">
+                                Cancel
+                            </button>
+
+                            <button class="btn btn-primary" @click="updateBlog()">
+                                Update
+                            </button>
+
                         </div>
 
                     </div>
+
                 </div>
+
             </template>
         </div>
     </div>
@@ -207,17 +274,92 @@
                 editBlog: {},
                 editImage: null,
                 link: '',
+                quill: null,
+                editQuill: null,
 
                 /* pagination */
 
                 currentPage: 1,
                 perPage: 10,
 
+                init() {
+                    this.initQuill();
+                },
+
+                initEditQuill() {
+
+                    this.editQuill = new Quill('#edit-description-editor', {
+
+                        theme: 'snow',
+
+                        modules: {
+
+                            toolbar: [
+                                ['bold', 'italic', 'underline'],
+
+                                [{
+                                    'header': [1, 2, 3, false]
+                                }],
+
+                                [{
+                                    'list': 'ordered'
+                                }, {
+                                    'list': 'bullet'
+                                }],
+
+                                ['link']
+                            ]
+
+                        }
+
+                    });
+
+                },
+
+                stripHtml(html) {
+                    const div = document.createElement('div');
+                    div.innerHTML = html || '';
+
+                    let text = div.textContent || div.innerText || '';
+
+                    return text.length > 80 ?
+                        text.substring(0, 80) + '...' :
+                        text;
+                },
+
                 openEdit(blog) {
                     this.editBlog = {
                         ...blog
                     }
-                    this.showModal = true
+
+                    this.editImage = null;
+                    this.showModal = true;
+
+                    this.$nextTick(() => {
+
+                        if (!this.editQuill) {
+                            this.editQuill = new Quill('#edit-description-editor', {
+                                theme: 'snow',
+                                modules: {
+                                    toolbar: [
+                                        ['bold', 'italic', 'underline'],
+                                        [{
+                                            'header': [1, 2, 3, false]
+                                        }],
+                                        [{
+                                            'list': 'ordered'
+                                        }, {
+                                            'list': 'bullet'
+                                        }],
+                                        ['link']
+                                    ]
+                                }
+                            });
+                        }
+
+                        // Purani description Quill me load hogi
+                        this.editQuill.root.innerHTML = blog.long_description || '';
+                    });
                 },
 
                 handleEditImage(e) {
@@ -256,6 +398,26 @@
 
                 /* add blog */
 
+                initQuill() {
+                    this.quill = new Quill('#description-editor', {
+                        theme: 'snow',
+                        modules: {
+                            toolbar: [
+                                ['bold', 'italic', 'underline'],
+                                [{
+                                    'header': [1, 2, 3, false]
+                                }],
+                                [{
+                                    'list': 'ordered'
+                                }, {
+                                    'list': 'bullet'
+                                }],
+                                ['link']
+                            ]
+                        }
+                    });
+                },
+
                 addBlog() {
 
                     let formData = new FormData()
@@ -263,7 +425,7 @@
                     formData.append('slug', this.slug)
                     formData.append('category', this.category)
                     formData.append('short_description', this.short_description)
-                    formData.append('long_description', this.long_description)
+                    formData.append('long_description', this.quill.root.innerHTML)
                     formData.append('image', this.image)
                     formData.append('link', this.link)
 
@@ -299,6 +461,7 @@
                                 this.category = ''
                                 this.short_description = ''
                                 this.long_description = ''
+                                this.quill.root.innerHTML = ''
                                 this.link = ''
 
                                 this.currentPage = 1
@@ -372,7 +535,10 @@
                     formData.append('slug', this.editBlog.slug)
                     formData.append('category', this.editBlog.category)
                     formData.append('short_description', this.editBlog.short_description)
-                    formData.append('long_description', this.editBlog.long_description)
+                    formData.append(
+                        'long_description',
+                        this.editQuill.root.innerHTML
+                    )
                     formData.append('link', this.editBlog.link)
 
                     if (this.editImage) {
@@ -452,6 +618,10 @@
         }
     </script>
 @endsection
+
+<link href="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.snow.css" rel="stylesheet">
+
+<script src="https://cdn.jsdelivr.net/npm/quill@2.0.3/dist/quill.js"></script>
 
 @section('css')
     <style>

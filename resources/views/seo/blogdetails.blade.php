@@ -14,21 +14,23 @@
         <!-- BLOG SECTION -->
         <div class="blog-layout">
 
-            <!-- LEFT IMAGE -->
+            <!-- TOP IMAGE (Badi Image) -->
             @if ($blog->image)
                 <div class="blog-image-box">
                     <img src="{{ asset('storage/' . $blog->image) }}">
                 </div>
             @endif
 
-            <!-- RIGHT CONTENT -->
+            <!-- BOTTOM CONTENT (Image ke Niche Text) -->
             <div class="blog-content">
 
                 <span class="category">{{ ucfirst(str_replace('-', ' ', $blog->category)) }}</span>
 
                 <h1>{{ $blog->short_description }}</h1>
 
-                <p class="desc">{{ $blog->long_description }}</p>
+                <div class="desc">
+                    {!! $blog->long_description !!}
+                </div>
 
                 @if ($blog->link)
                     <a href="{{ $blog->link }}" target="_blank" class="read-more-btn"
@@ -100,41 +102,64 @@
 
         /* MAIN */
         .main-wrapper {
-            max-width: 1100px;
+            max-width: 900px;
             margin: 40px auto;
             padding: 20px;
         }
 
-        /* BLOG LAYOUT */
+        /* BLOG LAYOUT - Changed to Column layout */
         .blog-layout {
-            display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
             background: rgba(255, 255, 255, 0.7);
             backdrop-filter: blur(10px);
             border-radius: 16px;
-            padding: 25px;
+            padding: 30px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.08);
         }
 
-        /* IMAGE */
+        /* IMAGE - Badi aur clean size */
         .blog-image-box img {
             width: 100%;
-            height: 320px;
+            height: 450px;
             object-fit: cover;
             border-radius: 12px;
         }
 
         /* CONTENT */
         .blog-content h1 {
-            font-size: 30px;
+            font-size: 34px;
             font-weight: 800;
-            margin: 10px 0;
+            margin: 15px 0;
         }
 
         .blog-content .desc {
             color: #555;
-            line-height: 1.6;
+            line-height: 1.7;
+            font-size: 16px;
+        }
+
+        .blog-content .desc h1,
+        .blog-content .desc h2,
+        .blog-content .desc h3 {
+            margin: 15px 0 10px;
+            color: #333;
+        }
+
+        .blog-content .desc strong {
+            font-weight: 700;
+        }
+
+        .blog-content .desc ul,
+        .blog-content .desc ol {
+            padding-left: 25px;
+            margin: 10px 0;
+        }
+
+        .blog-content .desc a {
+            color: #ff416c;
+            text-decoration: underline;
         }
 
         .category {
@@ -237,8 +262,8 @@
 
         /* RESPONSIVE */
         @media(max-width:768px) {
-            .blog-layout {
-                grid-template-columns: 1fr;
+            .blog-image-box img {
+                height: 280px;
             }
         }
     </style>

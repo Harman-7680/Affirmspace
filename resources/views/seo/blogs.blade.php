@@ -34,10 +34,10 @@
             border-radius: 25px;
             border: none;
             outline: none;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
         }
 
         /* CATEGORY TITLE */
-        /* ================= PREMIUM CATEGORY TITLE ================= */
         .category-title {
             margin: 70px 0 30px;
             font-size: 26px;
@@ -48,34 +48,25 @@
             display: inline-block;
             left: 50%;
             transform: translateX(-50%);
-
-            /* smooth fade-in animation */
             opacity: 0;
             animation: fadeInUp 0.8s ease forwards;
         }
 
-        /* 🔥 GRADIENT UNDERLINE */
         .category-title::after {
             content: "";
             display: block;
             width: 60%;
             height: 4px;
             margin: 10px auto 0;
-
             border-radius: 5px;
-
-            /* SAME GRADIENT AS YOUR BUTTON */
             background: linear-gradient(45deg, #ff416c, #ff4b2b);
-
             transition: 0.3s ease;
         }
 
-        /* ✨ HOVER EFFECT (subtle grow) */
         .category-title:hover::after {
             width: 80%;
         }
 
-        /* 🎬 ANIMATION */
         @keyframes fadeInUp {
             from {
                 opacity: 0;
@@ -94,6 +85,8 @@
             gap: 25px;
             flex-wrap: wrap;
             padding: 0 8%;
+            align-items: stretch;
+            /* Sabhi cards ki height equal karne ke liye */
         }
 
         /* BLOG CARD */
@@ -105,8 +98,11 @@
             text-decoration: none;
             color: inherit;
             transition: 0.3s;
-
             box-shadow: 0 5px 20px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            text-align: left !important;
+            /* Left alignment force karne ke liye */
         }
 
         /* IMAGE */
@@ -119,20 +115,37 @@
         /* CONTENT */
         .blog-content {
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            flex-grow: 1;
+            text-align: left !important;
         }
 
         .blog-content h3 {
             font-size: 16px;
+            color: #333;
+            margin-bottom: 8px;
+            text-align: left;
         }
 
         .blog-content p {
             font-size: 14px;
             color: #666;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            flex-grow: 1;
+            /* Space adjust karega taaki button niche rahe */
+            text-align: left;
         }
 
+        /* READ MORE BUTTON */
         .blog-content span {
             color: #ff416c;
             font-weight: 600;
+            margin-top: auto;
+            /* Button ko hamesha bottom par fix rakhega */
+            display: inline-block;
+            text-align: left;
         }
 
         /* HOVER */
@@ -175,8 +188,10 @@
                         @endif
 
                         <div class="blog-content">
-                            <p>{{ $blog->short_description }}</p>
-                            <p style="font-weight:900;">{{ $blog->long_description }}</p>
+                            <h3>{{ $blog->short_description }}</h3>
+
+                            <!-- Quill content ko clean aur properly limit karne ke liye -->
+                            <p>{!! \Illuminate\Support\Str::limit(strip_tags($blog->long_description, '<p><strong><em>'), 90, '...') !!}</p>
 
                             <span>Read More →</span>
                         </div>
@@ -208,7 +223,7 @@
                     let desc = card.dataset.desc || "";
 
                     if (title.includes(value) || desc.includes(value)) {
-                        card.style.display = "block";
+                        card.style.display = "flex";
                         visibleCount++;
                     } else {
                         card.style.display = "none";
@@ -216,7 +231,7 @@
 
                 });
 
-                // 🔥 category hide/show logic
+                // category hide/show logic
                 let categoryTitle = container.previousElementSibling;
 
                 if (visibleCount === 0) {
