@@ -158,10 +158,10 @@ class ApiProfileController extends Controller
                 ->get()
                 : collect();
 
-            // Events (Agar aapke paas events bhi hain)
-            $events = $canViewPosts
-                ? \App\Models\Event::where('user_id', $user->id)->latest()->get()
-                : collect();
+            $events = \App\Models\Event::where('user_id', $user->id)
+                ->where('status', 'approved')
+                ->latest()
+                ->get();
         }
 
         // Notifications

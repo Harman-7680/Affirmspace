@@ -153,6 +153,7 @@ class ProfileController extends Controller
                     ->get();
 
                 $events = \App\Models\Event::where('user_id', $user->id)
+                    ->where('status', 'approved')
                     ->latest()
                     ->get();
             }
