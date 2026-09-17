@@ -7,8 +7,8 @@ use App\Http\Controllers\Api\ApiCounselorAvailabilityController;
 use App\Http\Controllers\Api\ApiCounselorController;
 use App\Http\Controllers\Api\ApiDatingController;
 use App\Http\Controllers\Api\ApiDatingMessageController;
-use App\Http\Controllers\Api\ApiEventController;
 use App\Http\Controllers\Api\ApiEventChatController;
+use App\Http\Controllers\Api\ApiEventController;
 use App\Http\Controllers\Api\ApiFriendController;
 use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
@@ -149,6 +149,7 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/verify-payment', [ApiEventController::class, 'verifyPayment']); // razorpay verify
 Route::get('/events/success/{id}', [ApiEventController::class, 'success'])->name('api.events.success');
 Route::get('/events/cancel/{id}', [ApiEventController::class, 'cancel'])->name('api.events.cancel');
+Route::get('/user/events', [ApiEventController::class, 'myEvents']);
 
 /** Razorpay WebView page (APP ONLY) */
 Route::get('/events/razorpay/{order_id}/{event_id}', [ApiEventController::class, 'razorpayWebview'])->name('api.events.razorpay.webview');

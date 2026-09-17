@@ -282,4 +282,20 @@ class ApiEventController extends Controller
             'event'   => $event,
         ]);
     }
+
+    public function myEvents(Request $request)
+    {
+        $auth = Auth::user();
+
+        // Authenticated user ke saare events fetch karein
+        $events = Event::where('user_id', $auth->id)
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Events fetched successfully',
+            'events'  => $events,
+        ]);
+    }
 }
