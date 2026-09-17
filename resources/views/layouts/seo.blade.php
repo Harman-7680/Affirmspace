@@ -3,6 +3,9 @@
 
 <head>
 
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-GK7P3JDQN0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -64,7 +67,7 @@
     @endif
 
     @yield('meta')
-    <meta name="p:domain_verify" content="3a38221ab36dc5451f9667240b53b17f"/>
+    <meta name="p:domain_verify" content="3a38221ab36dc5451f9667240b53b17f" />
     @yield('css')
 
     <style>
