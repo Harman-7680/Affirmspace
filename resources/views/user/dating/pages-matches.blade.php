@@ -148,7 +148,8 @@
                     </a>
 
                     <div>
-                        <a href="{{ route('timeline') }}">
+                        {{-- <a href="{{ route('timeline') }}"> --}}
+                        <a href="{{ url('/dating/profile/' . $user->id) }}">
                             <h2 class="font-bold text-lg text-gray-900 hover:underline hover:text-blue-600 transition">
                                 {{ $user->first_name }} {{ $user->last_name }}
                             </h2>
