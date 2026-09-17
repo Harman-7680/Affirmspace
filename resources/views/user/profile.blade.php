@@ -663,7 +663,7 @@
                                         class="w-full h-40 object-cover rounded mb-2">
                                 @endif
 
-                                <div class="flex gap-2 mb-2">
+                                {{-- <div class="flex gap-2 mb-2">
                                     <span
                                         class="text-xs px-2 py-0.5 rounded {{ $event->is_paid ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
                                         {{ $event->is_paid ? 'Paid (₹' . $event->amount . ')' : 'Free' }}
@@ -671,7 +671,7 @@
                                     <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
                                         {{ ucfirst($event->status) }}
                                     </span>
-                                </div>
+                                </div> --}}
 
                                 <h4 class="font-bold text-gray-900 text-sm">{{ $event->name }}</h4>
 
