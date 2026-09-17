@@ -67,6 +67,7 @@ class ProfileController extends Controller
         $posts       = collect();
         $thoughts    = collect();
         $taggedPosts = collect();
+        $events      = collect();
 
         // If blocked in either direction
         if ($hasBlockedUser || $isBlockedByUser) {
@@ -150,6 +151,10 @@ class ProfileController extends Controller
                     })
                     ->orderBy('created_at', 'desc')
                     ->get();
+
+                $events = \App\Models\Event::where('user_id', $user->id)
+                    ->latest()
+                    ->get();
             }
         }
 
@@ -160,6 +165,7 @@ class ProfileController extends Controller
             'posts'           => $posts,
             'thoughts'        => $thoughts,
             'taggedPosts'     => $taggedPosts,
+            'events'          => $events,
             'notifications'   => $notifications,
             'canViewPosts'    => $canViewPosts,
             'message'         => $message,
@@ -2420,6 +2426,10 @@ class ProfileController extends Controller
             ->latest()
             ->get();
 
+        $events = \App\Models\Event::where('user_id', $auth->id)
+            ->latest()
+            ->get();
+
         return view('user.timeline', [
             'user'            => $auth,
             'authFriendCount' => $authFriendCount,
@@ -2431,6 +2441,7 @@ class ProfileController extends Controller
             'friends'         => $friends,
             'posts_count'     => $posts_count,
             'tweets'          => $tweets,
+            'events'          => $events,
         ]);
     }
 

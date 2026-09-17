@@ -160,6 +160,12 @@
                         Tagged
                     </button>
 
+                    {{-- EVENTS TAB --}}
+                    <button type="button" onclick="showProfileTab('events')" id="eventsTab"
+                        class="profile-tab px-6 py-3 text-sm font-semibold border-b-2 border-transparent text-gray-500">
+                        Events
+                    </button>
+
                 </div>
 
             </div>
@@ -630,6 +636,62 @@
 
                         <p class="text-center text-gray-500 col-span-full">
                             No tagged posts yet.
+                        </p>
+                    @endforelse
+
+                </div>
+
+            </div>
+
+            {{-- ========================================================= --}}
+            {{-- EVENTS CONTENT --}}
+            {{-- ========================================================= --}}
+
+            <div id="eventsContent" class="profile-content hidden">
+
+                <h3 class="text-lg font-semibold mb-4">
+                    Events
+                </h3>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+
+                    @forelse ($events as $event)
+                        <div class="bg-white rounded shadow p-3 flex flex-col justify-between">
+                            <div>
+                                @if ($event->image)
+                                    <img src="{{ asset('storage/' . $event->image) }}" alt="Event Image"
+                                        class="w-full h-40 object-cover rounded mb-2">
+                                @endif
+
+                                <div class="flex gap-2 mb-2">
+                                    <span
+                                        class="text-xs px-2 py-0.5 rounded {{ $event->is_paid ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ $event->is_paid ? 'Paid ($' . $event->amount . ')' : 'Free' }}
+                                    </span>
+                                    <span class="text-xs px-2 py-0.5 rounded bg-gray-100 text-gray-700">
+                                        {{ ucfirst($event->status) }}
+                                    </span>
+                                </div>
+
+                                <h4 class="font-bold text-gray-900 text-sm">{{ $event->name }}</h4>
+
+                                @php
+                                    $addressData = json_decode($event->city);
+                                    $cityName = is_object($addressData)
+                                        ? $addressData->address ?? $event->city
+                                        : $event->city;
+                                @endphp
+                                <p class="text-xs text-gray-600 mt-1">📍 Address: {{ $cityName }}</p>
+                                <p class="text-xs text-gray-600 mt-0.5">⏰ Timing: {{ $event->timing }}</p>
+                            </div>
+
+                            <p class="text-xs text-gray-400 mt-3">
+                                {{ $event->created_at->diffForHumans() }}
+                            </p>
+                        </div>
+                    @empty
+                        <p class="text-center text-gray-500 col-span-full">
+                            No events found.
                         </p>
                     @endforelse
 

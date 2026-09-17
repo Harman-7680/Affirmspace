@@ -134,8 +134,7 @@ class FriendController extends Controller
         DB::table('post_tags')
             ->where(function ($q) use ($authId, $id) {
 
-                // My posts where I tagged this friend
-                $q->whereIn('post_id', function ($sub) use ($authId) {
+                $q->whereIn('post_id', function ($sub) use ($authId) { 
                     $sub->select('id')
                         ->from('posts')
                         ->where('user_id', $authId);
@@ -144,9 +143,8 @@ class FriendController extends Controller
 
             })
             ->orWhere(function ($q) use ($authId, $id) {
-
-                // Friend's posts where they tagged me
-                $q->whereIn('post_id', function ($sub) use ($id) {
+                                        
+                $q->whereIn('post_id', function ($sub) use ($id, $authId) { 
                     $sub->select('id')
                         ->from('posts')
                         ->where('user_id', $id);
@@ -157,11 +155,11 @@ class FriendController extends Controller
             ->delete();
 
         // Unfriend
-        Friendship::where(function ($q) use ($id) {
+        Friendship::where(function ($q) use ($authId, $id) {
             $q->where('sender_id', $authId)
                 ->where('receiver_id', $id);
         })
-            ->orWhere(function ($q) use ($id) {
+            ->orWhere(function ($q) use ($authId, $id) {
                 $q->where('sender_id', $id)
                     ->where('receiver_id', $authId);
             })

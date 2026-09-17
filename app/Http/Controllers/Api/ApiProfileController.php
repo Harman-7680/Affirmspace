@@ -80,6 +80,9 @@ class ApiProfileController extends Controller
         // If blocked in either direction
         if ($hasBlockedUser || $isBlockedByUser) {
             $posts        = collect();
+            $thoughts     = collect(); // Added
+            $taggedPosts  = collect(); // Added
+            $events       = collect(); // Added agar events bhi show kar rahe hain
             $canViewPosts = false;
             $message      = "You cannot view this profile.";
         } else {
@@ -124,23 +127,22 @@ class ApiProfileController extends Controller
                 : collect();
 
             // Thoughts
-            $thoughts = \App\Models\Tweet::where('user_id', $user->id)
-                ->latest()
-                ->get();
+            $thoughts = $canViewPosts
+                ? \App\Models\Tweet::where('user_id', $user->id)->latest()->get()
+                : collect();
 
-// Tagged Posts
-            $taggedPosts = \App\Models\Post::with([
+            // Tagged Posts
+            $taggedPosts = $canViewPosts
+                ? \App\Models\Post::with([
                 'user',
                 'likes',
                 'comments' => function ($q) use ($hiddenUsers) {
-
                     $q->whereNull('parent_id')
                         ->whereNotIn('user_id', $hiddenUsers)
                         ->latest()
                         ->with([
                             'user',
                             'replies' => function ($r) use ($hiddenUsers) {
-
                                 $r->whereNotIn('user_id', $hiddenUsers)
                                     ->latest()
                                     ->with('user');
@@ -150,12 +152,16 @@ class ApiProfileController extends Controller
                 'taggedUsers',
             ])
                 ->whereHas('taggedUsers', function ($q) use ($user) {
-
                     $q->where('users.id', $user->id);
-
                 })
                 ->orderBy('created_at', 'desc')
-                ->get();
+                ->get()
+                : collect();
+
+            // Events (Agar aapke paas events bhi hain)
+            $events = $canViewPosts
+                ? \App\Models\Event::where('user_id', $user->id)->latest()->get()
+                : collect();
         }
 
         // Notifications
@@ -178,6 +184,7 @@ class ApiProfileController extends Controller
             'hasBlockedUser'    => $hasBlockedUser,
             'isBlockedByUser'   => $isBlockedByUser,
             'followers'         => $friends,
+            'events'            => $events,
         ]);
     }
 
@@ -462,6 +469,15 @@ class ApiProfileController extends Controller
             )
             ->values();
 
+        $tweets = Tweet::where('user_id', Auth::id())
+            ->latest()
+            ->get();
+
+        // Current user ke events fetch karein
+        $events = \App\Models\Event::where('user_id', $auth->id)
+            ->latest()
+            ->get();
+
         return response()->json([
             'success'         => true,
             'user'            => $auth,
@@ -473,6 +489,8 @@ class ApiProfileController extends Controller
             'statuses'        => $statuses,
             'friends'         => $friends,
             'posts_count'     => $posts_count,
+            'tweets'          => $tweets,
+            'events'          => $events,
         ]);
     }
 

@@ -451,6 +451,16 @@
 
                         Tagged
                     </button>
+
+                    <button type="button" @click="activeTab = 'events'"
+                        :class="activeTab === 'events'
+                            ?
+                            'text-indigo-600 font-semibold border-b-2 border-indigo-600' :
+                            'text-gray-500 hover:text-indigo-600'"
+                        class="pb-1 transition">
+
+                        Events
+                    </button>
                 </div>
 
                 {{-- POSTS SECTION --}}
@@ -813,6 +823,50 @@
 
                     </div>
 
+                </div>
+
+                {{-- Events Tab Content --}}
+                <div x-show="activeTab === 'events'" class="mt-6 grid grid-cols-1 md:grid-cols-2 gap-4"
+                    style="display: none;">
+                    @forelse ($events as $event)
+                        <div class="bg-white dark:bg-dark border rounded-xl p-4 shadow-sm flex flex-col justify-between">
+                            <div>
+                                @if ($event->image)
+                                    <img src="{{ asset('storage/' . $event->image) }}" alt="Event Image"
+                                        class="w-full h-40 object-cover rounded-lg mb-3">
+                                @endif
+
+                                <div class="flex gap-2 mb-2">
+                                    <span
+                                        class="text-xs px-2 py-1 rounded {{ $event->is_paid ? 'bg-green-100 text-green-700' : 'bg-blue-100 text-blue-700' }}">
+                                        {{ $event->is_paid ? 'Paid ($' . $event->amount . ')' : 'Free' }}
+                                    </span>
+                                    <span class="text-xs px-2 py-1 rounded bg-gray-100 text-gray-700">
+                                        Status: {{ ucfirst($event->status) }}
+                                    </span>
+                                </div>
+
+                                <h4 class="font-bold text-gray-900 dark:text-white text-base">{{ $event->name }}</h4>
+
+                                @php
+                                    $addressData = json_decode($event->city);
+                                    $cityName = is_object($addressData)
+                                        ? $addressData->address ?? $event->city
+                                        : $event->city;
+                                @endphp
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mt-1">📍 Address: {{ $cityName }}
+                                </p>
+                                <p class="text-sm text-gray-600 dark:text-gray-300 mt-0.5">⏰ Timing: {{ $event->timing }}
+                                </p>
+                            </div>
+
+                            <p class="text-xs text-gray-400 mt-4">{{ $event->created_at->diffForHumans() }}</p>
+                        </div>
+                    @empty
+                        <p class="col-span-3 text-center text-gray-500">
+                            No events yet
+                        </p>
+                    @endforelse
                 </div>
             </div>
         </div>

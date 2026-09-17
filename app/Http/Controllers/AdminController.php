@@ -221,18 +221,74 @@ class AdminController extends Controller
     {
         abort_if(Auth::user()->role != 2, 403, 'Unauthorized access');
 
-        $user = \App\Models\User::findOrFail($id);
+        $user          = \App\Models\User::findOrFail($id);
+        $auth          = Auth::user();
+        $notifications = $auth->unreadNotifications;
 
-        $posts = \App\Models\Post::with(['user', 'comments.user', 'likes'])
+        $blockedUsers = \App\Models\Block::where('user_id', $id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = \App\Models\Block::where('blocked_id', $id)
+            ->whereNotNull('user_id')
+            ->pluck('user_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+        // Regular Posts
+        $posts = \App\Models\Post::with(['user', 'likes', 'comments' => function ($q) use ($hiddenUsers) {
+            $q->whereNull('parent_id')
+                ->whereNotIn('user_id', $hiddenUsers)
+                ->with(['user', 'replies' => function ($r) use ($hiddenUsers) {
+                    $r->whereNotIn('user_id', $hiddenUsers)->with('user');
+                }])
+                ->latest();
+        }])
             ->withCount(['likes', 'comments'])
             ->where('user_id', $id)
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $auth          = Auth::user();
-        $notifications = $auth->unreadNotifications;
+        // Tagged Posts
+        $taggedPosts = \App\Models\Post::with([
+            'user',
+            'likes',
+            'comments' => function ($q) use ($hiddenUsers) {
+                $q->whereNull('parent_id')
+                    ->whereNotIn('user_id', $hiddenUsers)
+                    ->with([
+                        'user',
+                        'replies' => function ($r) use ($hiddenUsers) {
+                            $r->whereNotIn('user_id', $hiddenUsers)->with('user');
+                        },
+                    ])
+                    ->latest();
+            },
+            'taggedUsers',
+        ])
+            ->withCount(['likes', 'comments'])
+            ->whereHas('taggedUsers', function ($q) use ($id) {
+                $q->where('users.id', $id);
+            })
+            ->where('user_id', '!=', $id)
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $friends = Friendship::where(function ($query) use ($id) {
+        // Tweets
+        $tweets = \App\Models\Tweet::where('user_id', $id)
+            ->latest()
+            ->get();
+
+        // Events
+        $events = \App\Models\Event::where('user_id', $id)
+            ->latest()
+            ->get();
+
+        // Followers
+        $friends = \App\Models\Friendship::where(function ($query) use ($id) {
             $query->where('sender_id', $id)
                 ->orWhere('receiver_id', $id);
         })
@@ -246,12 +302,14 @@ class AdminController extends Controller
                 : $friendship->sender;
         });
 
-        // dd($friendList, $friends);die;
-
         $followersCount = $friendList->count();
+
         return view('admin.user_profile', [
             'userProfile'    => $user,
             'posts'          => $posts,
+            'taggedPosts'    => $taggedPosts,
+            'tweets'         => $tweets,
+            'events'         => $events,
             'notifications'  => $notifications,
             'followersCount' => $followersCount,
             'followers'      => $friendList,
