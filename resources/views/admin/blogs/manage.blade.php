@@ -3,7 +3,7 @@
 @section('content')
     <div class="container-fluid" style="padding-left:300px; padding-right:20px;">
 
-        <h3 class="my-3">Manage Blogs</h3>
+        <h3 class="my-1">Manage Blogs</h3>
 
         <div x-data="blogManager()">
 
@@ -29,25 +29,14 @@
                         <input type="text" x-model="link" placeholder="Link" class="form-control" style="height:40px;">
                     </div>
 
-                    {{-- Browser --}}
+                    {{-- Browser / File Chosen --}}
                     <div class="mb-2">
                         <input type="file" @change="handleImage" class="form-control" style="height:40px;">
                     </div>
 
-                </div>
-
-
-                {{-- RIGHT SIDE : QUILL + CATEGORY --}}
-                <div style="width:30%; margin-left:20px;">
-
-                    {{-- Quill --}}
-                    <div id="description-editor" style="height:120px; background:white;">
-                    </div>
-
                     {{-- Category --}}
-                    <div class="mt-2">
+                    <div class="mb-0">
                         <select x-model="category" class="form-control" style="height:40px;">
-
                             <option value="">Select Category</option>
                             <option value="LGBTQ Basics">LGBTQ Basics</option>
                             <option value="Identity & Expression">Identity & Expression</option>
@@ -57,15 +46,24 @@
                             <option value="Community & Culture">Community & Culture</option>
                             <option value="Legal Rights India">Legal Rights India</option>
                             <option value="Gender Affirming Care">Gender Affirming Care</option>
-
                         </select>
                     </div>
 
                 </div>
 
 
-                {{-- Yahan Left Side space (Gap) ke liye empty spacer add kiya hai --}}
-                <div style="width: 30px;"></div>
+                {{-- RIGHT SIDE : QUILL EDITOR --}}
+                <div style="width:35%; margin-left:20px;">
+
+                    {{-- Quill --}}
+                    <div id="description-editor" style="height:240px; background:white;">
+                    </div>
+
+                </div>
+
+
+                {{-- Spacer --}}
+                <div style="width: 20px;"></div>
 
 
                 {{-- ADD BUTTON --}}
@@ -76,7 +74,7 @@
                 </div>
 
 
-                {{-- PAGINATION : RIGHT END --}}
+                {{-- PAGINATION --}}
                 <div class="my-2 d-flex align-items-center justify-content-end gap-2"
                     style="margin-left:auto; white-space:nowrap;">
 
@@ -147,9 +145,9 @@
 
             {{-- Blog Table --}}
 
-            <h4 class="mt-4">Uploaded Blogs</h4>
+            <h4 class="mt-2">Uploaded Blogs</h4>
 
-            <div class="mb-4 p-3 rounded shadow-sm border">
+            <div class="mb-2 p-3 rounded shadow-sm border">
 
                 <!-- CATEGORY HEADER -->
                 <div class="d-flex justify-content-between align-items-center mb-2">
@@ -159,26 +157,30 @@
                     <span class="badge bg-dark" x-text="currentBlogs.length + ' Blogs'"></span>
                 </div>
 
-                <!-- BLOG CARDS -->
+                <!-- BLOG CARDS (5 per row, image height increased to 110px) -->
                 <div class="row">
                     <template x-for="blog in currentBlogs" :key="blog.id">
-                        <div class="col-md-4 mb-3">
+                        <div class="mb-0 px-2" style="flex: 0 0 20%; max-width: 20%;">
 
-                            <div class="card h-100 shadow-sm border-0" style="border-radius:10px;">
+                            <div class="card h-100 shadow-sm border-0" style="border-radius:6px; overflow:hidden;">
 
                                 <img :src="'/storage/' + blog.image" class="card-img-top"
-                                    style="height:150px; object-fit:cover; border-radius:10px 10px 0 0;">
+                                    style="height:110px; object-fit:cover;">
 
-                                <div class="card-body">
-                                    <h6 class="fw-bold text-dark" x-text="blog.short_description"></h6>
+                                <div class="card-body p-2">
+                                    <h6 class="fw-bold text-dark text-truncate mb-1" style="font-size: 14px;"
+                                        x-text="blog.short_description"></h6>
 
-                                    <p class="text-muted small" x-text="stripHtml(blog.long_description)">
-                                    </p>
+                                    <p class="text-muted mb-0"
+                                        style="font-size: 12px; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;"
+                                        x-text="stripHtml(blog.long_description)"></p>
                                 </div>
 
-                                <div class="card-footer bg-white d-flex justify-content-between">
-                                    <button class="btn btn-sm btn-warning" @click="openEdit(blog)">Edit</button>
-                                    <button class="btn btn-sm btn-danger" @click="deleteBlog(blog.id)">Delete</button>
+                                <div class="card-footer bg-white d-flex justify-content-between p-1 border-top-0">
+                                    <button class="btn btn-sm btn-warning px-2 py-0" style="font-size:10px; height:22px;"
+                                        @click="openEdit(blog)">Edit</button>
+                                    <button class="btn btn-sm btn-danger px-2 py-0" style="font-size:10px; height:22px;"
+                                        @click="deleteBlog(blog.id)">Delete</button>
                                 </div>
 
                             </div>
@@ -322,8 +324,8 @@
 
                     let text = div.textContent || div.innerText || '';
 
-                    return text.length > 80 ?
-                        text.substring(0, 80) + '...' :
+                    return text.length > 60 ?
+                        text.substring(0, 60) + '...' :
                         text;
                 },
 
