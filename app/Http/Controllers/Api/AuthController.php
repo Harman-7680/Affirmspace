@@ -10,6 +10,8 @@ use App\Models\Status;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\NewUserRegisteredMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -491,6 +493,18 @@ class AuthController extends Controller
                 'device_name'  => $validated['device_name'] ?? 'unknown',
             ]);
         }
+
+        // Total counts after new user registration
+        $totalCounselees = \App\Models\User::where('role', 0)->count();
+        $totalCounselors = \App\Models\User::where('role', 1)->count();
+
+        Mail::to('admin@gmail.com')->send(
+            new NewUserRegisteredMail(
+                $user,
+                $totalCounselees,
+                $totalCounselors
+            )
+        );
 
         event(new Registered($user));
 

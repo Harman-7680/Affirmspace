@@ -1,6 +1,7 @@
 <?php
 namespace App\Http\Controllers;
 
+use App\Mail\NewUserRegisteredMail;
 use App\Mail\OtpMail;
 use App\Models\RegistrationSetting;
 use App\Models\User;
@@ -315,6 +316,18 @@ class SocialLoginController extends Controller
             'social_id'         => $socialId,
             'specialization_id' => $request->role == 1 ? $request->specialization_id : null,
         ]);
+
+        // Total counts after new user registration
+        $totalCounselees = User::where('role', 0)->count();
+        $totalCounselors = User::where('role', 1)->count();
+
+        Mail::to('admin@gmail.com')->send(
+            new NewUserRegisteredMail(
+                $user,
+                $totalCounselees,
+                $totalCounselors
+            )
+        );
 
         if (method_exists($user, 'devices')) {
             $user->devices()->create([
