@@ -2,74 +2,164 @@
 
 ## 1. Project Overview
 
-AffirmSpace is a multi-role web application built on Laravel. The platform supports three distinct user roles with clearly separated responsibilities, views, controllers, and layouts.
+AffirmSpace is a multi-role web application and social/community platform built on Laravel.
+
+The platform combines:
+
+* Social networking
+* Friendship and followers
+* Dating
+* Real-time/chat functionality
+* Counselor services
+* Events and event-based conversations
+* Thoughts/posts
+* Notifications
+* Video calling
+* Blog/content management
+* Payments
+* Admin management
+* LGBTQ+ community and support features
+
+The project supports three primary user roles with clearly separated responsibilities, views, controllers, permissions, and layouts.
 
 ### User Roles
 
-* **Admin**: Full control over the system. Can manage users, counselors, content, payments, and platform-level settings.
-* **Counselor**: Professional users who interact with counselees, manage their own data, and provide services.
-* **Counselee**: Normal end users. They can manage profiles, interact with counselors, use the dating feature, chat, and receive notifications.
+* **Admin (`role = 2`)**
 
-The project is structured to ensure role separation, scalability, and ease of understanding for future developers.
+  * Full platform-level control
+  * User management
+  * Counselor management
+  * Content/blog management
+  * Event/content moderation
+  * Payment/platform management
+  * Administrative dashboards and settings
+
+* **Counselor (`role = 1`)**
+
+  * Professional users who provide counseling/support services
+  * Counselor profile and specialization
+  * Pricing
+  * Ratings
+  * Availability
+  * Counselor requests
+  * Counselee communication
+  * Video sessions
+  * Counselor-specific dashboard and functionality
+
+* **Counselee / Normal User (`role = 0`)**
+
+  * Normal registered users
+  * Profile management
+  * Social feed
+  * Posts and thoughts
+  * Likes, comments and replies
+  * Friendship/following
+  * Dating
+  * Messaging
+  * Events
+  * Counselor discovery and requests
+  * Notifications
+
+### User Status
+
+* `status = 1` → Active
+* `status = 0` → Deactivated
+
+### Counselor Verification
+
+Counselor records use:
+
+* `documents_status = 3` → Verified/approved counselor state used by the application
+
+The exact status meanings should always be checked against the current controller/model logic before modifying verification workflows.
 
 ---
 
-## 2. Technology Stack
+# 2. Technology Stack
 
-* **Backend**: Laravel (PHP)
-* **Frontend**: Blade Templates
-* **Database**: MySQL
-* **Realtime & Chat**: Firebase Realtime Database
-* **Video Meetings**: Jitsi
-* **Maps & Location**: LocationIQ
-* **Authentication**:
+* **Backend:** Laravel 11 / PHP
+* **Frontend:** Blade Templates
+* **Database:** MySQL / MariaDB
+* **Styling:** Tailwind CSS, Bootstrap where applicable
+* **Frontend JavaScript:** JavaScript, AJAX, Alpine.js
+* **Realtime / Chat:** Firebase Realtime Database and application-side messaging
+* **Video Meetings:** Jitsi
+* **Maps & Location:** LocationIQ
+* **Authentication:**
 
   * Email / Password
   * Google Login
   * Facebook Login
-* **Notifications**: Laravel Notifications
-* **Payments**: Custom payment module
+  * Laravel email verification
+* **Notifications:** Laravel Notifications / application notification system
+* **Payments:** Custom payment module with configured payment gateway integrations
+* **Rich Text Editing:** Quill editor for admin blog content
+* **API:** Laravel API controllers/endpoints for application functionality
 
-All third-party service keys and secrets are stored securely in the `.env` file.
+All third-party service keys, API keys, credentials and secrets must be stored in `.env` and must never be hardcoded.
 
 ---
 
-## 3. High-Level Folder Structure
+# 3. High-Level Folder Structure
 
-```
+```text
 affirmspace/
 ├── app/
 │   ├── Http/
 │   │   ├── Controllers/
 │   │   │   ├── ProfileController.php
 │   │   │   ├── CounselorController.php
-│   │   │   └── (Other controllers – functionality inferred by name)
+│   │   │   ├── Admin Controllers
+│   │   │   ├── API Controllers
+│   │   │   └── Other feature controllers
+│   │   │
+│   │   ├── Middleware/
+│   │   └── Requests/
+│   │
 │   ├── Mail/
-│   │   └── (Email-related logic classes)
+│   │   └── Email-related Mailable classes
+│   │
+│   ├── Models/
+│   │   ├── User.php
+│   │   ├── Post.php
+│   │   ├── Comment.php
+│   │   ├── Reply.php
+│   │   ├── Friendship.php
+│   │   ├── Message.php
+│   │   ├── Event.php
+│   │   ├── EventChat.php
+│   │   ├── DatingMessage.php
+│   │   ├── CounselorAvailability.php
+│   │   ├── CounselorRating.php
+│   │   ├── Tweet.php
+│   │   └── Other feature models
+│   │
 │   ├── Notifications/
-│   │   └── (Login, system, and user notifications)
+│   │   └── Notification classes
+│   │
+│   └── ...
 │
 ├── bootstrap/
-│   └── app.php   # Core application bootstrapping, middleware & API registration
+│   └── app.php
 │
 ├── resources/
 │   ├── views/
 │   │   ├── layouts/
-│   │   │   ├── app1.blade.php        # Main layout (User/Counselee)
-│   │   │   └── app_admin.blade.php   # Admin layout
+│   │   │   ├── app1.blade.php
+│   │   │   └── app_admin.blade.php
 │   │   │
 │   │   ├── user/
-│   │   │   ├── feed.blade.php        # Main user feed
-│   │   │   └── (Other counselee views)
+│   │   │   ├── feed.blade.php
+│   │   │   └── Other user views
 │   │   │
 │   │   ├── counselor/
-│   │   │   └── (All counselor-related UI files)
+│   │   │   └── Counselor-related UI
 │   │   │
 │   │   ├── profile/
-│   │   │   └── edit.blade.php        # Counselee profile edit page
+│   │   │   └── Profile-related UI
 │   │   │
 │   │   ├── payment/
-│   │   │   └── (Payment-related pages)
+│   │   │   └── Payment-related pages
 │   │   │
 │   │   ├── auth/
 │   │   │   ├── login.blade.php
@@ -77,157 +167,1262 @@ affirmspace/
 │   │   │   └── forgot-password.blade.php
 │   │   │
 │   │   ├── emails/
-│   │   │   └── (Email UI templates)
+│   │   │   └── Email templates
+│   │   │
+│   │   ├── admin/
+│   │   │   └── Admin management pages
+│   │   │
+│   │   ├── blog/
+│   │   │   └── Public blog pages
 │   │   │
 │   │   └── errors/
-│   │       └── (404, fallback, and error pages)
+│   │       └── Error pages
+│   │
+│   └── ...
 │
 ├── routes/
-│   └── web.php   # All web routes with inline comments for clarity
+│   ├── web.php
+│   └── api.php
 │
 ├── public/
-│   ├── clear_cache.php   # Clears application cache (direct URL access)
-│   ├── show.php          # Shows application/server details
-│   └── storage.php       # Storage-related utilities
+│   ├── clear_cache.php
+│   ├── show.php
+│   ├── storage.php
+│   └── Other public assets/utilities
 │
-└── .env                  # Environment configuration (keys, secrets)
+├── storage/
+│   └── Application/user-uploaded files
+│
+├── database/
+│   ├── migrations/
+│   ├── seeders/
+│   └── factories/
+│
+└── .env
 ```
 
 ---
 
-## 4. Layout & Blade Architecture
+# 4. Layout & Blade Architecture
 
-### app1.blade.php (Main User Layout)
+## app1.blade.php
 
-This is the core layout file used by most user-facing pages.
+`resources/views/layouts/app1.blade.php` is the primary user-facing layout.
 
-It contains:
+It contains common:
 
-* Header and footer structure
-* Common navigation
-* Blade sections:
+* Header
+* Navigation
+* Sidebar/navigation elements
+* Footer
+* Common scripts
+* Common styles
 
-  * `@section('css')` for page-specific styles
-  * `@section('content')` for main content
-  * `@section('script')` for page-specific JavaScript
+Pages generally extend it using:
 
-Pages extend this layout using:
-
-```
+```php
 @extends('layouts.app1')
 ```
 
-### app_admin.blade.php
+Common Blade sections include:
 
-A separate layout dedicated to admin pages to keep admin UI isolated from user UI.
+```php
+@section('css')
+@endsection
 
----
+@section('content')
+@endsection
 
-## 5. Routing Strategy
-
-All routes are defined in `routes/web.php`.
-
-* Counselee routes are clearly commented and usually linked to controllers like `ProfileController`.
-* Counselor routes are grouped and linked to `CounselorController`.
-* Admin routes are separated logically for management features.
-
-Inline comments are added in `web.php` to help developers quickly understand route purpose and access level.
-
----
-
-## 6. Controller Design Philosophy
-
-Controllers are named based on responsibility.
-
-Example:
-
-* `ProfileController` → User profile logic
-* `CounselorController` → Counselor-specific operations
-
-A developer can understand functionality simply by reading the controller name.
-
----
-
-## 7. Email System
-
-* **Email UI Templates**: `resources/views/emails`
-* **Email Logic & Classes**: `app/Mail`
-
-This separation allows UI changes without touching backend logic.
-
----
-
-## 8. Notifications
-
-All notification logic is located in:
-
+@section('script')
+@endsection
 ```
-app/Notifications
+
+## app_admin.blade.php
+
+`resources/views/layouts/app_admin.blade.php` is the dedicated administrator layout.
+
+Admin UI is intentionally separated from normal user/counselor UI.
+
+---
+
+# 5. Routing Strategy
+
+Primary web routes are defined in:
+
+```text
+routes/web.php
 ```
+
+API routes are defined separately where applicable:
+
+```text
+routes/api.php
+```
+
+Routes are logically organized around:
+
+* Authentication
+* User/profile functionality
+* Social features
+* Friends/followers
+* Posts
+* Thoughts
+* Dating
+* Messaging
+* Counselors
+* Events
+* Event chat
+* Notifications
+* Payments
+* Admin
+* Blogs
+
+Laravel 11 uses `bootstrap/app.php` for application bootstrapping and middleware/API configuration rather than relying on the older `RouteServiceProvider.php` structure.
+
+### Important Rule
+
+Do not assume that URL parameters alone provide authorization.
+
+For protected resources such as:
+
+* Profiles
+* Messages
+* Event chats
+* Counselor conversations
+* Private content
+
+the controller must verify that the authenticated user is actually authorized to access the requested resource.
+
+---
+
+# 6. Controller Design Philosophy
+
+Controllers are organized according to feature responsibility.
 
 Examples:
 
-* Login notifications
-* System alerts
-* User activity notifications
+* `ProfileController` → Profile/feed/profile visibility logic
+* `CounselorController` → Counselor functionality
+* Event-related controllers → Event management and event conversations
+* Admin controllers → Administrative functionality
+* API controllers → Application/API requests
 
-Notifications are triggered automatically based on user actions.
+Existing working functionality should not be unnecessarily refactored while fixing an isolated issue.
 
----
+For example, when modifying social interactions, preserve existing:
 
-## 9. Firebase & Dating Feature
+* Like logic
+* Comment logic
+* Reply logic
+* Boost logic
+* Notification logic
 
-* Firebase is used for real-time chat functionality.
-* The **Dating feature** is exclusive to counselees.
-* Firebase keys and configuration are stored in the `.env` file.
-
-This design ensures secure, scalable real-time communication.
-
----
-
-## 10. Third-Party Integrations
-
-* **Firebase**: Real-time chat & dating
-* **Jitsi**: Video meetings
-* **LocationIQ**: Location and address services
-* **Google Login**: OAuth authentication
-* **Facebook Login**: OAuth authentication
-
-All credentials are environment-based and should never be hardcoded.
+unless the change specifically requires modifying them.
 
 ---
 
-## 11. Public Utility Files (Direct URL Access)
+# 7. Authentication & User Profiles
 
-The following utility files are intentionally accessible via URL for server-level operations:
+AffirmSpace supports:
 
-* `clear_cache.php` → Clears Laravel cache
-* `show.php` → Displays system or application info
-* `storage.php` → Storage-related diagnostics
+* Registration
+* Login
+* Logout
+* Password reset
+* Email verification
+* Google authentication
+* Facebook authentication
 
-These should be protected or removed in production if security policies require it.
+User profiles contain information such as:
+
+* First name
+* Last name
+* Email
+* Email verification status
+* Bio
+* Profile image
+* Role
+* Account status
+
+Profile visibility is affected by:
+
+* Account status
+* Blocking
+* Muting
+* Privacy settings
+* Friendship relationship
+* Content visibility rules
 
 ---
 
-## 12. Developer Notes & Best Practices
+# 8. Social Networking System
 
-* Always check `.env` before running the project.
-* Follow existing folder conventions when adding new features.
-* Extend the correct layout based on user role.
-* Keep role-based logic isolated (Admin / Counselor / Counselee).
-* Use descriptive controller and method names.
+AffirmSpace contains a social networking layer similar to modern community platforms.
+
+## Posts
+
+Users can create posts that may contain:
+
+* Text/content
+* Media where supported
+* Tagged friends/users
+
+Post interactions include:
+
+* Likes
+* Comments
+* Replies
+* Boosts
+
+Existing post interaction logic should be preserved when implementing related features.
 
 ---
 
-## 13. Conclusion
+# 9. Thoughts / Tweets
 
-AffirmSpace is designed with clarity, modularity, and scalability in mind. By following the existing structure and conventions, new developers can easily understand the flow of data, role separation, and system responsibilities.
+AffirmSpace also contains a short-form content feature displayed in the UI as:
 
-This README should be the first reference point before modifying or extending the project.
+**Thought**
 
+The underlying `tweets` table includes fields such as:
 
+```text
+id
+user_id
+title
+```
 
-                                        -------------------------------
-                                        | Developed By : Harman Singh |
-                                        -------------------------------
+Thoughts are intended to support interaction similar to normal posts:
 
+* Like
+* Comment
+* Reply
+
+The UI may use `data-tweet-id` and other identifiers to connect frontend actions with the corresponding database record.
+
+---
+
+# 10. Feed System
+
+The feed contains a combination of:
+
+* User posts
+* Boosted posts
+* Thoughts
+* User discovery sections
+* Other feed components
+
+The feed uses pagination/load-more functionality to avoid loading an unnecessarily large amount of data at once.
+
+### Feed Requirements
+
+The feed system includes logic for:
+
+* Post ordering
+* Boost priority
+* Randomized ordering where applicable
+* Pagination
+* Load More
+* Feed tokens
+* Hidden/muted users
+* Blocked users
+* User-specific visibility
+
+A separate `usersToken` is used for user-discovery ordering/pagination where applicable.
+
+### Important Performance Rule
+
+Avoid loading unnecessary data for every feed item.
+
+Posts can have:
+
+```text
+Post
+ ├── User
+ ├── Likes
+ ├── Comments
+ │    └── Replies
+```
+
+When the dataset becomes large, counts/current-user state should be preferred over loading every interaction record unnecessarily.
+
+---
+
+# 11. Friendship & Followers
+
+The platform supports:
+
+* Friend requests
+* Accepting requests
+* Rejecting requests
+* Withdrawing requests
+* Unfriending
+* Followers/following
+* Follow notifications
+
+The friendship system uses records containing concepts such as:
+
+```text
+sender_id
+receiver_id
+status
+```
+
+When checking a friendship, both directions must be considered.
+
+For example:
+
+```text
+A → B
+B → A
+```
+
+may represent the same relationship depending on the operation being performed.
+
+---
+
+# 12. Blocking, Muting & Privacy
+
+AffirmSpace contains privacy controls including:
+
+* Block
+* Mute
+* Private profiles
+
+### Blocking
+
+If either user has blocked the other, protected profile/content access should be denied according to the application's visibility rules.
+
+### Muting
+
+Muted users can be excluded from relevant feed/discovery results without necessarily removing the underlying relationship.
+
+### Private Profiles
+
+Private profile content is restricted according to friendship/visibility rules.
+
+When implementing profile visibility, always check:
+
+1. Authenticated user
+2. Target user
+3. Block relationship
+4. Privacy status
+5. Friendship relationship
+6. Relevant content visibility rules
+
+---
+
+# 13. Post Tagging
+
+Posts support friend/user tagging.
+
+The posting interface provides options such as:
+
+* Thought
+* Tagged
+
+Tagged users can see applicable tagged posts in the dedicated tagged-content section of their profile.
+
+Tag visibility must respect relationship changes.
+
+For example, when users become unfriended, content that depended on that friendship should no longer remain visible through the previous friendship relationship.
+
+---
+
+# 14. User Discovery
+
+The platform contains dedicated user-discovery functionality.
+
+It supports:
+
+* User search
+* Pagination
+* Separate user tokens
+* Role-based filtering
+* Counselor filtering
+
+Counselor discovery can include filters such as:
+
+* Price
+* Rating
+* Specialization
+* Verification status
+
+The user-discovery system uses separate pagination from the main feed where applicable.
+
+---
+
+# 15. Counselor System
+
+Counselors are separate from normal users.
+
+Counselor functionality includes:
+
+* Counselor profile
+* Professional information
+* Specialization
+* Pricing
+* Ratings
+* Availability
+* Counselor requests
+* Counselee communication
+* Video sessions
+* Verification/document status
+
+### Counselor Availability
+
+The `CounselorAvailability` system is associated with:
+
+```text
+counselor_id
+available_date
+start_time
+end_time
+```
+
+This allows counselors to define available dates/times for services.
+
+### Counselor Ratings
+
+Counselors can receive ratings from users after applicable interactions/services.
+
+---
+
+# 16. Counselor Requests & Messaging
+
+Counselees can send counselor requests.
+
+The application uses message/request state such as:
+
+```text
+accepted
+rejected
+```
+
+Counselor communication must be separated from normal friend/dating conversations.
+
+Authorization must be performed server-side before exposing counselor messages.
+
+---
+
+# 17. Messaging System
+
+AffirmSpace contains multiple communication contexts.
+
+Examples include:
+
+* Friend chat
+* Counselor chat
+* Dating chat
+* Event chat
+
+The message type/context is important when retrieving conversations.
+
+Where applicable, chat records use status fields to control request/acceptance states.
+
+---
+
+# 18. Dating System
+
+The Dating feature is available to normal counselee users.
+
+Dating functionality includes:
+
+* Dating profiles
+* Dating-related user information
+* Dating messages
+* User photos
+* Dating-specific conversations
+
+Dating messages use a dedicated model/table such as:
+
+```text
+DatingMessage
+```
+
+Dating data should remain logically separated from normal friend and counselor communication.
+
+---
+
+# 19. Event System
+
+AffirmSpace contains an event system.
+
+Events can have:
+
+* Event owner
+* Approval state
+* Event details
+* Participants/visitors
+* Event-specific communication
+
+Users can view and interact with approved events according to their role and permissions.
+
+---
+
+# 20. Event Chat
+
+Event conversations are **event-specific**.
+
+A conversation must be identified using the combination of:
+
+```text
+event_id
+other_user_id
+```
+
+and the authenticated user.
+
+### Important Security Rule
+
+Never retrieve event conversations only by `user_id`.
+
+The selected event must first be verified as accessible/approved.
+
+### Owner Case
+
+If the authenticated user owns the event:
+
+* The selected other user must actually have sent a message on that event.
+
+### Visitor Case
+
+If the authenticated user is not the event owner:
+
+* The selected other user must be the event owner.
+* The authenticated user must have actually sent a message on that event.
+
+The final message query must be restricted to:
+
+* Current authenticated user
+* Selected user
+* Selected event
+
+This prevents messages belonging to another event or another conversation from appearing accidentally.
+
+---
+
+# 21. Jitsi Video Calling
+
+Jitsi is used for video meetings/calls.
+
+The application uses deterministic room naming for two-user calls.
+
+Existing room format:
+
+```text
+AffirmSpaceCall_{min_user_id}_{max_user_id}
+```
+
+Using the minimum and maximum user IDs ensures that:
+
+```text
+User A → User B
+```
+
+and:
+
+```text
+User B → User A
+```
+
+produce the same room identifier.
+
+Authorization should still be checked before allowing a user to join a protected call.
+
+---
+
+# 22. Notifications
+
+The notification system is located in:
+
+```text
+app/Notifications
+```
+
+Notifications may be generated for:
+
+* Friend requests
+* Follows
+* Social interactions
+* Counselor interactions
+* Other system/user events
+
+Examples include:
+
+```text
+FollowNotification
+```
+
+Notifications should be triggered from the appropriate application action rather than being duplicated across unrelated controllers.
+
+---
+
+# 23. Email System
+
+Email UI templates are located in:
+
+```text
+resources/views/emails
+```
+
+Email logic/Mailable classes are located in:
+
+```text
+app/Mail
+```
+
+This separation allows the email design to be changed without unnecessarily modifying backend email logic.
+
+Emails may be used for:
+
+* Registration/email verification
+* Password-related communication
+* Counselor/event notifications
+* Approval/rejection notifications
+* Other platform notifications
+
+---
+
+# 24. Firebase & Realtime Functionality
+
+Firebase is used where real-time communication is required.
+
+Firebase credentials/configuration must be stored in:
+
+```text
+.env
+```
+
+Never commit private Firebase credentials to source control.
+
+Realtime communication should be separated logically from normal Laravel database operations where applicable.
+
+---
+
+# 25. Admin System
+
+Admin functionality is separated from normal user/counselor functionality.
+
+The admin interface uses:
+
+```text
+layouts/app_admin.blade.php
+```
+
+Admin functionality can include:
+
+* User management
+* Counselor management
+* Counselor verification
+* Content management
+* Blog management
+* Comment moderation
+* Event/content management
+* Payment-related management
+* Platform-level administration
+
+Admin routes and controllers should always enforce admin authorization.
+
+---
+
+# 26. Blog Management System
+
+AffirmSpace contains an admin-managed blog/content system.
+
+Blog records contain fields such as:
+
+```text
+slug
+short_description
+long_description
+image
+category
+link
+approved
+parent_id
+```
+
+The long description supports HTML content.
+
+### Quill Editor
+
+The admin blog editor uses Quill for rich-text content such as:
+
+* Bold
+* Italic
+* Underline
+* Headings
+* Lists
+* Links
+
+Blog images are stored under the application's blog storage area, such as:
+
+```text
+storage/blogs
+```
+
+---
+
+# 27. Blog Categories
+
+Current blog categories include:
+
+* LGBTQ Basics
+* Identity & Expression
+* Mental Health & Support
+* Dating & Relationships
+* Safety & Coming Out
+* Community & Culture
+* Legal Rights India
+* Gender Affirming Care
+
+These categories should be kept consistent across admin and public blog functionality.
+
+---
+
+# 28. Public Blog / SEO Structure
+
+Public blog pages follow the structure:
+
+```text
+/blog/{category}/{slug}
+```
+
+The blog system supports SEO-friendly URLs through:
+
+* Categories
+* Slugs
+* Public blog pages
+* Search-friendly content structure
+
+When rendering HTML blog content, ensure the intended HTML sanitization/rendering strategy is followed rather than accidentally displaying raw HTML tags as text.
+
+---
+
+# 29. Payments
+
+AffirmSpace contains a custom payment module for platform services.
+
+Payment-related code should be separated from normal social/feed logic.
+
+Payment credentials and gateway configuration must remain inside `.env`.
+
+Payment flows should always verify:
+
+* Authenticated user
+* Amount
+* Transaction state
+* Payment response
+* Relevant service/order
+* Server-side payment status
+
+Never rely only on frontend payment-success messages.
+
+---
+
+# 30. Third-Party Integrations
+
+Current/known integrations include:
+
+### Firebase
+
+Used for realtime functionality/chat where applicable.
+
+### Jitsi
+
+Used for video meetings.
+
+### LocationIQ
+
+Used for location/address-related functionality.
+
+### Google OAuth
+
+Used for Google login.
+
+### Facebook OAuth
+
+Used for Facebook login.
+
+### Payment Gateway(s)
+
+Used for payment processing according to the configured payment module.
+
+All credentials must be environment-based.
+
+---
+
+# 31. API Architecture
+
+AffirmSpace contains API functionality in addition to browser-based web routes.
+
+API controllers should:
+
+* Validate input
+* Authenticate the user
+* Authorize access to resources
+* Return appropriate responses
+* Avoid exposing private data
+* Apply the same privacy/security rules as web controllers
+
+API endpoints must not bypass restrictions implemented in the web application.
+
+---
+
+# 32. Security & Authorization Rules
+
+Security is especially important for AffirmSpace because the application contains private social and communication data.
+
+Always validate authorization server-side for:
+
+* Profiles
+* Posts
+* Messages
+* Event chats
+* Counselor conversations
+* Dating conversations
+* Private content
+* Admin pages
+* Payments
+* Video calls
+
+Never assume that hiding a button or URL parameter provides security.
+
+For example:
+
+```text
+/events/chats?event_id=45&user_id=197
+```
+
+must not automatically grant access to that event conversation.
+
+The controller must verify the authenticated user's relationship to:
+
+* Event
+* Selected user
+* Conversation
+
+---
+
+# 33. Feed & Data Performance
+
+The feed can contain large relational datasets.
+
+Example:
+
+```text
+Post
+ ├── User
+ ├── Likes
+ ├── Comments
+ │    └── Replies
+ └── Boost information
+```
+
+Avoid loading every relation for every post when it is unnecessary.
+
+Use:
+
+* Pagination
+* Lazy loading where appropriate
+* Eager loading only required relationships
+* Counts
+* Current-user interaction state
+* Load More
+* Search pagination
+
+For large user datasets, avoid sending every user record to the browser unnecessarily.
+
+---
+
+# 34. Pagination & Load More
+
+AffirmSpace uses pagination for major datasets such as:
+
+* Feed posts
+* User discovery
+* Counselors
+* Other large lists
+
+The frontend may use AJAX/fetch requests for Load More functionality.
+
+Feed loading may use values such as:
+
+```text
+page
+feed_token
+users_token
+```
+
+The frontend must preserve the current pagination state during a single browsing flow to avoid duplicate records.
+
+---
+
+# 35. Feed Ordering & Boosts
+
+The feed contains logic for prioritizing boosted/friend content.
+
+Existing feed logic includes a boost time concept, such as:
+
+```text
+boostHours = 2
+```
+
+Feed ordering may also use randomized/token-based ordering.
+
+When modifying feed ordering:
+
+* Do not unnecessarily remove existing boost logic.
+* Do not break Load More.
+* Do not introduce duplicate posts.
+* Keep the same feed state during pagination.
+* Use separate tokens where independent lists require independent ordering.
+
+---
+
+# 36. Public Utility Files
+
+The following files may exist under `public/`:
+
+```text
+clear_cache.php
+show.php
+storage.php
+```
+
+Their purposes include:
+
+* `clear_cache.php` → Application/cache clearing utility
+* `show.php` → Application/server information utility
+* `storage.php` → Storage-related utility/diagnostics
+
+### Production Security
+
+These files should be reviewed before production deployment.
+
+If they expose sensitive server/application information or allow destructive actions, they should be:
+
+* Removed
+* Protected
+* Restricted by authentication/IP
+* Replaced with safer deployment procedures
+
+---
+
+# 37. Environment Configuration
+
+Environment-specific values belong in:
+
+```text
+.env
+```
+
+Examples include:
+
+```text
+APP_KEY
+APP_URL
+DB_*
+MAIL_*
+FIREBASE_*
+GOOGLE_*
+FACEBOOK_*
+LOCATIONIQ_*
+PAYMENT_*
+JITSI_*
+```
+
+Never commit actual secrets/passwords/API keys to Git.
+
+The `.env.example` file should contain placeholder values only.
+
+---
+
+# 38. Development Guidelines
+
+Before modifying an existing feature:
+
+1. Understand the existing controller.
+2. Check the relevant model.
+3. Check the migration/database structure.
+4. Check the route.
+5. Check the Blade view.
+6. Check the JavaScript/AJAX flow.
+7. Check authorization rules.
+8. Make the smallest required change.
+9. Test the existing functionality again.
+
+### Important Project Rule
+
+Do not perform broad refactoring for a small bug.
+
+If a bug is isolated to one controller method, fix that method without unnecessarily changing unrelated:
+
+* Controllers
+* Models
+* Routes
+* Blade views
+* JavaScript
+* Database logic
+
+This is especially important for already-working:
+
+* Like
+* Comment
+* Reply
+* Boost
+* Friendship
+* Feed
+* Messaging
+* Event-chat
+
+functionality.
+
+---
+
+# 39. Common Development Checklist
+
+Before deploying a feature, verify:
+
+### Authentication
+
+* Login works
+* Logout works
+* Registration works
+* Email verification works
+* Password reset works
+
+### Authorization
+
+* Normal users cannot access admin pages
+* Counselors cannot access unrelated private data
+* Users cannot access another user's private messages
+* Event chats are event-specific
+* Block/privacy rules are respected
+
+### Social
+
+* Posts work
+* Likes work
+* Comments work
+* Replies work
+* Boosts work
+* Thoughts work
+* Tagging works
+* Friend requests work
+* Unfriend works
+* Block/mute works
+
+### Dating
+
+* Dating profile works
+* Dating messages are isolated from normal messages
+
+### Counselors
+
+* Verification works
+* Specialization works
+* Pricing works
+* Ratings work
+* Availability works
+* Requests work
+* Video sessions work
+
+### Events
+
+* Event approval works
+* Event visibility works
+* Event conversations are isolated by event
+* Unauthorized event access is blocked
+
+### Admin
+
+* Admin authentication works
+* Blog management works
+* Comment moderation works
+* User/counselor management works
+
+---
+
+# 40. Important Database/Model Relationships
+
+The application contains relationships between major entities.
+
+Conceptually:
+
+```text
+User
+ ├── Posts
+ ├── Comments
+ ├── Replies
+ ├── Likes
+ ├── Friendships
+ ├── Followers
+ ├── Messages
+ ├── DatingMessages
+ ├── Events
+ ├── CounselorAvailability
+ ├── CounselorRatings
+ ├── Notifications
+ └── Tagged Posts
+
+Post
+ ├── User
+ ├── Comments
+ ├── Replies
+ ├── Likes
+ └── Boost information
+
+Event
+ ├── Owner/User
+ └── Event Chats
+
+Counselor
+ ├── User
+ ├── Availability
+ ├── Ratings
+ └── Requests/Messages
+```
+
+Always verify the actual current model relationships before changing database queries.
+
+---
+
+# 41. Deployment Notes
+
+Before production deployment:
+
+* Configure `.env`
+* Configure database
+* Configure mail
+* Configure OAuth credentials
+* Configure Firebase
+* Configure LocationIQ
+* Configure payment gateway
+* Configure Jitsi
+* Run migrations
+* Configure storage
+* Run required cache/config commands
+* Verify file permissions
+* Review public utility files
+* Disable debug mode
+* Verify HTTPS
+* Test authentication
+* Test authorization
+* Test payments
+* Test messaging
+* Test event security
+
+Production configuration should use:
+
+```text
+APP_ENV=production
+APP_DEBUG=false
+```
+
+---
+
+# 42. Developer Best Practices
+
+* Follow existing folder conventions.
+* Use descriptive names.
+* Keep role-based logic separated.
+* Validate all user input.
+* Authorize every protected resource.
+* Use database relationships correctly.
+* Avoid unnecessary database queries.
+* Use pagination for large datasets.
+* Keep secrets inside `.env`.
+* Do not expose sensitive server information.
+* Do not trust frontend authorization.
+* Preserve existing working business logic.
+* Make minimal changes when fixing isolated bugs.
+* Test both positive and negative authorization cases.
+
+---
+
+# 43. Important Existing Feature Map
+
+For quick reference:
+
+```text
+Authentication
+    ↓
+Users / Profiles
+    ↓
+Friends / Followers
+    ↓
+Posts / Thoughts
+    ↓
+Likes / Comments / Replies / Boosts
+    ↓
+Tagging / Privacy / Block / Mute
+    ↓
+Dating / Messaging
+    ↓
+Counselors / Ratings / Availability
+    ↓
+Counselor Requests / Video Calls
+    ↓
+Events / Event Chat
+    ↓
+Notifications
+    ↓
+Payments
+    ↓
+Admin / Blogs / Moderation
+```
+
+These modules are interconnected, but access must remain role- and relationship-aware.
+
+---
+
+# 44. Conclusion
+
+AffirmSpace is not a simple static website.
+
+It is a full **Laravel-based web application / social-community platform** containing:
+
+* Multi-role authentication
+* Social networking
+* Profiles
+* Friends/followers
+* Posts
+* Thoughts
+* Likes
+* Comments
+* Replies
+* Boosts
+* Tagging
+* Block/mute/privacy
+* Dating
+* Messaging
+* Counselors
+* Ratings
+* Availability
+* Counselor requests
+* Events
+* Event-specific conversations
+* Notifications
+* Jitsi video calls
+* Firebase functionality
+* Payments
+* Admin management
+* Blog/content management
+* SEO-friendly public content
+* API functionality
+
+The application is designed around role separation, privacy, authorization, modularity, maintainability, and scalability.
+
+This README should be treated as the first reference point for developers before modifying or extending the project.
+
+When implementing new functionality, developers should first understand the existing business logic and then make the smallest safe change required.
+
+---
+
+```text
+--------------------------------
+| Developed By : Harman Singh |
+--------------------------------
+```
