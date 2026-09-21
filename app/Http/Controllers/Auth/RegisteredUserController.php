@@ -80,8 +80,16 @@ class RegisteredUserController extends Controller
 
         Auth::login($user);
 
+        // Total counts after new user registration
+        $totalCounselees = \App\Models\User::where('role', 0)->count();
+        $totalCounselors = \App\Models\User::where('role', 1)->count();
+
         Mail::to('admin@gmail.com')->send(
-            new NewUserRegisteredMail($user)
+            new NewUserRegisteredMail(
+                $user,
+                $totalCounselees,
+                $totalCounselors
+            )
         );
 
         // SEND VERIFICATION EMAIL IMMEDIATELY

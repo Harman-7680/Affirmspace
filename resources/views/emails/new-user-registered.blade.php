@@ -126,6 +126,33 @@
             </table>
 
             <p style="margin-top: 30px;">
+                <strong>Current Platform Statistics:</strong>
+            </p>
+
+            <table cellpadding="10" cellspacing="0" width="100%"
+                style="border-collapse: collapse; border: 1px solid #ddd;">
+
+                <tr>
+                    <td style="border: 1px solid #ddd; background: #f9fafb;">
+                        <strong>Total Counselees</strong>
+                    </td>
+                    <td style="border: 1px solid #ddd;">
+                        {{ $totalCounselees }}
+                    </td>
+                </tr>
+
+                <tr>
+                    <td style="border: 1px solid #ddd; background: #f9fafb;">
+                        <strong>Total Counselors</strong>
+                    </td>
+                    <td style="border: 1px solid #ddd;">
+                        {{ $totalCounselors }}
+                    </td>
+                </tr>
+
+            </table>
+
+            <p style="margin-top: 30px;">
                 A new account has been created successfully. You can review the
                 user's details from the admin panel.
             </p>
