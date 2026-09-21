@@ -26,8 +26,8 @@
 @section('css')
     <style>
         /* =========================================================
-           AFFIRMSPACE DOWNLOAD PAGE
-           ========================================================= */
+               AFFIRMSPACE DOWNLOAD PAGE
+               ========================================================= */
 
         .as-download-page {
             font-family: 'Inter', sans-serif;
@@ -44,8 +44,8 @@
 
 
         /* =========================================================
-           GLOBAL
-           ========================================================= */
+               GLOBAL
+               ========================================================= */
 
         .as-download-page img {
             max-width: 100%;
@@ -93,8 +93,8 @@
 
 
         /* =========================================================
-           HERO
-           ========================================================= */
+               HERO
+               ========================================================= */
 
         .as-download-hero {
             position: relative;
@@ -186,7 +186,7 @@
 
         .as-hero-phone-frame {
             position: relative;
-            width: min(380px, 100%);
+            width: min(530px, 100%);
             padding: 14px;
             border-radius: 42px;
             background: linear-gradient(145deg, #fff, #f7f7f7);
@@ -203,8 +203,8 @@
 
 
         /* =========================================================
-           HOW IT WORKS
-           ========================================================= */
+               HOW IT WORKS
+               ========================================================= */
 
         .as-how-section {
             background: #fafafa;
@@ -262,8 +262,8 @@
 
 
         /* =========================================================
-           FEATURE SECTIONS
-           ========================================================= */
+               FEATURE SECTIONS
+               ========================================================= */
 
         .as-feature-section {
             background: #fff;
@@ -383,8 +383,8 @@
 
 
         /* =========================================================
-           MORE THAN SOCIAL
-           ========================================================= */
+               MORE THAN SOCIAL
+               ========================================================= */
 
         .as-more-section {
             background:
@@ -443,8 +443,8 @@
 
 
         /* =========================================================
-           FAQ
-           ========================================================= */
+               FAQ
+               ========================================================= */
 
         .as-faq-section {
             background: #fafafa;
@@ -538,8 +538,8 @@
 
 
         /* =========================================================
-           EXPLORE
-           ========================================================= */
+               EXPLORE
+               ========================================================= */
 
         .as-explore-section {
             background: #fff;
@@ -589,64 +589,234 @@
 
 
         /* =========================================================
-           FINAL CTA
-           ========================================================= */
+               FINAL CTA — SEO PROMOTIONAL DESIGN
+               ========================================================= */
 
         .as-final-section {
-            padding: 100px 0;
-            background: linear-gradient(135deg, #ff512f, #dd2476);
+            position: relative;
+            overflow: hidden;
+            min-height: 670px;
+            padding: 48px 20px 0;
+            background:
+                radial-gradient(circle at 17% 8%, rgba(255, 123, 90, .16) 0 120px, transparent 121px),
+                radial-gradient(circle at 86% 12%, rgba(221, 36, 118, .07) 0 170px, transparent 171px),
+                linear-gradient(180deg, #fff8f6 0%, #fffaf8 100%);
+            isolation: isolate;
+        }
+
+        .as-final-section::before {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 290px;
+            left: -95px;
+            top: -145px;
+            border-radius: 45% 55% 58% 42%;
+            background: linear-gradient(135deg, #f73773 0%, #ff7551 55%, #ffad68 100%);
+            transform: rotate(-14deg);
+            z-index: -2;
+        }
+
+        .as-final-section::after {
+            content: "";
+            position: absolute;
+            width: 420px;
+            height: 255px;
+            right: -120px;
+            bottom: -115px;
+            border-radius: 55% 45% 35% 65%;
+            background: linear-gradient(135deg, #ff9877 0%, #f04476 55%, #dd2476 100%);
+            transform: rotate(-14deg);
+            z-index: -2;
+        }
+
+        .as-final-section .as-final-orb {
+            position: absolute;
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .as-final-section .as-final-orb.one {
+            width: 230px;
+            height: 190px;
+            top: -80px;
+            left: 265px;
+            border-radius: 50%;
+            background: rgba(255, 217, 217, .52);
+        }
+
+        .as-final-section .as-final-orb.two {
+            width: 280px;
+            height: 280px;
+            right: -130px;
+            top: 65px;
+            border-radius: 50%;
+            border: 1px solid rgba(221, 36, 118, .10);
         }
 
         .as-final-inner {
+            position: relative;
+            width: min(1200px, 100%);
+            min-height: 620px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
             text-align: center;
-            color: #fff;
         }
 
-        .as-final-inner h2 {
-            margin: 0 0 15px;
-            font-size: clamp(34px, 5vw, 50px);
-            line-height: 1.15;
-            font-weight: 800;
-            letter-spacing: -1.5px;
-        }
-
-        .as-final-inner>p {
-            max-width: 650px;
-            margin: 0 auto 30px;
-            font-size: 17px;
-            line-height: 1.7;
-            color: rgba(255, 255, 255, .9);
-        }
-
-        .as-final-inner .as-google-play img {
-            width: 200px;
-        }
-
-        .as-screenshot-strip {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
+        .as-final-copy {
+            position: relative;
+            z-index: 4;
             max-width: 820px;
-            margin: 60px auto 0;
+            margin: 0 auto;
         }
 
-        .as-strip-image {
-            padding: 9px;
-            background: rgba(255, 255, 255, .15);
-            border: 1px solid rgba(255, 255, 255, .25);
-            border-radius: 25px;
-            backdrop-filter: blur(8px);
+        .as-final-kicker {
+            margin: 0 0 12px;
+            color: #ef647a;
+            font-size: 13px;
+            line-height: 1.4;
+            font-weight: 800;
+            letter-spacing: 5px;
+            text-transform: uppercase;
         }
 
-        .as-strip-image img {
+        .as-final-divider {
+            width: 42px;
+            height: 2px;
+            margin: 0 auto 14px;
+            border-radius: 999px;
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+        }
+
+        .as-final-copy h2 {
+            margin: 0;
+            color: #111827;
+            font-size: clamp(52px, 6vw, 78px);
+            line-height: 1;
+            font-weight: 800;
+            letter-spacing: -3px;
+        }
+
+        .as-final-copy h2 span {
+            background: linear-gradient(90deg, #ff512f, #dd2476);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .as-final-copy h3 {
+            margin: 14px 0 8px;
+            color: #2f3942;
+            font-size: clamp(20px, 2.2vw, 28px);
+            line-height: 1.25;
+            font-weight: 700;
+        }
+
+        .as-final-copy p {
+            max-width: 650px;
+            margin: 0 auto 18px;
+            color: #5f6670;
+            font-size: 16px;
+            line-height: 1.55;
+        }
+
+        .as-final-copy .as-google-play {
+            display: inline-block;
+            line-height: 0;
+            text-decoration: none;
+            transition: transform .25s ease, filter .25s ease;
+        }
+
+        .as-final-copy .as-google-play:hover {
+            transform: translateY(-3px);
+            filter: drop-shadow(0 10px 18px rgba(221, 36, 118, .16));
+        }
+
+        .as-final-copy .as-google-play img {
+            width: 320px;
+            height: auto;
+        }
+
+        .as-final-art {
+            position: absolute;
+            z-index: 2;
+            left: 50%;
+            bottom: -225px;
+            width: min(620px, 56vw);
+            transform: translateX(-50%);
+            pointer-events: none;
+        }
+
+        .as-final-art img {
             width: 100%;
-            border-radius: 18px;
+            height: auto;
+            object-fit: contain;
+            filter: drop-shadow(0 20px 34px rgba(221, 36, 118, .09));
         }
 
+        .as-final-note {
+            position: absolute;
+            z-index: 3;
+            color: #ef647a;
+            font-family: "Segoe Script", "Brush Script MT", cursive;
+            font-size: 31px;
+            line-height: .92;
+            pointer-events: none;
+        }
+
+        .as-final-note span {
+            display: block;
+        }
+
+        .as-final-note.left {
+            left: 9%;
+            bottom: 125px;
+            transform: rotate(-8deg);
+        }
+
+        .as-final-note.right {
+            right: 8%;
+            bottom: 132px;
+            transform: rotate(7deg);
+        }
+
+        .as-final-note-line {
+            width: 85px;
+            height: 2px;
+            margin: 10px 0 0 20px;
+            border-radius: 999px;
+            background: #ef647a;
+            transform: rotate(-8deg);
+        }
+
+        .as-final-note.right .as-final-note-line {
+            margin-left: 5px;
+            transform: rotate(8deg);
+        }
+
+        .as-final-note-heart {
+            position: absolute;
+            color: #ef647a;
+            font-family: Arial, sans-serif;
+            font-size: 38px;
+            font-weight: 300;
+        }
+
+        .as-final-note.left .as-final-note-heart {
+            right: -48px;
+            bottom: -18px;
+        }
+
+        .as-final-note.right .as-final-note-heart {
+            right: -44px;
+            bottom: -18px;
+        }
 
         /* =========================================================
-           RESPONSIVE
-           ========================================================= */
+               RESPONSIVE
+               ========================================================= */
 
         @media (max-width: 1050px) {
 
@@ -732,6 +902,88 @@
         }
 
 
+
+        @media (max-width: 980px) {
+
+            .as-final-section {
+                min-height: 640px;
+                padding-top: 42px;
+            }
+
+            .as-final-inner {
+                min-height: 590px;
+            }
+
+            .as-final-art {
+                width: min(560px, 64vw);
+                bottom: -205px;
+            }
+
+            .as-final-note.left {
+                left: 4%;
+            }
+
+            .as-final-note.right {
+                right: 4%;
+            }
+        }
+
+
+        @media (max-width: 760px) {
+
+            .as-final-section {
+                min-height: 690px;
+                padding: 38px 16px 0;
+            }
+
+            .as-final-inner {
+                min-height: 640px;
+            }
+
+            .as-final-kicker {
+                font-size: 10px;
+                letter-spacing: 3px;
+            }
+
+            .as-final-copy h2 {
+                font-size: clamp(44px, 12vw, 60px);
+                letter-spacing: -2px;
+            }
+
+            .as-final-copy h3 {
+                font-size: 20px;
+            }
+
+            .as-final-copy p {
+                font-size: 14px;
+                max-width: 520px;
+            }
+
+            .as-final-copy .as-google-play img {
+                width: 174px;
+            }
+
+            .as-final-art {
+                width: min(470px, 82vw);
+                bottom: -155px;
+            }
+
+            .as-final-note {
+                font-size: 23px;
+            }
+
+            .as-final-note.left {
+                left: 2%;
+                bottom: 105px;
+            }
+
+            .as-final-note.right {
+                right: 2%;
+                bottom: 105px;
+            }
+        }
+
+
         @media (max-width: 600px) {
 
             .as-container {
@@ -808,23 +1060,6 @@
                 font-size: 14px;
             }
 
-            .as-screenshot-strip {
-                grid-template-columns: 1fr;
-                max-width: 280px;
-                gap: 18px;
-            }
-
-            .as-final-section {
-                padding: 70px 0;
-            }
-
-            .as-final-inner h2 {
-                font-size: 34px;
-            }
-
-            .as-final-inner>p {
-                font-size: 15px;
-            }
         }
 
 
@@ -912,7 +1147,7 @@
 
                         <div class="as-hero-phone-frame">
 
-                            <img src="{{ asset('images/app_images/top.png') }}"
+                            <img src="{{ asset('images/app_images/top.jpeg') }}"
                                 alt="AffirmSpace app home screen showing dating, chat, and community options">
 
                         </div>
@@ -1724,60 +1959,77 @@
 
 
         {{-- =====================================================
-         FINAL CTA
+         FINAL CTA — SEO PROMOTIONAL DESIGN
     ====================================================== --}}
 
         <section class="as-final-section">
 
-            <div class="as-container">
+            <div class="as-final-orb one"></div>
+            <div class="as-final-orb two"></div>
 
-                <div class="as-final-inner">
+            <div class="as-final-inner">
+
+                <div class="as-final-copy">
+
+                    <div class="as-final-kicker">
+                        BE YOU. FIND YOUR PEOPLE. BELONG.
+                    </div>
+
+                    <div class="as-final-divider"></div>
 
                     <h2>
-                        Ready to Join the Community?
+                        Join <span>AffirmSpace</span>
                     </h2>
+
+                    <h3>
+                        A safe space to connect, chat, date, and be yourself
+                    </h3>
 
                     <p>
                         Download AffirmSpace today and start building meaningful
-                        connections.
+                        connections with a global LGBTQ+ community.
                     </p>
 
-
                     <a href="https://play.google.com/store/apps/details?id=com.affirmspace.app" target="_blank"
-                        rel="noopener noreferrer" class="as-google-play">
+                        rel="noopener noreferrer" class="as-google-play"
+                        aria-label="Download AffirmSpace on Google Play">
 
-                        <img src="{{ asset('images/googlebadge.png') }}"
+                        <img src="{{ asset('images/app_images/app.png') }}"
                             alt="Download AffirmSpace on Google Play">
 
                     </a>
 
-
-                    <div class="as-screenshot-strip">
-
-                        <div class="as-strip-image">
-
-                            <img src="{{ asset('images/app_images/2.png') }}"
-                                alt="AffirmSpace counsellor booking screen">
-
-                        </div>
+                </div>
 
 
-                        <div class="as-strip-image">
+                <div class="as-final-note left">
 
-                            <img src="{{ asset('images/app_images/1.png') }}"
-                                alt="AffirmSpace discovery and matching screen">
+                    <span>Real</span>
+                    <span>Connections</span>
 
-                        </div>
+                    <div class="as-final-note-line"></div>
+
+                    <div class="as-final-note-heart">♡</div>
+
+                </div>
 
 
-                        <div class="as-strip-image">
+                <div class="as-final-art">
 
-                            <img src="{{ asset('images/app_images/3.png') }}"
-                                alt="AffirmSpace privacy and account settings screen">
+                    <img src="{{ asset('images/app.png') }}"
+                        alt="Rainbow heart held in supportive hands representing the LGBTQ+ community">
 
-                        </div>
+                </div>
 
-                    </div>
+
+                <div class="as-final-note right">
+
+                    <span>A Kinder</span>
+                    <span>Internet</span>
+
+                    <div class="as-final-note-line"></div>
+
+                    <div class="as-final-note-heart">♡</div>
 
                 </div>
 
