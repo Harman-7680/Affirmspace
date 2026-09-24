@@ -3,6 +3,7 @@ namespace App\Http\Controllers;
 
 use App\Mail\ContactAdminMail;
 use App\Mail\VerificationRejectedMail;
+use App\Models\AdminContact;
 use App\Models\Comment;
 use App\Models\Event;
 use App\Models\Friendship;
@@ -478,11 +479,18 @@ class AdminController extends Controller
             'message' => 'required|string|min:10',
         ]);
 
+        AdminContact::create([
+            'type'    => 'contact',
+            'name'    => $validated['name'],
+            'email'   => $validated['email'],
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+        ]);
+
         $adminEmail = 'admin@gmail.com';
 
         Mail::to($adminEmail)->send(new ContactAdminMail($validated));
 
-        // If request comes from MOBILE APP (API)
         if ($request->expectsJson()) {
             return response()->json([
                 'status'  => true,
@@ -490,8 +498,21 @@ class AdminController extends Controller
             ], 200);
         }
 
-        // If request comes from WEBSITE (Web form)
         return back()->with('success', 'Your message has been sent successfully.');
+    }
+
+    public function newsletterSubscribe(Request $request)
+    {
+        $validated = $request->validate([
+            'email' => 'required|email:rfc,dns',
+        ]);
+
+        AdminContact::create([
+            'type'  => 'newsletter',
+            'email' => $validated['email'],
+        ]);
+
+        return back()->with('success', 'You have successfully subscribed.');
     }
 
     public function releasePayment($id)

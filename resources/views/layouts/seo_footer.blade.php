@@ -23,8 +23,7 @@
                 <a href="{{ url('/') }}" class="as-new-footer-brand-link">
 
                     {{-- Official AffirmSpace Logo --}}
-                    <img src="{{ asset('images/welcomepage.png') }}" alt="AffirmSpace Logo"
-                        class="as-new-footer-logo">
+                    <img src="{{ asset('images/welcomepage.png') }}" alt="AffirmSpace Logo" class="as-new-footer-logo">
 
 
                     {{-- Brand Name + Tagline --}}
@@ -176,18 +175,29 @@
                     and more.
                 </p>
 
+                @if (session('success'))
+                    <div class="as-report-alert as-report-alert-success">
+                        {{ session('success') }}
+                    </div>
+                @endif
+
+                @if (session('error'))
+                    <div class="as-report-alert as-report-alert-error">
+                        {{ session('error') }}
+                    </div>
+                @endif
 
                 {{-- Newsletter visual field --}}
-                <div class="as-new-footer-subscribe">
+                <form method="POST" action="{{ route('newsletter.subscribe') }}" class="as-new-footer-subscribe">
+                    @csrf
 
-                    <input type="email" placeholder="Your email address" aria-label="Your email address">
+                    <input type="email" name="email" placeholder="Your email address"
+                        aria-label="Your email address" required>
 
-
-                    <button type="button" aria-label="Subscribe">
+                    <button type="submit" aria-label="Subscribe">
                         <i class="fa-solid fa-arrow-right"></i>
                     </button>
-
-                </div>
+                </form>
 
 
                 <div class="as-new-footer-privacy">

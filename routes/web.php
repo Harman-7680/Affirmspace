@@ -406,6 +406,7 @@ Route::get('/privacy', function () {return view('user.privacy');})->name('privac
 Route::get('/refundpolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
 Route::get('/contactwithadmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
 Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->middleware('throttle:3,1')->name('AdminSend');
+Route::post('/newsletter/subscribe', [AdminController::class, 'newsletterSubscribe'])->middleware('throttle:3,1')->name('newsletter.subscribe');
 
 // seo related routes
 Route::group([], function () {
