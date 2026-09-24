@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Mail\AdminBroadcastMail;
+use App\Models\AdminContact;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Services\FirebaseNotificationService;
@@ -14,7 +15,15 @@ class AdminMessageController extends Controller
     public function showSendMessageForm()
     {
         $users = User::all();
-        return view('admin.send_message', compact('users'));
+
+        $newsletterEmails = AdminContact::where('type', 'newsletter')
+            ->whereNotNull('email')
+            ->where('email', '!=', '')
+            ->pluck('email')
+            ->unique()
+            ->values();
+
+        return view('admin.send_message', compact('users', 'newsletterEmails'));
     }
 
     public function sendMessage(Request $request)
@@ -23,11 +32,48 @@ class AdminMessageController extends Controller
 
         $request->validate([
             'message'   => 'required|string',
-            'user_type' => 'required|in:counselor,counselee',
+            'user_type' => 'required|in:counselor,counselee,newsletter',
         ]);
 
         $message = $request->message;
         $role    = $request->user_type === 'counselor' ? 1 : 0;
+
+        if ($request->user_type === 'newsletter') {
+
+            AdminContact::where('type', 'newsletter')
+                ->whereNotNull('email')
+                ->where('email', '!=', '')
+                ->select('email')
+                ->distinct()
+                ->chunk(5, function ($subscribers) use ($message) {
+
+                    foreach ($subscribers as $subscriber) {
+
+                        try {
+                            Mail::to($subscriber->email)->send(
+                                new AdminBroadcastMail(
+                                    $message,
+                                    'Subscriber'
+                                )
+                            );
+
+                            sleep(1);
+
+                        } catch (\Throwable $e) {
+
+                            Log::error([
+                                'email' => $subscriber->email,
+                                'error' => $e->getMessage(),
+                            ]);
+                        }
+                    }
+                });
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Newsletter messages sent successfully',
+            ]);
+        }
 
         User::where('role', $role)
             ->whereNotNull('email')

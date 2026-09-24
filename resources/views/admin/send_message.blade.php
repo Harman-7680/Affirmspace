@@ -53,6 +53,7 @@
                     <select x-model="userType" class="form-select">
                         <option value="counselor">Counselors</option>
                         <option value="counselee">Counselees</option>
+                        <option value="newsletter">Newsletter Subscribers</option>
                     </select>
                 </div>
 
@@ -81,7 +82,9 @@
                                     <td x-text="(currentPage-1)*perPage + index + 1"></td>
                                     <td x-text="user.first_name + ' ' + user.last_name" class="text-start"></td>
                                     <td x-text="user.email"></td>
-                                    <td x-text="user.role == 1 ? 'Counselor' : 'Counselee'"></td>
+                                    <td
+                                        x-text="user.role === 'newsletter'? 'Newsletter Subscriber': (user.role == 1 ? 'Counselor' : 'Counselee')">
+                                    </td>
                                 </tr>
                             </template>
 
@@ -111,6 +114,7 @@
                 message: '',
                 userType: 'counselor',
                 users: @json($users), // passed from controller: all counselors + counselees
+                newsletterEmails: @json($newsletterEmails),
                 currentPage: 1,
                 perPage: 10,
                 statusMessage: '',
@@ -118,7 +122,20 @@
                 init() {},
 
                 filteredUsers() {
-                    return this.users.filter(u => u.role == (this.userType === 'counselor' ? 1 : 0));
+
+                    if (this.userType === 'newsletter') {
+                        return this.newsletterEmails.map((email, index) => ({
+                            id: 'newsletter-' + index,
+                            first_name: 'Newsletter',
+                            last_name: 'Subscriber',
+                            email: email,
+                            role: 'newsletter'
+                        }));
+                    }
+
+                    return this.users.filter(u =>
+                        u.role == (this.userType === 'counselor' ? 1 : 0)
+                    );
                 },
 
                 get totalPages() {
