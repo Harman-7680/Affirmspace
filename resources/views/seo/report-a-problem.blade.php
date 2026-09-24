@@ -1192,13 +1192,12 @@
                         submitting one, contact us directly.
                     </p>
 
-                    <a href="mailto:info@affirmspace.com" class="as-report-email">
-
-                        <i class="fa-solid fa-envelope"></i>
-
-                        info@affirmspace.com
-
-                    </a>
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com"
+   target="_blank"
+   class="as-report-email">
+    <i class="fa-solid fa-envelope"></i>
+    info@affirmspace.com
+</a>
 
                 </div>
 

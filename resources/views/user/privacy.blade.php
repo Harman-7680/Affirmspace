@@ -17,8 +17,8 @@
 @section('css')
     <style>
         /* =========================================================
-               AFFIRMSPACE PRIVACY PAGE
-            ========================================================= */
+                   AFFIRMSPACE PRIVACY PAGE
+                ========================================================= */
 
         .as-privacy-page {
             background: #fafafa;
@@ -27,8 +27,8 @@
         }
 
         /* =========================================================
-               HERO
-            ========================================================= */
+                   HERO
+                ========================================================= */
 
         .as-privacy-hero {
             position: relative;
@@ -115,8 +115,8 @@
         }
 
         /* =========================================================
-               MAIN
-            ========================================================= */
+                   MAIN
+                ========================================================= */
 
         .as-privacy-main {
             padding: 75px 7% 100px;
@@ -128,8 +128,8 @@
         }
 
         /* =========================================================
-               INTRO
-            ========================================================= */
+                   INTRO
+                ========================================================= */
 
         .as-privacy-intro {
             display: grid;
@@ -186,8 +186,8 @@
         }
 
         /* =========================================================
-               HIGHLIGHTS
-            ========================================================= */
+                   HIGHLIGHTS
+                ========================================================= */
 
         .as-privacy-highlights {
             display: grid;
@@ -242,8 +242,8 @@
         }
 
         /* =========================================================
-               POLICY SECTIONS
-            ========================================================= */
+                   POLICY SECTIONS
+                ========================================================= */
 
         .as-privacy-sections {
             display: flex;
@@ -344,8 +344,8 @@
         }
 
         /* =========================================================
-               THIRD PARTY TABLE
-            ========================================================= */
+                   THIRD PARTY TABLE
+                ========================================================= */
 
         .as-privacy-table-wrap {
             width: 100%;
@@ -390,8 +390,8 @@
         }
 
         /* =========================================================
-               NOTICE
-            ========================================================= */
+                   NOTICE
+                ========================================================= */
 
         .as-privacy-notice {
             margin-top: 25px;
@@ -416,8 +416,8 @@
         }
 
         /* =========================================================
-               CONTACT
-            ========================================================= */
+                   CONTACT
+                ========================================================= */
 
         .as-privacy-contact {
             margin-top: 28px;
@@ -459,8 +459,8 @@
         }
 
         /* =========================================================
-               FOOTNOTE
-            ========================================================= */
+                   FOOTNOTE
+                ========================================================= */
 
         .as-privacy-footer-note {
             margin-top: 25px;
@@ -471,8 +471,8 @@
         }
 
         /* =========================================================
-               RESPONSIVE
-            ========================================================= */
+                   RESPONSIVE
+                ========================================================= */
 
         @media (max-width: 900px) {
 
@@ -1214,10 +1214,11 @@
 
                         <p style="margin-top:18px;">
                             You can contact us at
-                            <a href="mailto:info@affirmspace.com"
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
                                 style="color:#dd2476;font-weight:700;text-decoration:none;">
                                 info@affirmspace.com
                             </a>
+
                             for privacy-related requests.
                         </p>
 
@@ -1297,7 +1298,7 @@
 
                         <p>
                             To report harmful content or behaviour, contact:
-                            <a href="mailto:info@affirmspace.com"
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
                                 style="color:#dd2476;font-weight:700;text-decoration:none;">
                                 info@affirmspace.com
                             </a>
@@ -1344,7 +1345,7 @@
                                 Privacy contact:
                             </span>
 
-                            <a href="mailto:info@affirmspace.com"
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
                                 style="color:#dd2476;font-weight:700;text-decoration:none;">
                                 info@affirmspace.com
                             </a>
@@ -1393,7 +1394,7 @@
                             privacy-related concern, contact the AffirmSpace team.
                         </p>
 
-                        <a href="mailto:info@affirmspace.com" class="as-privacy-email">
+                        <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank" class="as-privacy-email">
                             ✉ info@affirmspace.com
                         </a>
 

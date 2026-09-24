@@ -18,9 +18,9 @@
 @section('css')
     <style>
         /* =========================================================
-           AFFIRMSPACE TERMS & CONDITIONS
-           Scoped styling — does not interfere with global layout
-        ========================================================= */
+                       AFFIRMSPACE TERMS & CONDITIONS
+                       Scoped styling — does not interfere with global layout
+                    ========================================================= */
 
         .as-terms-page {
             font-family: 'Inter', sans-serif;
@@ -36,8 +36,8 @@
 
 
         /* =========================================================
-           HERO
-        ========================================================= */
+                       HERO
+                    ========================================================= */
 
         .as-terms-hero {
             position: relative;
@@ -125,8 +125,8 @@
 
 
         /* =========================================================
-           INTRO
-        ========================================================= */
+                       INTRO
+                    ========================================================= */
 
         .as-terms-intro {
             padding: 75px 7% 25px;
@@ -161,8 +161,8 @@
 
 
         /* =========================================================
-           MAIN CONTENT
-        ========================================================= */
+                       MAIN CONTENT
+                    ========================================================= */
 
         .as-terms-content {
             padding: 45px 7% 100px;
@@ -176,8 +176,8 @@
 
 
         /* =========================================================
-           SECTION
-        ========================================================= */
+                       SECTION
+                    ========================================================= */
 
         .as-terms-block {
             position: relative;
@@ -258,8 +258,8 @@
 
 
         /* =========================================================
-           LINKS
-        ========================================================= */
+                       LINKS
+                    ========================================================= */
 
         .as-terms-link {
             display: inline-flex;
@@ -281,8 +281,8 @@
 
 
         /* =========================================================
-           HIGHLIGHT BOX
-        ========================================================= */
+                       HIGHLIGHT BOX
+                    ========================================================= */
 
         .as-terms-highlight {
             margin-top: 18px;
@@ -301,8 +301,8 @@
 
 
         /* =========================================================
-           CONTACT / GRIEVANCE
-        ========================================================= */
+                       CONTACT / GRIEVANCE
+                    ========================================================= */
 
         .as-terms-contact-box {
             margin-top: 18px;
@@ -325,8 +325,8 @@
 
 
         /* =========================================================
-           FINAL CTA
-        ========================================================= */
+                       FINAL CTA
+                    ========================================================= */
 
         .as-terms-final {
             margin-top: 55px;
@@ -372,8 +372,8 @@
 
 
         /* =========================================================
-           RESPONSIVE
-        ========================================================= */
+                       RESPONSIVE
+                    ========================================================= */
 
         @media (max-width: 900px) {
 
@@ -849,7 +849,8 @@
                         </p>
 
                         <p>
-                            <a href="mailto:info@affirmspace.com" class="as-terms-link">
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
+                                class="as-terms-link">
                                 info@affirmspace.com
                                 <i class="fa-solid fa-arrow-up-right-from-square"></i>
                             </a>
@@ -1153,7 +1154,8 @@
                                 Email:
                             </span>
 
-                            <a href="mailto:info@affirmspace.com" class="as-terms-link">
+                            <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
+                                class="as-terms-link">
                                 info@affirmspace.com
                             </a>
                         </p>
@@ -1181,7 +1183,8 @@
                         support team.
                     </p>
 
-                    <a href="mailto:info@affirmspace.com" class="as-terms-final-email">
+                    <a href="https://mail.google.com/mail/?view=cm&fs=1&to=info@affirmspace.com" target="_blank"
+                        class="as-terms-final-email">
 
                         <i class="fa-solid fa-envelope"></i>
 
