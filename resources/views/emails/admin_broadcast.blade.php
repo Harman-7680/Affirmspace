@@ -207,7 +207,7 @@
                             </p>
 
                             <!-- ADDRESS -->
-                            <p
+                            {{-- <p
                                 style="
                                 margin:0 0 25px;
                                 color:#374151;
@@ -216,7 +216,7 @@
                             ">
                                 Randhawa road, Kharar<br>
                                 India
-                            </p>
+                            </p> --}}
 
                             <!-- APP SECTION -->
                             <p
