@@ -98,7 +98,7 @@
     @yield('css')
 
 
-    <style>
+    {{-- <style>
         /* =========================================================
            GLOBAL RESET
         ========================================================= */
@@ -739,6 +739,451 @@
             }
 
         }
+    </style> --}}
+
+
+
+    <style>
+        /* =========================================================
+   AFFIRMSPACE HEADER – MOBILE FIXED
+   ========================================================= */
+
+        html,
+        body {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow-x: hidden !important;
+            margin: 0 !important;
+            padding: 0 !important;
+        }
+
+        .as-main-header {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: 68px !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            padding: 0 16px !important;
+            margin: 0 !important;
+            background: #ffffff !important;
+            border-bottom: 1px solid #eeeeee !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04) !important;
+            position: sticky !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            z-index: 99999 !important;
+            box-sizing: border-box !important;
+            font-family: 'Inter', Arial, sans-serif !important;
+        }
+
+        /* LOGO */
+        .as-header-logo {
+            display: flex !important;
+            align-items: center !important;
+            gap: 8px !important;
+            flex-shrink: 0 !important;
+            text-decoration: none !important;
+            color: #333 !important;
+            max-width: 60% !important;
+            overflow: hidden !important;
+        }
+
+        .as-header-logo img {
+            display: block !important;
+            width: 38px !important;
+            height: 38px !important;
+            min-width: 38px !important;
+            min-height: 38px !important;
+            object-fit: contain !important;
+            flex-shrink: 0 !important;
+        }
+
+        .as-header-logo-name {
+            font-size: 18px !important;
+            font-weight: 800 !important;
+            color: #333 !important;
+            white-space: nowrap !important;
+            overflow: hidden !important;
+            text-overflow: ellipsis !important;
+        }
+
+        /* HAMBURGER */
+        .as-header-menu-checkbox {
+            display: none !important;
+        }
+
+        .as-header-hamburger {
+            display: flex !important;
+            width: 42px !important;
+            height: 42px !important;
+            align-items: center !important;
+            justify-content: center !important;
+            cursor: pointer !important;
+            position: relative !important;
+            z-index: 100002 !important;
+            flex-shrink: 0 !important;
+        }
+
+        .as-header-hamburger-lines,
+        .as-header-hamburger-lines::before,
+        .as-header-hamburger-lines::after {
+            width: 22px !important;
+            height: 2px !important;
+            background: #333 !important;
+            border-radius: 2px !important;
+            position: absolute !important;
+            display: block !important;
+            transition: transform 0.25s ease !important;
+        }
+
+        .as-header-hamburger-lines::before,
+        .as-header-hamburger-lines::after {
+            content: "" !important;
+            left: 0 !important;
+        }
+
+        .as-header-hamburger-lines::before {
+            transform: translateY(-7px) !important;
+        }
+
+        .as-header-hamburger-lines::after {
+            transform: translateY(7px) !important;
+        }
+
+        /* X animation */
+        .as-header-menu-checkbox:checked+.as-header-hamburger .as-header-hamburger-lines {
+            background: transparent !important;
+        }
+
+        .as-header-menu-checkbox:checked+.as-header-hamburger .as-header-hamburger-lines::before {
+            transform: rotate(45deg) !important;
+        }
+
+        .as-header-menu-checkbox:checked+.as-header-hamburger .as-header-hamburger-lines::after {
+            transform: rotate(-45deg) !important;
+        }
+
+        /* MOBILE NAV */
+        .as-header-nav {
+            position: fixed !important;
+            top: 68px !important;
+            left: 0 !important;
+            right: 0 !important;
+            width: 100% !important;
+            max-height: 0 !important;
+            overflow: hidden !important;
+            margin: 0 !important;
+            padding: 0 16px !important;
+            background: #fff !important;
+            border-top: 1px solid #eee !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.12) !important;
+            opacity: 0 !important;
+            visibility: hidden !important;
+            pointer-events: none !important;
+            transform: translateY(-8px) !important;
+            transition: max-height 0.35s ease, opacity 0.25s ease, transform 0.25s ease, visibility 0.25s ease, padding 0.25s ease !important;
+            z-index: 100001 !important;
+            display: block !important;
+            box-sizing: border-box !important;
+        }
+
+        .as-header-menu-checkbox:checked~.as-header-nav {
+            max-height: 85vh !important;
+            opacity: 1 !important;
+            visibility: visible !important;
+            pointer-events: auto !important;
+            transform: translateY(0) !important;
+            padding: 16px 16px 30px !important;
+            overflow-y: auto !important;
+        }
+
+        .as-header-nav-list {
+            display: flex !important;
+            flex-direction: column !important;
+            gap: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            list-style: none !important;
+        }
+
+        .as-header-nav-item {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .as-header-nav-link {
+            display: flex !important;
+            align-items: center !important;
+            width: 100% !important;
+            min-height: 50px !important;
+            padding: 12px 8px !important;
+            color: #3d4654 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            text-decoration: none !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        .as-header-nav-link.as-header-active {
+            color: #dd2476 !important;
+            font-weight: 600 !important;
+        }
+
+        .as-header-nav-link.as-header-active::after {
+            display: none !important;
+        }
+
+        /* Features */
+        .as-header-features {
+            display: block !important;
+            width: 100% !important;
+        }
+
+        .as-header-features-summary {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            min-height: 50px !important;
+            padding: 12px 8px !important;
+            border: 0 !important;
+            background: transparent !important;
+            color: #3d4654 !important;
+            font-size: 16px !important;
+            font-weight: 500 !important;
+            cursor: pointer !important;
+            list-style: none !important;
+            border-bottom: 1px solid #f0f0f0 !important;
+        }
+
+        .as-header-features-summary::-webkit-details-marker,
+        .as-header-features-summary::marker {
+            display: none !important;
+        }
+
+        .as-header-feature-arrow {
+            width: 7px !important;
+            height: 7px !important;
+            border-right: 1.7px solid currentColor !important;
+            border-bottom: 1.7px solid currentColor !important;
+            transform: rotate(45deg) translateY(-2px) !important;
+        }
+
+        .as-header-features[open] .as-header-feature-arrow {
+            transform: rotate(225deg) translateY(-1px) !important;
+        }
+
+        .as-header-features-dropdown {
+            position: static !important;
+            width: 100% !important;
+            padding: 8px 0 12px 16px !important;
+            background: #f8f8f8 !important;
+            border-radius: 8px !important;
+            box-shadow: none !important;
+            transform: none !important;
+        }
+
+        .as-header-dropdown-link {
+            display: flex !important;
+            align-items: center !important;
+            gap: 12px !important;
+            min-height: 44px !important;
+            padding: 10px 12px !important;
+            color: #4b5563 !important;
+            font-size: 15px !important;
+            text-decoration: none !important;
+        }
+
+        /* Buttons */
+        .as-header-download,
+        .as-header-login {
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            width: 100% !important;
+            height: 48px !important;
+            margin-top: 12px !important;
+            font-size: 16px !important;
+            text-decoration: none !important;
+            border-radius: 25px !important;
+        }
+
+        .as-header-download {
+            background: linear-gradient(90deg, #ff512f, #dd2476) !important;
+            color: #fff !important;
+            border: 0 !important;
+        }
+
+        .as-header-login {
+            background: #fff !important;
+            color: #dd2476 !important;
+            border: 1.5px solid #dd2476 !important;
+        }
+
+        /* Desktop – hide hamburger, show normal nav */
+        @media (min-width: 851px) {
+            .as-main-header {
+                height: 74px !important;
+                padding: 0 5% !important;
+            }
+
+            .as-header-logo img {
+                width: 42px !important;
+                height: 42px !important;
+            }
+
+            .as-header-logo-name {
+                font-size: 22px !important;
+            }
+
+            .as-header-hamburger {
+                display: none !important;
+            }
+
+            .as-header-nav {
+                position: static !important;
+                max-height: none !important;
+                opacity: 1 !important;
+                visibility: visible !important;
+                pointer-events: auto !important;
+                transform: none !important;
+                padding: 0 !important;
+                background: transparent !important;
+                border: none !important;
+                box-shadow: none !important;
+                display: flex !important;
+                width: auto !important;
+                overflow: visible !important;
+            }
+
+            .as-header-nav-list {
+                flex-direction: row !important;
+                align-items: center !important;
+                gap: 28px !important;
+            }
+
+            .as-header-nav-item {
+                display: flex !important;
+                width: auto !important;
+            }
+
+            .as-header-nav-link {
+                width: auto !important;
+                min-height: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                font-size: 15px !important;
+            }
+
+            .as-header-nav-link.as-header-active::after {
+                /* display: block !important; */
+                content: "" !important;
+                position: absolute !important;
+                left: 0 !important;
+                right: 0 !important;
+                bottom: -22px !important;
+                height: 3px !important;
+                background: linear-gradient(90deg, #ff512f, #dd2476) !important;
+            }
+
+            .as-header-features {
+                display: flex !important;
+                width: auto !important;
+            }
+
+            .as-header-features-summary {
+                width: auto !important;
+                min-height: auto !important;
+                padding: 0 !important;
+                border: none !important;
+                font-size: 15px !important;
+            }
+
+            .as-header-features-dropdown {
+                position: absolute !important;
+                top: calc(100% + 12px) !important;
+                left: 65% !important;
+                width: 196px !important;
+                transform: translateX(-50%) !important;
+                background: #fff !important;
+                box-shadow: 0 10px 28px rgba(0, 0, 0, 0.14) !important;
+                padding: 10px !important;
+            }
+
+            .as-header-download,
+            .as-header-login {
+                width: auto !important;
+                height: 44px !important;
+                margin-top: 0 !important;
+                font-size: 15px !important;
+                padding: 0 22px !important;
+            }
+        }
+    </style>
+
+
+
+    <style>
+        /* =========================================================
+   STICKY GOOGLE PLAY BADGE (right side)
+   ========================================================= */
+
+        .as-sticky-app-buttons {
+            position: fixed !important;
+            right: 18px !important;
+            bottom: 22px !important;
+            z-index: 9999 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            align-items: flex-end !important;
+            gap: 10px !important;
+        }
+
+        .as-sticky-app-buttons a {
+            display: block !important;
+            line-height: 0 !important;
+            text-decoration: none !important;
+        }
+
+        .as-sticky-app-badge {
+            display: block !important;
+            width: 145px !important;
+            /* small size */
+            height: auto !important;
+            border-radius: 8px !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.18) !important;
+            transition: transform 0.25s ease, box-shadow 0.25s ease !important;
+        }
+
+        .as-sticky-app-badge:hover {
+            transform: translateY(-4px) !important;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22) !important;
+        }
+
+        /* Mobile adjustments */
+        @media (max-width: 768px) {
+            .as-sticky-app-buttons {
+                right: 12px !important;
+                bottom: 16px !important;
+            }
+
+            .as-sticky-app-badge {
+                width: 130px !important;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .as-sticky-app-buttons {
+                right: 10px !important;
+                bottom: 14px !important;
+            }
+
+            .as-sticky-app-badge {
+                width: 120px !important;
+            }
+        }
     </style>
 
 
@@ -823,7 +1268,7 @@
             aria-label="Download AffirmSpace on the App Store">
 
             <img
-                src="{{ asset('images/applebadge.png') }}"
+                src="{{ asset('public/images/applebadge.png') }}"
                 class="as-sticky-app-badge"
                 alt="Download AffirmSpace on the App Store"
             >

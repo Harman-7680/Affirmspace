@@ -418,6 +418,10 @@ Route::group([], function () {
     Route::get('/lgbtq-community', function () {return view('seo.community');})->name('community');
     Route::get('/healthcare', function () {return view('seo.healthcare');})->name('healthcare');
     Route::get('/lgbtq-social-app', function () {return view('seo.apps');})->name('apps');
+    Route::get('/account-deletion', function () {return view('seo.account-deletion');})->name('account-deletion');
+    Route::get('/report-a-problem', function () {return view('seo.report-a-problem');})->name('report-a-problem');
+    Route::get('/community-guidelines', function () {return view('seo.community-guidelines');})->name('community-guidelines');
+    Route::get('/safety-tips', function () {return view('seo.safety-tips');})->name('safety-tips');
     Route::get('/lgbtq-mental-health-counselling', function () {return view('seo.counselling');})->name('counselling');
 });
 
