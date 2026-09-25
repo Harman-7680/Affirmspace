@@ -191,7 +191,7 @@
         
                     } else {
         
-                        button.remove();
+                        button.style.display = 'none';
         
                     }
         
