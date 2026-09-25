@@ -501,6 +501,37 @@ class AdminController extends Controller
         return back()->with('success', 'Your message has been sent successfully.');
     }
 
+    public function AdminContact(Request $request)
+    {
+        $validated = $request->validate([
+            'name'    => 'required|string|max:255',
+            'email'   => 'required|email:rfc,dns',
+            'subject' => 'required|string|max:255',
+            'message' => 'required|string|min:10',
+        ]);
+
+        AdminContact::create([
+            'type'    => 'contact',
+            'name'    => $validated['name'],
+            'email'   => $validated['email'],
+            'subject' => $validated['subject'],
+            'message' => $validated['message'],
+        ]);
+
+        $adminEmail = 'admin@gmail.com';
+
+        Mail::to($adminEmail)->send(new ContactAdminMail($validated));
+
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status'  => true,
+                'message' => 'Your message has been sent successfully.',
+            ], 200);
+        }
+
+        return back()->with('success', 'Your message has been sent successfully.');
+    }
+
     public function newsletterSubscribe(Request $request)
     {
         $validated = $request->validate([

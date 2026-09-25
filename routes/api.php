@@ -181,6 +181,8 @@ Route::middleware('auth:sanctum')->group(function () {
 // this route for both app and website
 Route::post('/events/by-location', [ProfileController::class, 'getEventsByLocation']);
 
+Route::post('/adminContact/send', [AdminController::class, 'AdminContact'])->middleware('throttle:3,1');
+
 // Get Authenticated User
 Route::middleware('auth:sanctum')->get('/user', function ($request) {
     return $request->user();
