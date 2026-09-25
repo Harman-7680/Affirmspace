@@ -161,18 +161,6 @@
                     params.set('specialization', this.selectedSpecialization);
                 }
         
-                if (price) {
-                    params.set('price', price);
-                }
-        
-                if (rating) {
-                    params.set('rating', rating);
-                }
-        
-                if (specialization) {
-                    params.set('specialization', specialization);
-                }
-        
                 try {
         
                     button.disabled = true;

@@ -399,6 +399,8 @@ class ApiDatingController extends Controller
             ->take(50)
             ->values();
 
+        $datingUsers = $allUsers->values();
+
         return response()->json([
             'status'  => 'success',
             'matches' => $matches->map(function ($m) {
@@ -425,6 +427,7 @@ class ApiDatingController extends Controller
                 ];
 
             }),
+            'dating_users' => $datingUsers,
         ]);
     }
 
