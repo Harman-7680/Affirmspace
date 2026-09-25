@@ -38,14 +38,14 @@
                     <div class="mb-0">
                         <select x-model="category" class="form-control" style="height:40px;">
                             <option value="">Select Category</option>
-                            <option value="LGBTQ Basics">LGBTQ Basics</option>
-                            <option value="Identity & Expression">Identity & Expression</option>
-                            <option value="Mental Health & Support">Mental Health & Support</option>
-                            <option value="Dating & Relationships">Dating & Relationships</option>
-                            <option value="Safety & Coming Out">Safety & Coming Out</option>
-                            <option value="Community & Culture">Community & Culture</option>
-                            <option value="Legal Rights India">Legal Rights India</option>
-                            <option value="Gender Affirming Care">Gender Affirming Care</option>
+                            <option value="lgbtq-basics">LGBTQ Basics</option>
+                            <option value="identity-expression">Identity & Expression</option>
+                            <option value="mental-health-support">Mental Health & Support</option>
+                            <option value="dating-relationships">Dating & Relationships</option>
+                            <option value="safety-coming-out">Safety & Coming Out</option>
+                            <option value="community-culture">Community & Culture</option>
+                            <option value="legal-rights-india">Legal Rights India</option>
+                            <option value="gender-affirming-care">Gender Affirming Care</option>
                         </select>
                     </div>
 
@@ -224,15 +224,15 @@
 
                         {{-- Category --}}
                         <select x-model="editBlog.category" class="form-control mb-3">
-
-                            <option value="LGBTQ Basics">LGBTQ Basics</option>
-                            <option value="Identity & Expression">Identity & Expression</option>
-                            <option value="Mental Health & Support">Mental Health & Support</option>
-                            <option value="Dating & Relationships">Dating & Relationships</option>
-                            <option value="Safety & Coming Out">Safety & Coming Out</option>
-                            <option value="Community & Culture">Community & Culture</option>
-                            <option value="Legal Rights India">Legal Rights India</option>
-                            <option value="Gender Affirming Care">Gender Affirming Care</option>
+                            <option value="">Select Category</option>
+                            <option value="lgbtq-basics">LGBTQ Basics</option>
+                            <option value="identity-expression">Identity & Expression</option>
+                            <option value="mental-health-support">Mental Health & Support</option>
+                            <option value="dating-relationships">Dating & Relationships</option>
+                            <option value="safety-coming-out">Safety & Coming Out</option>
+                            <option value="community-culture">Community & Culture</option>
+                            <option value="legal-rights-india">Legal Rights India</option>
+                            <option value="gender-affirming-care">Gender Affirming Care</option>
 
                         </select>
 

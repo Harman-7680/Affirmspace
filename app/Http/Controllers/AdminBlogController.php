@@ -92,7 +92,7 @@ class AdminBlogController extends Controller
         $blog = Blog::findOrFail($id);
 
         $blog->slug              = Str::slug($request->slug);
-        $blog->category          = $request->category;
+        $blog->category          = Str::slug($request->category);
         $blog->short_description = $request->short_description;
         $blog->long_description  = $request->long_description;
         $blog->link              = $request->link;
