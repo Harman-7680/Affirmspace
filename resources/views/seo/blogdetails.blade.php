@@ -32,7 +32,7 @@
                     {!! $blog->long_description !!}
                 </div>
 
-                @if ($blog->link)
+                @if ($blog->link && strtolower(trim($blog->link)) !== 'null')
                     <a href="{{ $blog->link }}" target="_blank" class="read-more-btn"
                         style="color: #ff416c; font-weight: 600; text-decoration:none;">
                         Read More →

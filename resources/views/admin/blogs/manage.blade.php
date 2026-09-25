@@ -558,11 +558,10 @@
                         .then(data => {
                             if (data.success) {
 
-                                let index = this.blogs.findIndex(b => b.id === this.editBlog.id)
+                                $('body').fadeOut(200, function() {
+                                    location.reload();
+                                });
 
-                                this.blogs[index] = data.blog
-
-                                this.showModal = false
                             }
                         })
                 },

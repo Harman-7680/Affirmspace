@@ -89,50 +89,24 @@ class AdminBlogController extends Controller
 
     public function update(Request $request, $id)
     {
-        try {
+        $blog = Blog::findOrFail($id);
 
-            $blog = Blog::findOrFail($id);
+        $blog->slug              = Str::slug($request->slug);
+        $blog->category          = Str::slug($request->category);
+        $blog->short_description = $request->short_description;
+        $blog->long_description  = $request->long_description;
+        $blog->link              = $request->link;
 
-            $slug     = Str::slug(trim($request->slug));
-            $category = Str::slug(trim($request->category));
-
-            $request->merge([
-                'slug'     => $slug,
-                'category' => $category,
-            ]);
-
-            $request->validate([
-                'slug'              => 'required|unique:blogs,slug,' . $id,
-                'short_description' => 'required',
-                'long_description'  => 'required',
-                'category'          => 'required',
-                'link'              => 'nullable|url',
-            ]);
-
-            $blog->slug              = $slug;
-            $blog->category          = $category;
-            $blog->short_description = $request->short_description;
-            $blog->long_description  = $request->long_description;
-            $blog->link              = $request->link;
-
-            if ($request->hasFile('image')) {
-                $blog->image = $request->file('image')->store('blogs', 'public');
-            }
-
-            $blog->save();
-
-            return response()->json([
-                'success' => true,
-                'blog'    => $blog,
-            ]);
-
-        } catch (ValidationException $e) {
-
-            return response()->json([
-                'success' => false,
-                'errors'  => $e->errors(),
-            ], 422);
+        if ($request->hasFile('image')) {
+            $blog->image = $request->file('image')->store('blogs', 'public');
         }
+
+        $blog->save();
+
+        return response()->json([
+            'success' => true,
+            'blog'    => $blog,
+        ]);
     }
 
     public function delete($id)

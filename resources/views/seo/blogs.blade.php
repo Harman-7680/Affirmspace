@@ -215,7 +215,7 @@
                         data-desc="{{ strtolower($blog->short_description . ' ' . $blog->long_description) }}">
 
                         @if ($blog->image)
-                            <img src="{{ asset('public/storage/' . $blog->image) }}" alt="{{ $blog->short_description }}">
+                            <img src="{{ asset('storage/' . $blog->image) }}" alt="{{ $blog->short_description }}">
                         @endif
 
 
