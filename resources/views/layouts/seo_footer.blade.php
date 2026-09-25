@@ -175,15 +175,38 @@
                     and more.
                 </p>
 
-                @if (session('success'))
-                    <div class="as-report-alert as-report-alert-success">
-                        {{ session('success') }}
-                    </div>
-                @endif
+                @if (session('success') || session('error'))
+                    @php
+                        $isSuccess = session('success');
+                        $message = session('success') ?? session('error');
+                    @endphp
 
-                @if (session('error'))
-                    <div class="as-report-alert as-report-alert-error">
-                        {{ session('error') }}
+                    <div class="custom-alert-overlay" id="customAlert">
+
+                        <div class="custom-alert-box">
+
+                            <div class="custom-alert-icon {{ $isSuccess ? 'success' : 'error' }}">
+                                @if ($isSuccess)
+                                    <i class="fa-solid fa-check"></i>
+                                @else
+                                    <i class="fa-solid fa-xmark"></i>
+                                @endif
+                            </div>
+
+                            <div class="custom-alert-title">
+                                {{ $isSuccess ? 'Thank You for Contacting Us!' : 'Something Went Wrong!' }}
+                            </div>
+
+                            <div class="custom-alert-message">
+                                {{ $message }}
+                            </div>
+
+                            <button type="button" class="custom-alert-button {{ $isSuccess ? 'success' : 'error' }}"
+                                onclick="closeCustomAlert()">
+                                Done
+                            </button>
+
+                        </div>
                     </div>
                 @endif
 
@@ -245,18 +268,122 @@
 
 </footer>
 
+<style>
+    .custom-alert-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.38);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 999999;
+        padding: 20px;
+    }
 
+    .custom-alert-box {
+        width: 100%;
+        max-width: 490px;
+        background: #fff;
+        border-radius: 16px;
+        padding: 34px 36px 26px;
+        text-align: center;
+        position: relative;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.22);
+        animation: alertPopup 0.25s ease;
+    }
 
-{{-- =========================================================
-     AFFIRMSPACE FOOTER CSS
-     ALL CLASSES ARE UNIQUE TO THIS FOOTER
-========================================================= --}}
+    @keyframes alertPopup {
+        from {
+            opacity: 0;
+            transform: scale(0.92);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    .custom-alert-icon {
+        width: 86px;
+        height: 86px;
+        border-radius: 50%;
+        margin: 0 auto 22px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 42px;
+    }
+
+    .custom-alert-icon.success {
+        color: #20c98b;
+        background: #e8faf3;
+        box-shadow: 0 0 0 12px #f2fcf8;
+    }
+
+    .custom-alert-icon.error {
+        color: #ef4444;
+        background: #fff0f0;
+        box-shadow: 0 0 0 12px #fff7f7;
+    }
+
+    .custom-alert-title {
+        font-size: 27px;
+        font-weight: 700;
+        color: #172033;
+        margin-bottom: 10px;
+    }
+
+    .custom-alert-message {
+        font-size: 17px;
+        line-height: 1.55;
+        color: #6b7280;
+        margin-bottom: 24px;
+    }
+
+    .custom-alert-button {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 14px 20px;
+        color: #fff;
+        font-size: 16px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+    }
+
+    .custom-alert-button.success {
+        background: linear-gradient(90deg, #ff4b2b, #e91e63);
+    }
+
+    .custom-alert-button.error {
+        background: linear-gradient(90deg, #ef4444, #dc2626);
+    }
+
+    .custom-alert-button:hover {
+        opacity: 0.92;
+        transform: translateY(-1px);
+    }
+
+    @media (max-width: 600px) {
+        .custom-alert-box {
+            padding: 30px 22px 22px;
+        }
+
+        .custom-alert-title {
+            font-size: 23px;
+        }
+
+        .custom-alert-message {
+            font-size: 15px;
+        }
+    }
+</style>
 
 <style>
-    /* =====================================================
-       FOOTER BASE
-    ====================================================== */
-
     .as-new-footer {
         width: 100%;
         margin: 0;
@@ -1062,3 +1189,16 @@
 
     }
 </style>
+
+<script>
+    function closeCustomAlert(event) {
+        if (event) {
+            event.preventDefault();
+            event.stopPropagation();
+        }
+
+        document.querySelectorAll('.custom-alert-overlay').forEach(function(popup) {
+            popup.remove();
+        });
+    }
+</script>
