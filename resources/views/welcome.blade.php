@@ -1019,7 +1019,7 @@
 
             <p>
                 Dating apps make you date. Support forums make you talk.
-                Nobody puts dating, chat, community, and LGBTQ+-friendly
+                Nobody puts dating, chat, community, and LGBTQ+ friendly
                 healthcare in one place — until now.
             </p>
 
@@ -1027,7 +1027,7 @@
 
                 <a href="{{ 'register' }}?role=0" class="primary-btn">
 
-                    Join AffirmSpace — Free
+                    Join AffirmSpace for Free
 
                 </a>
 
