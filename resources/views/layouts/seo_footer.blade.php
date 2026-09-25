@@ -194,7 +194,7 @@
                             </div>
 
                             <div class="custom-alert-title">
-                                {{ $isSuccess ? 'Thank You for Contacting Us!' : 'Something Went Wrong!' }}
+                                {{ $isSuccess ? 'Thank You for Subscribe Our Newsletter!' : 'Something Went Wrong!' }}
                             </div>
 
                             <div class="custom-alert-message">
