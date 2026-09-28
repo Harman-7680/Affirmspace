@@ -49,13 +49,36 @@ class StatusController extends Controller
 
     public function markStatusViewed($statusId)
     {
+        $status = Status::where('id', $statusId)
+            ->where('created_at', '>=', now()->subDay())
+            ->first();
+
+        if (! $status) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Status not found or expired.',
+            ], 404);
+        }
+
         StatusView::firstOrCreate([
-            'status_id' => $statusId,
+            'status_id' => $status->id,
             'viewer_id' => auth()->id(),
         ]);
 
+        $userStatusIds = Status::where('user_id', $status->user_id)
+            ->where('created_at', '>=', now()->subDay())
+            ->pluck('id');
+
+        $viewedCount = StatusView::where('viewer_id', auth()->id())
+            ->whereIn('status_id', $userStatusIds)
+            ->count();
+
+        $isFullyViewed = $userStatusIds->isNotEmpty()
+        && $viewedCount >= $userStatusIds->count();
+
         return response()->json([
-            'success' => true,
+            'success'         => true,
+            'is_fully_viewed' => $isFullyViewed,
         ]);
     }
 }

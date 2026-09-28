@@ -82,10 +82,10 @@
             <div class="max-w-[680px] mx-auto">
                 <div class="mb-8">
                     <h3 class="font-extrabold text-2xl  text-black dark:text-white">Stories</h3>
-                    <div class="relative" tabindex="-1" uk-slider="auto play: true;finite: true" uk-lightbox="">
+                    <div class="relative" tabindex="-1" uk-slider="auto play: true;finite: true">
                         <div class="py-5 uk-slider-container">
                             <ul class="uk-slider-items w-[calc(100%+14px)]">
-                            {{-- <ul class="uk-slider-items w-[calc(100%+14px)]"
+                                {{-- <ul class="uk-slider-items w-[calc(100%+14px)]"
                                 uk-scrollspy="target: > li; cls: uk-animation-scale-up; delay: 20;repeat:true"> --}}
                                 <li class="md:pr-3" uk-scrollspy-class="uk-animation-fade">
                                     <div class="md:w-20 md:h-20 w-20 h-20 rounded-full relative border-2 border-dashed grid place-items-center bg-slate-200 border-slate-300 dark:border-slate-700 dark:bg-dark2 shrink-0"
@@ -106,27 +106,31 @@
                                     @endphp
 
                                     <li id="status-user-{{ $user->id }}"
-                                        class="pr-[12px] hover:scale-[1.15] hover:-rotate-2 duration-300 stories_status {{ $isViewed ? 'status-viewed' : '' }}">
+                                        class="pr-[12px] hover:scale-[1.15] hover:-rotate-2 duration-300 stories_status {{ $isViewed ? 'status-viewed' : '' }}"
+                                        uk-lightbox="animation: slide">
+
+                                        {{-- FIRST STATUS --}}
                                         <a href="{{ asset('storage/' . $firstStatus->image) }}"
                                             data-caption="{{ $user->first_name }}" data-type="image"
-                                            data-uk-lightbox="animation: slide"
-                                            onclick="markStatusViewed({{ $firstStatus->id }}, {{ $user->id }})">
+                                            data-status-id="{{ $firstStatus->id }}" data-user-id="{{ $user->id }}">
 
                                             <div
                                                 class="status-preview md:w-20 md:h-20 w-20 h-20 relative md:border-4 border-2 shadow border-white rounded-full overflow-hidden dark:border-slate-700">
+
                                                 <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/avatars/avatar-1.jpg') }}"
                                                     alt="" class="absolute w-full h-full object-cover">
+
                                             </div>
                                         </a>
 
-                                        {{-- <h6 class="text-black dark:text-white"> {{ $user->first_name }}</h6> --}}
-
-                                        {{-- Hidden links for all statuses of this user --}}
+                                        {{-- OTHER STATUSES --}}
                                         @foreach ($userStatuses->skip(1) as $status)
                                             <a href="{{ asset('storage/' . $status->image) }}" class="hidden"
                                                 data-caption="{{ $user->first_name }}" data-type="image"
-                                                data-uk-lightbox="animation: slide"></a>
+                                                data-status-id="{{ $status->id }}" data-user-id="{{ $user->id }}">
+                                            </a>
                                         @endforeach
+
                                     </li>
                                 @endforeach
 
@@ -2147,6 +2151,9 @@
     </script>
 
     <script>
+        let activeStatusGroup = null;
+
+
         function markStatusViewed(statusId, userId) {
 
             fetch("{{ route('status.view', ':id') }}".replace(':id', statusId), {
@@ -2161,14 +2168,17 @@
                 .then(response => response.json())
                 .then(data => {
 
-                    if (data.success) {
+                    console.log('STATUS VIEW API:', statusId, data);
 
-                        const storyUser = document.getElementById('status-user-' + userId);
+                    if (data.success && data.is_fully_viewed) {
+
+                        const storyUser = document.getElementById(
+                            'status-user-' + userId
+                        );
 
                         if (storyUser) {
                             storyUser.classList.add('status-viewed');
                         }
-
                     }
 
                 })
@@ -2176,6 +2186,105 @@
                     console.error('Status view error:', error);
                 });
         }
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+
+            /*
+             * Jab user kisi story ke first status par click kare,
+             * us user ka status group remember kar lo.
+             */
+            document.addEventListener('click', function(event) {
+
+                const link = event.target.closest(
+                    '.stories_status a[data-status-id]'
+                );
+
+                if (!link) {
+                    return;
+                }
+
+                activeStatusGroup = link.closest('.stories_status');
+
+            });
+
+
+            /*
+             * UIkit Lightbox ka actual current item.
+             *
+             * First status:
+             * index 0
+             *
+             * Next:
+             * index 1
+             *
+             * Next:
+             * index 2
+             *
+             * Isi index se original status link find hoga.
+             */
+            UIkit.util.on(document, 'itemshown', function(event) {
+
+                if (!activeStatusGroup) {
+                    return;
+                }
+
+                const currentItem = event.target;
+
+                if (!currentItem) {
+                    return;
+                }
+
+
+                const lightboxItems = currentItem.parentElement;
+
+                if (!lightboxItems) {
+                    return;
+                }
+
+
+                const currentIndex = Array.from(
+                    lightboxItems.children
+                ).indexOf(currentItem);
+
+
+                if (currentIndex < 0) {
+                    return;
+                }
+
+
+                const statusLinks = activeStatusGroup.querySelectorAll(
+                    'a[data-status-id]'
+                );
+
+
+                const currentStatusLink = statusLinks[currentIndex];
+
+
+                if (!currentStatusLink) {
+                    return;
+                }
+
+
+                const statusId = currentStatusLink.dataset.statusId;
+                const userId = currentStatusLink.dataset.userId;
+
+
+                console.log(
+                    'CURRENT STATUS:',
+                    statusId,
+                    'USER:',
+                    userId,
+                    'INDEX:',
+                    currentIndex
+                );
+
+
+                markStatusViewed(statusId, userId);
+
+            });
+
+        });
     </script>
 @endsection
 
