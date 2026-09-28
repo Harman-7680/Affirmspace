@@ -1191,6 +1191,10 @@ class ApiProfileController extends Controller
         $friendIds[] = $auth->id; // include myself
                                   // dd($friendIds);
 
+        $viewedStatusIds = \App\Models\StatusView::where('viewer_id', $auth->id)
+            ->pluck('status_id')
+            ->toArray();
+
         $statuses = Status::with('user')
             ->where('created_at', '>=', now()->subDay())
             ->whereIn('user_id', $friendIds)
@@ -1199,6 +1203,15 @@ class ApiProfileController extends Controller
             ->get()
             ->groupBy('user_id')
             ->map(fn($group) => collect($group));
+
+        $statuses = $statuses->sortBy(function ($userStatuses) use ($viewedStatusIds) {
+
+            $isViewed = $userStatuses->every(function ($status) use ($viewedStatusIds) {
+                return in_array($status->id, $viewedStatusIds);
+            });
+
+            return $isViewed ? 1 : 0;
+        });
 
         // --- Events (nearby + upcoming) ---
         // $userAddress = $auth->address ?? '';
@@ -1240,6 +1253,7 @@ class ApiProfileController extends Controller
             'all_users'          => $all_users,
             'all_posts'          => $all_posts,
             'statuses'           => $statuses,
+            'viewedStatusIds'    => $viewedStatusIds,
             // 'events'    => $events,
         ], 200);
     }

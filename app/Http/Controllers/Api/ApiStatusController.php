@@ -3,6 +3,7 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Models\Status;
+use App\Models\StatusView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -70,6 +71,18 @@ class ApiStatusController extends Controller
             'success'  => true,
             'statuses' => $statuses,
             'count'    => $statuses->count(),
+        ]);
+    }
+
+    public function markStatusViewed($statusId)
+    {
+        StatusView::firstOrCreate([
+            'status_id' => $statusId,
+            'viewer_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
         ]);
     }
 }

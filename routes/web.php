@@ -314,6 +314,7 @@ Route::middleware('auth')->group(function () {
 // status related routes
 Route::middleware('auth')->group(function () {
     Route::post('/status/create', [StatusController::class, 'store'])->name('status.store');
+    Route::post('/status/{status}/view', [StatusController::class, 'markStatusViewed'])->name('status.view');
 });
 
 // counselor related routes

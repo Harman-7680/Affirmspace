@@ -84,8 +84,9 @@
                     <h3 class="font-extrabold text-2xl  text-black dark:text-white">Stories</h3>
                     <div class="relative" tabindex="-1" uk-slider="auto play: true;finite: true" uk-lightbox="">
                         <div class="py-5 uk-slider-container">
-                            <ul class="uk-slider-items w-[calc(100%+14px)]"
-                                uk-scrollspy="target: > li; cls: uk-animation-scale-up; delay: 20;repeat:true">
+                            <ul class="uk-slider-items w-[calc(100%+14px)]">
+                            {{-- <ul class="uk-slider-items w-[calc(100%+14px)]"
+                                uk-scrollspy="target: > li; cls: uk-animation-scale-up; delay: 20;repeat:true"> --}}
                                 <li class="md:pr-3" uk-scrollspy-class="uk-animation-fade">
                                     <div class="md:w-20 md:h-20 w-20 h-20 rounded-full relative border-2 border-dashed grid place-items-center bg-slate-200 border-slate-300 dark:border-slate-700 dark:bg-dark2 shrink-0"
                                         uk-toggle="target: #create-story">
@@ -98,15 +99,21 @@
                                     @php
                                         $firstStatus = $userStatuses->first();
                                         $user = $firstStatus->user;
+
+                                        $isViewed = $userStatuses->every(function ($status) use ($viewedStatusIds) {
+                                            return in_array($status->id, $viewedStatusIds);
+                                        });
                                     @endphp
 
-                                    <li class="pr-[12px] hover:scale-[1.15] hover:-rotate-2 duration-300 stories_status">
+                                    <li id="status-user-{{ $user->id }}"
+                                        class="pr-[12px] hover:scale-[1.15] hover:-rotate-2 duration-300 stories_status {{ $isViewed ? 'status-viewed' : '' }}">
                                         <a href="{{ asset('storage/' . $firstStatus->image) }}"
                                             data-caption="{{ $user->first_name }}" data-type="image"
-                                            data-uk-lightbox="animation: slide">
+                                            data-uk-lightbox="animation: slide"
+                                            onclick="markStatusViewed({{ $firstStatus->id }}, {{ $user->id }})">
 
                                             <div
-                                                class="md:w-20 md:h-20 w-20 h-20 relative md:border-4 border-2 shadow border-white rounded-full overflow-hidden dark:border-slate-700">
+                                                class="status-preview md:w-20 md:h-20 w-20 h-20 relative md:border-4 border-2 shadow border-white rounded-full overflow-hidden dark:border-slate-700">
                                                 <img src="{{ $user->image ? asset('storage/' . $user->image) : asset('images/avatars/avatar-1.jpg') }}"
                                                     alt="" class="absolute w-full h-full object-cover">
                                             </div>
@@ -602,7 +609,8 @@
 
                     @if ($other_users->hasMorePages())
                         <div class="text-center mt-6" id="loadMoreWrapper">
-                            <button type="button" id="loadMoreBtn" data-next-page="{{ $other_users->currentPage() + 1 }}"
+                            <button type="button" id="loadMoreBtn"
+                                data-next-page="{{ $other_users->currentPage() + 1 }}"
                                 data-feed-token="{{ $feedToken }}"
                                 class="px-6 py-2 bg-blue-600 text-white rounded-full hover:bg-blue-700">
                                 Load More
@@ -2137,6 +2145,38 @@
     <script type="application/json" id="feedUsersData">
     {!! json_encode($all_users->items()) !!}
     </script>
+
+    <script>
+        function markStatusViewed(statusId, userId) {
+
+            fetch("{{ route('status.view', ':id') }}".replace(':id', statusId), {
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}',
+                        'Accept': 'application/json',
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({})
+                })
+                .then(response => response.json())
+                .then(data => {
+
+                    if (data.success) {
+
+                        const storyUser = document.getElementById('status-user-' + userId);
+
+                        if (storyUser) {
+                            storyUser.classList.add('status-viewed');
+                        }
+
+                    }
+
+                })
+                .catch(error => {
+                    console.error('Status view error:', error);
+                });
+        }
+    </script>
 @endsection
 
 @section('css')
@@ -2296,6 +2336,17 @@
             transform: translateX(-50%);
             font-size: 16px;
             color: #2563eb;
+        }
+    </style>
+
+    <style>
+        .stories_status.status-viewed {
+            opacity: 0.55;
+        }
+
+        .stories_status.status-viewed .status-preview img {
+            filter: blur(2px);
+            opacity: 0.7;
         }
     </style>
 @endsection

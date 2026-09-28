@@ -2,6 +2,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Status;
+use App\Models\StatusView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -43,6 +44,18 @@ class StatusController extends Controller
         return redirect()->route('feed')->with([
             'statuses'     => $statuses,
             'status_count' => $statuses->count(),
+        ]);
+    }
+
+    public function markStatusViewed($statusId)
+    {
+        StatusView::firstOrCreate([
+            'status_id' => $statusId,
+            'viewer_id' => auth()->id(),
+        ]);
+
+        return response()->json([
+            'success' => true,
         ]);
     }
 }
