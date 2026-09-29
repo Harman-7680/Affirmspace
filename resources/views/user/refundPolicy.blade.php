@@ -800,9 +800,9 @@
 
                     <p>
                         This Refund Policy is issued by
-                        <strong>[AffirmSpace legal entity name]</strong>,
+                        <strong>Affirm Space Corporation</strong>,
                         registered at
-                        <strong>[registered business address]</strong>
+                        <strong>India</strong>
                         ("AffirmSpace," "we," "us," or "our").
                         Please review these rules carefully before making any
                         purchase or booking a service on AffirmSpace.

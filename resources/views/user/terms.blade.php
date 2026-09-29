@@ -516,7 +516,7 @@
                 </p>
 
                 <div class="as-terms-effective">
-                    Effective Date: [DD Month YYYY]
+                    Effective Date: [22 September 2026]
                 </div>
 
             </div>
