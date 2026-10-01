@@ -13,44 +13,189 @@ class AppRegistrationPaymentController extends Controller
     /**
      * STEP 1 — Fetch Amount
      */
+    // public function amount(Request $request)
+    // {
+    //     $base = DB::table('registration_settings')->value('registration_fee');
+
+    //     $extra30  = round($base * 0.30, 2);
+    //     $subTotal = $base + $extra30;
+    //     $gst      = round($subTotal * 0.18, 2);
+    //     $total    = round($subTotal + $gst, 2);
+
+    //     return response()->json([
+    //         'base_amount' => $base,
+    //         'extra_30'    => $extra30,
+    //         'gst_18'      => $gst,
+    //         'total'       => $total,
+    //     ]);
+    // }
+
     public function amount(Request $request)
     {
-        $base = DB::table('registration_settings')->value('registration_fee');
+        $baseAmount = DB::table('registration_settings')
+            ->value('registration_fee') ?? 0;
 
-        $extra30  = round($base * 0.30, 2);
-        $subTotal = $base + $extra30;
-        $gst      = round($subTotal * 0.18, 2);
-        $total    = round($subTotal + $gst, 2);
+        $countryCode = 'IN';
+
+        try {
+            $ip = $request->ip();
+
+            if ($ip !== '127.0.0.1' && $ip !== '::1') {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get("https://ipapi.co/{$ip}/country/");
+
+                if ($response->successful()) {
+                    $detectedCountry = strtoupper(trim($response->body()));
+
+                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                        $countryCode = $detectedCountry;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // India remains default
+        }
+
+        $pricing = config('country_pricing.' . $countryCode) ?? config('country_pricing.DEFAULT');
+
+        $amount = round(
+            ($baseAmount * $pricing['percentage']) / 100,
+            2
+        );
+
+        $currency = $pricing['currency'];
+
+        $gstRate = config('country_pricing.gst_rate');
+
+        $gstAmount = round(
+            ($amount * $gstRate) / 100,
+            2
+        );
+
+        $totalAmount = round($amount + $gstAmount, 2);
 
         return response()->json([
-            'base_amount' => $base,
-            'extra_30'    => $extra30,
-            'gst_18'      => $gst,
-            'total'       => $total,
+            'base_amount'  => $baseAmount,
+            'amount'       => $amount,
+            'gst_amount'   => $gstAmount,
+            'total'        => $totalAmount,
+            'currency'     => $currency,
+            'country_code' => $countryCode,
+            'gst_rate'     => $gstRate,
         ]);
     }
 
     /**
      * STEP 2 — Create Razorpay Order
      */
+    // public function createOrder(Request $request)
+    // {
+    //     $user = $request->user();
+
+    //     if ($user->is_paid == 1) {
+    //         return response()->json(['message' => 'Already paid'], 400);
+    //     }
+
+    //     $base = DB::table('registration_settings')->value('registration_fee');
+
+    //     if (! $base || $base <= 0) {
+    //         return;
+    //     }
+
+    //     $extra30  = round($base * 0.30, 2);
+    //     $subTotal = $base + $extra30;
+    //     $gst      = round($subTotal * 0.18, 2);
+    //     $total    = round($subTotal + $gst, 2);
+
+    //     $api = new Api(
+    //         config('services.razorpay.key'),
+    //         config('services.razorpay.secret')
+    //     );
+
+    //     $order = $api->order->create([
+    //         'amount'   => (int) ($total * 100),
+    //         'currency' => 'INR',
+    //         'receipt'  => 'app_reg_' . $user->id,
+    //         'notes'    => [
+    //             'user_id'      => $user->id,
+    //             'first_name'   => $user->first_name,
+    //             'last_name'    => $user->last_name,
+    //             'email'        => $user->email,
+    //             'role'         => $user->role,
+    //             'base_amount'  => $base,
+    //             'extra_30'     => $extra30,
+    //             'gst_18'       => $gst,
+    //             'total_amount' => $total,
+    //         ],
+    //     ]);
+
+    //     return response()->json([
+    //         'order_id'    => $order->id,
+    //         'amount'      => $total,
+    //         'payment_url' => route('app.payment.page', $order->id),
+    //     ]);
+    // }
+
     public function createOrder(Request $request)
     {
         $user = $request->user();
 
         if ($user->is_paid == 1) {
-            return response()->json(['message' => 'Already paid'], 400);
+            return response()->json([
+                'message' => 'Already paid',
+            ], 400);
         }
 
-        $base = DB::table('registration_settings')->value('registration_fee');
+        $baseAmount = DB::table('registration_settings')
+            ->value('registration_fee');
 
-        if (! $base || $base <= 0) {
-            return;
+        if (! $baseAmount || $baseAmount <= 0) {
+            return response()->json([
+                'message' => 'Registration fee is not available.',
+            ], 400);
         }
 
-        $extra30  = round($base * 0.30, 2);
-        $subTotal = $base + $extra30;
-        $gst      = round($subTotal * 0.18, 2);
-        $total    = round($subTotal + $gst, 2);
+        // Country detection
+        $countryCode = 'IN';
+
+        try {
+            $ip = $request->ip();
+
+            if ($ip !== '127.0.0.1' && $ip !== '::1') {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get("https://ipapi.co/{$ip}/country/");
+
+                if ($response->successful()) {
+                    $detectedCountry = strtoupper(trim($response->body()));
+
+                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                        $countryCode = $detectedCountry;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // India remains default
+        }
+
+        $pricing = config('country_pricing.' . $countryCode) ?? config('country_pricing.DEFAULT');
+
+        // Country-wise registration amount
+        $amount = round(
+            ($baseAmount * $pricing['percentage']) / 100,
+            2
+        );
+
+        $currency = $pricing['currency'];
+
+        // GST
+        $gstRate = config('country_pricing.gst_rate');
+
+        $gstAmount = round(
+            ($amount * $gstRate) / 100,
+            2
+        );
+
+        $totalAmount = round($amount + $gstAmount, 2);
 
         $api = new Api(
             config('services.razorpay.key'),
@@ -58,26 +203,36 @@ class AppRegistrationPaymentController extends Controller
         );
 
         $order = $api->order->create([
-            'amount'   => (int) ($total * 100),
-            'currency' => 'INR',
+            'amount'   => (int) round($totalAmount * 100),
+            'currency' => $currency,
             'receipt'  => 'app_reg_' . $user->id,
+
             'notes'    => [
-                'user_id'      => $user->id,
-                'first_name'   => $user->first_name,
-                'last_name'    => $user->last_name,
-                'email'        => $user->email,
-                'role'         => $user->role,
-                'base_amount'  => $base,
-                'extra_30'     => $extra30,
-                'gst_18'       => $gst,
-                'total_amount' => $total,
+                'user_id'             => $user->id,
+                'first_name'          => $user->first_name,
+                'last_name'           => $user->last_name,
+                'email'               => $user->email,
+                'role'                => $user->role,
+                'country_code'        => $countryCode,
+                'currency'            => $currency,
+                'base_amount'         => $baseAmount,
+                'percentage'          => $pricing['percentage'],
+                'registration_amount' => $amount,
+                'gst_rate'            => $gstRate . '%',
+                'gst_amount'          => $gstAmount,
+                'total_amount'        => $totalAmount,
             ],
         ]);
 
         return response()->json([
-            'order_id'    => $order->id,
-            'amount'      => $total,
-            'payment_url' => route('app.payment.page', $order->id),
+            'order_id'     => $order->id,
+            'amount'       => $amount,
+            'gst_amount'   => $gstAmount,
+            'total_amount' => $totalAmount,
+            'currency'     => $currency,
+            'country_code' => $countryCode,
+            'gst_rate'     => $gstRate,
+            'payment_url'  => route('app.payment.page', $order->id),
         ]);
     }
 

@@ -91,9 +91,9 @@
         <h2>Complete Your Registration</h2>
         <p>Please complete the payment to activate your account</p>
 
-        <div class="amount">₹ {{ $amount }}</div>
+        <div class="amount">{{ $currency }} {{ number_format($amount, 2) }}</div>
         <div class="gst-note">
-            + GST @18% (₹ {{ number_format($amount * 0.18, 2) }})
+            + GST @{{ $gstRate }}% ({{ $currency }} {{ number_format($gstAmount, 2) }})
         </div>
 
         <button id="payBtn">Pay Now</button>
@@ -130,6 +130,7 @@
                 const options = {
                     key: data.key,
                     order_id: data.order_id,
+                    currency: data.currency,
                     name: "Registration Fee",
                     description: "One-time registration payment",
                     handler: function(response) {

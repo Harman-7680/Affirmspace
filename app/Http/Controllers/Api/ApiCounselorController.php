@@ -94,24 +94,95 @@ class ApiCounselorController extends Controller
             config('services.razorpay.secret')
         );
 
-        $baseAmount    = (float) $counselor->price;
-        $gstAmount     = round($baseAmount * 0.18, 2);
-        $totalAmount   = $baseAmount + $gstAmount;
+        // $baseAmount    = (float) $counselor->price;
+        // $gstAmount     = round($baseAmount * 0.18, 2);
+        // $totalAmount   = $baseAmount + $gstAmount;
+        // $amountInPaise = (int) round($totalAmount * 100);
+
+        // $order = $api->order->create([
+        //     'receipt'  => 'apt_' . uniqid(),
+        //     'amount'   => $amountInPaise,
+        //     'currency' => 'INR',
+        //     'notes'    => [
+        //         'counselor_id' => $counselor->id,
+        //         'counselor'    => $counselor->first_name ?? null,
+        //         'user_id'      => auth()->id(),
+        //         'base_amount'  => $baseAmount,
+        //         'gst_rate'     => '18%',
+        //         'gst_amount'   => $gstAmount,
+        //         'total_amount' => $totalAmount,
+        //         'type'         => 'appointment',
+        //     ],
+        // ]);
+
+        $baseAmount = (float) $counselor->price;
+
+// Country detection
+        $countryCode = 'IN';
+
+        try {
+            $ip = $request->ip();
+
+            if ($ip !== '127.0.0.1' && $ip !== '::1') {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get("https://ipapi.co/{$ip}/country/");
+
+                if ($response->successful()) {
+                    $detectedCountry = strtoupper(trim($response->body()));
+
+                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                        $countryCode = $detectedCountry;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // India remains default
+        }
+
+// Country-wise pricing
+        $pricing = config('country_pricing.' . $countryCode) ?? config('country_pricing.DEFAULT');
+
+// Apply country percentage
+        $countryAmount = round(
+            ($baseAmount * $pricing['percentage']) / 100,
+            2
+        );
+
+        $currency = $pricing['currency'];
+
+// GST
+        $gstRate = config('country_pricing.gst_rate');
+
+        $gstAmount = round(
+            ($countryAmount * $gstRate) / 100,
+            2
+        );
+
+        $totalAmount = round(
+            $countryAmount + $gstAmount,
+            2
+        );
+
         $amountInPaise = (int) round($totalAmount * 100);
 
         $order = $api->order->create([
             'receipt'  => 'apt_' . uniqid(),
             'amount'   => $amountInPaise,
-            'currency' => 'INR',
+            'currency' => $currency,
+
             'notes'    => [
-                'counselor_id' => $counselor->id,
-                'counselor'    => $counselor->first_name ?? null,
-                'user_id'      => auth()->id(),
-                'base_amount'  => $baseAmount,
-                'gst_rate'     => '18%',
-                'gst_amount'   => $gstAmount,
-                'total_amount' => $totalAmount,
-                'type'         => 'appointment',
+                'counselor_id'   => $counselor->id,
+                'counselor'      => $counselor->first_name ?? null,
+                'user_id'        => auth()->id(),
+                'country_code'   => $countryCode,
+                'currency'       => $currency,
+                'base_amount'    => $baseAmount,
+                'percentage'     => $pricing['percentage'],
+                'country_amount' => $countryAmount,
+                'gst_rate'       => $gstRate . '%',
+                'gst_amount'     => $gstAmount,
+                'total_amount'   => $totalAmount,
+                'type'           => 'appointment',
             ],
         ]);
 

@@ -91,26 +91,68 @@ class ApiEventController extends Controller
             config('services.razorpay.secret')
         );
 
-// Base amount
-        $baseAmount = $areaPrice->amount;
+// // Base amount
+//         $baseAmount = $areaPrice->amount;
 
-// GST calculation
-        $gstRate     = 18;
+// // GST calculation
+//         $gstRate     = 18;
+//         $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
+//         $totalAmount = $baseAmount + $gstAmount;
+
+// Detect customer country
+        $countryCode = 'IN';
+
+        try {
+            $ip = $request->ip();
+
+            if ($ip !== '127.0.0.1' && $ip !== '::1') {
+                $response = \Illuminate\Support\Facades\Http::timeout(5)
+                    ->get("https://ipapi.co/{$ip}/country/");
+
+                if ($response->successful()) {
+                    $detectedCountry = strtoupper(trim($response->body()));
+
+                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                        $countryCode = $detectedCountry;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+            // India remains default
+        }
+
+// Country pricing
+        $pricing = config('country_pricing.' . $countryCode) ?? config('country_pricing.DEFAULT');
+
+// Area price from database
+        $baseAmount = round(
+            ($areaPrice->amount * $pricing['percentage']) / 100,
+            2
+        );
+
+        $currency = $pricing['currency'];
+
+// GST
+        $gstRate     = config('country_pricing.gst_rate');
         $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
         $totalAmount = $baseAmount + $gstAmount;
 
         $order = $api->order->create([
             'receipt'  => 'event_' . $event->id,
             'amount'   => (int) round($totalAmount * 100),
-            'currency' => 'INR',
+            'currency' => $currency,
             'notes'    => [
-                'event_id'     => $event->id,
-                'event_name'   => $event->name,
-                'base_amount'  => $baseAmount,
-                'gst_rate'     => '18%',
-                'gst_amount'   => $gstAmount,
-                'total_amount' => $totalAmount,
-                'source'       => 'app',
+                'event_id'        => $event->id,
+                'event_name'      => $event->name,
+                'country_code'    => $countryCode,
+                'currency'        => $currency,
+                'original_amount' => $areaPrice->amount,
+                'percentage'      => $pricing['percentage'],
+                'base_amount'     => $baseAmount,
+                'gst_rate'        => $gstRate . '%',
+                'gst_amount'      => $gstAmount,
+                'total_amount'    => $totalAmount,
+                'source'          => 'app',
             ],
         ]);
 
@@ -126,17 +168,39 @@ class ApiEventController extends Controller
             'amount'       => $baseAmount,
             'gst_amount'   => $gstAmount,
             'total_amount' => $totalAmount,
+            'currency'     => $currency,
+            'country_code' => $countryCode,
         ]);
     }
+
+    // public function razorpayWebview($order_id, $event_id)
+    // {
+    //     $event = Event::findOrFail($event_id);
+
+    //     return view('payment.api.razorpay', [
+    //         'order_id' => $order_id,
+    //         'event'    => $event,
+    //         'amount'   => $event->amount,
+    //     ]);
+    // }
 
     public function razorpayWebview($order_id, $event_id)
     {
         $event = Event::findOrFail($event_id);
 
+        $api = new Api(
+            config('services.razorpay.key'),
+            config('services.razorpay.secret')
+        );
+
+        $order = $api->order->fetch($order_id);
+
         return view('payment.api.razorpay', [
             'order_id' => $order_id,
             'event'    => $event,
-            'amount'   => $event->amount,
+            'amount'   => $order['amount'],
+            'currency' => $order['currency'],
+            'gstRate'  => config('country_pricing.gst_rate'),
         ]);
     }
 

@@ -94,34 +94,66 @@ class EventController extends Controller
             config('services.razorpay.secret')
         );
 
-        $user = auth()->user();
+//         $user = auth()->user();
 
-// Base amount (event / area price)
-        $baseAmount = $areaPrice->amount;
+// // Base amount (event / area price)
+//         $baseAmount = $areaPrice->amount;
+
+        $user        = auth()->user();
+        $countryCode = 'IN'; // Default India
+
+        try {
+            $ip = $request->ip();
+
+            if ($ip !== '127.0.0.1' && $ip !== '::1') {
+
+                $response = Http::timeout(5)->get("https://ipapi.co/{$ip}/country/");
+
+                if ($response->successful()) {
+                    $detectedCountry = strtoupper(trim($response->body()));
+
+                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                        $countryCode = $detectedCountry;
+                    }
+                }
+            }
+        } catch (\Exception $e) {
+        }
+
+        $pricing = config('country_pricing.' . $countryCode) ?? config('country_pricing.DEFAULT');
+
+        $baseAmount = round(
+            ($areaPrice->amount * $pricing['percentage']) / 100,
+            2
+        );
+
+        $currency = $pricing['currency'];
 
 // GST calculation
-        $gstRate     = 18;
+        $gstRate     = config('country_pricing.gst_rate');
         $gstAmount   = round(($baseAmount * $gstRate) / 100, 2);
         $totalAmount = $baseAmount + $gstAmount;
 
         $order = $api->order->create([
             'receipt'         => 'event_' . $event->id,
             'amount'          => (int) round($totalAmount * 100),
-            'currency'        => 'INR',
+            'currency'        => $currency,
             'payment_capture' => 1,
             'notes'           => [
-                'event_id'     => $event->id,
-                'event_name'   => $event->title ?? $event->name,
-                'area_id'      => $areaPrice->area_id ?? null,
-                'base_amount'  => $baseAmount,
-                'gst_rate'     => '18%',
-                'gst_amount'   => $gstAmount,
-                'total_amount' => $totalAmount,
-                'user_id'      => $user->id,
-                'first_name'   => $user->first_name,
-                'last_name'    => $user->last_name,
-                'email'        => $user->email,
-                'role'         => $user->role,
+                'event_id'       => $event->id,
+                'event_name'     => $event->title ?? $event->name,
+                'area_id'        => $areaPrice->area_id ?? null,
+                'base_amount'    => $areaPrice->amount,
+                'percentage'     => $pricing['percentage'],
+                'country_amount' => $baseAmount,
+                'gst_rate'       => $gstRate . '%',
+                'gst_amount'     => $gstAmount,
+                'total_amount'   => $totalAmount,
+                'user_id'        => $user->id,
+                'first_name'     => $user->first_name,
+                'last_name'      => $user->last_name,
+                'email'          => $user->email,
+                'role'           => $user->role,
             ],
         ]);
 
@@ -132,6 +164,8 @@ class EventController extends Controller
             'baseAmount'  => $baseAmount,
             'gstAmount'   => $gstAmount,
             'totalAmount' => $totalAmount,
+            'currency'    => $currency,
+            'gstRate'     => $gstRate,
         ]);
     }
 

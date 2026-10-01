@@ -12,7 +12,8 @@
         var options = {
             key: "{{ config('services.razorpay.key') }}",
             order_id: "{{ $order_id }}",
-            name: "18% GST applicable",
+            name: "Registration Payment",
+            description: "{{ config('country_pricing.gst_rate') }}% GST applicable",
             handler: function(response) {
                 var form = document.createElement('form');
                 form.method = 'POST';

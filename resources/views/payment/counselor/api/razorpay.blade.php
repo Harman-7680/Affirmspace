@@ -4,9 +4,9 @@
     var options = {
         key: "{{ config('services.razorpay.key') }}",
         amount: "{{ $order['amount'] }}",
-        currency: "INR",
+        currency: "{{ $order['currency'] }}",
+        name: "{{ config('country_pricing.gst_rate') }}% GST applicable",
         order_id: "{{ $order['id'] }}",
-        name: "18% GST applicable",
 
         handler: function(response) {
 

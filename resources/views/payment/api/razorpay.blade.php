@@ -12,10 +12,10 @@
     <script>
         var options = {
             key: "{{ config('services.razorpay.key') }}",
-            amount: "{{ $amount * 100 }}",
-            currency: "INR",
+            amount: "{{ $amount }}",
+            currency: "{{ $currency }}",
             order_id: "{{ $order_id }}",
-            name: "18% GST applicable",
+            name: "{{ $gstRate }}% GST applicable",
             description: "Event: {{ $event->name }}",
 
             handler: function(response) {
