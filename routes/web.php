@@ -424,7 +424,14 @@ Route::group([], function () {
     Route::get('/report-a-problem', function () {return view('seo.report-a-problem');})->name('report-a-problem');
     Route::get('/community-guidelines', function () {return view('seo.community-guidelines');})->name('community-guidelines');
     Route::get('/safety-tips', function () {return view('seo.safety-tips');})->name('safety-tips');
-    Route::get('/lgbtq-mental-health-counselling', function () {return view('seo.counselling');})->name('counselling');
+    Route::get('/lgbtq-mental-health-counselling', function () {
+        $counsellors = User::where('role', 1)
+            ->where('documents_status', 3)
+            ->where('status', 1)
+            ->inRandomOrder()
+            ->get();
+        return view('seo.counselling', compact('counsellors'));
+    })->name('counselling');
 });
 
 Route::middleware('auth')->group(function () {
