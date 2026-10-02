@@ -96,7 +96,7 @@
 
                     startWithAudioMuted: false,
 
-                    startWithVideoMuted: false,
+                    startWithVideoMuted: true,
 
                     disableDeepLinking: true
                 }
