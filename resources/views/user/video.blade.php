@@ -100,8 +100,8 @@
     <div class="max-w-4xl mx-auto mt-6 space-y-6">
         <br>
         <div class="text-center">
-            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Explore Counselors</h1>
-            <p class="text-gray-500 text-sm">Find and contact Counselors easily</p>
+            <h1 class="text-2xl font-bold text-gray-800 dark:text-white">Explore Counsellors</h1>
+            <p class="text-gray-500 text-sm">Find and contact Counsellors easily</p>
         </div>
 
         {{-- Counselors Section --}}
@@ -300,7 +300,7 @@
         }">
 
             <div class="flex items-center justify-between mb-4">
-                <h3 class="text-lg font-bold text-black dark:text-white">Counselors</h3>
+                <h3 class="text-lg font-bold text-black dark:text-white">Counsellors</h3>
             </div>
 
             <div class="flex gap-2 mb-4">

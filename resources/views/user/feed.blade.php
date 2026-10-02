@@ -1079,7 +1079,7 @@
 
                             <div class="flex items-baseline justify-between text-black dark:text-white mb-3">
                                 <i data-lucide="stethoscope" class="w-6 h-6 "></i>
-                                <h3 class="font-bold text-base">Contact Counselors</h3>
+                                <h3 class="font-bold text-base">Contact Counsellors</h3>
                             </div>
 
                             <!-- Filters Container -->

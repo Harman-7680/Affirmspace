@@ -123,7 +123,7 @@
                             class="{{ $current === 'video' ? 'active' : '' }} flex items-center gap-2 hover:text-blue-600 transition">
                             <i data-lucide="stethoscope"
                                 class="w-6 h-6 {{ $current === 'video' ? 'icon-bg-remove' : '' }}"></i>
-                            <span class="{{ $current === 'video' ? 'active' : '' }}">Explore Counselors</span>
+                            <span class="{{ $current === 'video' ? 'active' : '' }}">Explore Counsellors</span>
                         </a>
                     </li>
 
