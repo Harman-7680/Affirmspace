@@ -36,7 +36,8 @@ class ApiTweetController extends Controller
     {
         $validated = $request->validate([
             'title'     => ['required', 'string', 'max:255'],
-            'paragraph' => ['required', 'string', 'max:500'],
+            // 'paragraph' => ['required', 'string', 'max:500'],
+            'paragraph' => ['required', 'string'],
         ]);
 
         $tweet = Tweet::create([

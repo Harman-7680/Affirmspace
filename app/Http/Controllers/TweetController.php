@@ -11,7 +11,8 @@ class TweetController extends Controller
     {
         $validated = $request->validateWithBag('tweet', [
             'title'     => ['required', 'string', 'max:255'],
-            'paragraph' => ['required', 'string', 'max:500'],
+            // 'paragraph' => ['required', 'string', 'max:500'],
+            'paragraph' => ['required', 'string'],
         ]);
 
         Tweet::create([
