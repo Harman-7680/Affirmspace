@@ -59,11 +59,11 @@
 
     <div id="jitsi-container"></div>
 
-    <button id="endCall">
+    {{-- <button id="endCall">
 
         End
 
-    </button>
+    </button> --}}
 
     <script src="https://8x8.vc/vpaas-magic-cookie-3b7aa2c587234976b65a4c61a71fca76/external_api.js"></script>
 
