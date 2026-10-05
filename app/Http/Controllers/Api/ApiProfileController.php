@@ -1791,4 +1791,16 @@ class ApiProfileController extends Controller
             'posts'         => $all_posts,
         ]);
     }
+
+    public function markNotificationsRead()
+    {
+        $auth = Auth::user();
+
+        $auth->unreadNotifications->markAsRead();
+
+        return response()->json([
+            'success'            => true,
+            'notification_count' => 0,
+        ]);
+    }
 }

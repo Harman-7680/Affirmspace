@@ -181,6 +181,9 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/tweets/feed', [ApiTweetController::class, 'feedTweets']);
 });
 
+Route::post('/notifications/read', [ApiProfileController::class, 'markNotificationsRead'])
+    ->middleware('auth:sanctum');
+
 // this route for both app and website
 Route::post('/events/by-location', [ProfileController::class, 'getEventsByLocation']);
 
