@@ -1605,4 +1605,190 @@ class ApiProfileController extends Controller
             'notifications' => $notifications,
         ], 200);
     }
+
+    public function eventPost(Request $request)
+    {
+        $auth = Auth::user();
+
+        // Only allow role = 0 users
+        abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+        $request->validate([
+            'post_id' => 'required|integer|exists:posts,id',
+        ]);
+
+        // Unread notifications
+        $notifications = $auth->unreadNotifications;
+
+        // --- Blocked Users ---
+        $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->toArray();
+
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->pluck('user_id')
+            ->toArray();
+
+        $blockedPosts = Block::where('user_id', $auth->id)
+            ->whereNotNull('post_id')
+            ->pluck('post_id')
+            ->toArray();
+
+        $hiddenUsers = array_unique(
+            array_merge($blockedUsers, $blockedByUsers)
+        );
+
+        // --- Muted Users ---
+        $mutedUsers = Mute::where('user_id', $auth->id)
+            ->pluck('muted_user_id')
+            ->toArray();
+
+        // --- Friend IDs ---
+        $friendIds = Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })
+            ->where('status', 'accepted')
+            ->get()
+            ->map(function ($f) use ($auth) {
+                return $f->sender_id == $auth->id
+                    ? $f->receiver_id
+                    : $f->sender_id;
+            })
+            ->toArray();
+
+        // --- Allowed Users ---
+        $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
+            $q->where('id', $auth->id)
+                ->orWhere('is_private', 0)
+                ->orWhereIn('id', $friendIds);
+        })
+            ->pluck('id')
+            ->toArray();
+
+        // --- Fetch all users ---
+        // $all_users = User::where('id', '!=', $auth->id)
+        //     ->where('role', 0)
+        //     ->whereNotIn('id', $hiddenUsers)
+        //     ->with('ratingsReceived')
+        //     ->inRandomOrder()
+        //     ->get()
+        //     ->map(function ($user) use ($auth) {
+
+        //         $friendCount = Friendship::where(function ($query) use ($user) {
+        //             $query->where('sender_id', $user->id)
+        //                 ->orWhere('receiver_id', $user->id);
+        //         })
+        //             ->where('status', 'accepted')
+        //             ->count();
+
+        //         $user->friend_count = $friendCount;
+
+        //         $friendship = Friendship::where(function ($q) use ($auth, $user) {
+        //             $q->where('sender_id', $auth->id)
+        //                 ->where('receiver_id', $user->id);
+        //         })
+        //             ->orWhere(function ($q) use ($auth, $user) {
+        //                 $q->where('sender_id', $user->id)
+        //                     ->where('receiver_id', $auth->id);
+        //             })
+        //             ->first();
+
+        //         $user->friendship_status = $friendship?->status;
+        //         $user->friendship_sender = $friendship?->sender_id;
+
+        //         $user->average_rating = round(
+        //             $user->ratingsReceived->avg('rating') ?? 0,
+        //             1
+        //         );
+
+        //         return $user;
+        //     });
+
+        // --- Fetch Posts ---
+        $all_posts = Post::with([
+            'user',
+            'likes',
+            'comments' => function ($query) use ($hiddenUsers) {
+
+                $query->whereNotIn('user_id', $hiddenUsers)
+                    ->with([
+                        'user',
+                        'replies' => function ($q) use ($hiddenUsers) {
+
+                            $q->whereNotIn('user_id', $hiddenUsers)
+                                ->with('user');
+                        },
+                    ]);
+            },
+        ])
+            ->whereIn('user_id', $allowedUserIds)
+            ->whereNotIn('id', $blockedPosts)
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->whereNotIn('user_id', $mutedUsers)
+            ->get()
+            ->map(function ($post) use ($auth) {
+
+                // Total comments
+                $post->total_comments =
+                $post->comments->count() +
+                $post->comments->sum(
+                    fn($c) => $c->replies->count()
+                );
+
+                // Friendship status
+                $friendship = Friendship::where(function ($q) use ($auth, $post) {
+                    $q->where('sender_id', $auth->id)
+                        ->where('receiver_id', $post->user_id);
+                })
+                    ->orWhere(function ($q) use ($auth, $post) {
+                        $q->where('sender_id', $post->user_id)
+                            ->where('receiver_id', $auth->id);
+                    })
+                    ->first();
+
+                $post->friendship_status =
+                $friendship?->status ?? 'not_friends';
+
+                $post->friendship_sender =
+                $friendship?->sender_id ?? null;
+
+                // Bookmark
+                $post->is_bookmarked = Bookmark::where('user_id', $auth->id)
+                    ->where('post_id', $post->id)
+                    ->exists();
+
+                return $post;
+            })
+            ->sortByDesc(fn($post) => $post->likes->count())
+            ->values();
+
+        // -------------------------------------------------
+        // Requested post ko TOP par le aao
+        // -------------------------------------------------
+
+        $requestedPost = $all_posts->firstWhere(
+            'id',
+            (int) $request->post_id
+        );
+
+        if ($requestedPost) {
+
+            $all_posts = $all_posts
+                ->reject(function ($post) use ($requestedPost) {
+                    return $post->id == $requestedPost->id;
+                })
+                ->prepend($requestedPost)
+                ->values();
+        }
+
+        return response()->json([
+            'success'       => true,
+            'user'          => $auth,
+            'notifications' => $notifications,
+            // 'all_users'     => $all_users,
+            'posts'         => $all_posts,
+        ]);
+    }
 }
