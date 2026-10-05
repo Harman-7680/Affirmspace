@@ -116,6 +116,7 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
     Route::post('/statuses', [ApiStatusController::class, 'store']);
     Route::get('/statuses', [ApiStatusController::class, 'index']);
     Route::post('/statuses/{statusId}/view', [ApiStatusController::class, 'markStatusViewed']);
+    Route::delete('/status', [ApiStatusController::class, 'destroy']);
 
     // friendship related routes
     Route::post('/friend/send', [ApiFriendController::class, 'sendRequest']);

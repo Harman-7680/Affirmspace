@@ -5,6 +5,7 @@ use App\Models\Status;
 use App\Models\StatusView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class StatusController extends Controller
 {
@@ -79,6 +80,31 @@ class StatusController extends Controller
         return response()->json([
             'success'         => true,
             'is_fully_viewed' => $isFullyViewed,
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $status = Status::where('id', $request->status_id)
+            ->where('user_id', auth()->id())
+            ->first();
+
+        if (! $status) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Status not found or unauthorized.',
+            ], 404);
+        }
+
+        if ($status->image) {
+            Storage::disk('public')->delete($status->image);
+        }
+
+        $status->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status deleted successfully.',
         ]);
     }
 }

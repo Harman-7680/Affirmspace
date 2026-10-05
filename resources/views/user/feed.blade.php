@@ -103,6 +103,8 @@
                                         $isViewed = $userStatuses->every(function ($status) use ($viewedStatusIds) {
                                             return in_array($status->id, $viewedStatusIds);
                                         });
+
+                                        $isOwnStatus = $user->id == auth()->id();
                                     @endphp
 
                                     <li id="status-user-{{ $user->id }}"
@@ -122,6 +124,24 @@
 
                                             </div>
                                         </a>
+
+                                        {{-- DELETE BUTTON - ONLY FOR OWN STATUS --}}
+                                        {{-- @if ($isOwnStatus)
+                                            <button type="button"
+                                                class="delete-status absolute top-0 right-0 z-20
+                           w-6 h-6 rounded-full
+                           bg-white dark:bg-dark3
+                           shadow-md
+                           flex items-center justify-center
+                           text-red-500 hover:text-red-600
+                           hover:bg-red-50
+                           transition"
+                                                data-status-id="{{ $firstStatus->id }}" title="Delete status">
+
+                                                <ion-icon name="trash-outline" class="text-sm"></ion-icon>
+
+                                            </button>
+                                        @endif --}}
 
                                         {{-- OTHER STATUSES --}}
                                         @foreach ($userStatuses->skip(1) as $status)
@@ -2279,12 +2299,149 @@
                     currentIndex
                 );
 
+                addStatusDeleteButton(statusId, userId);
 
                 markStatusViewed(statusId, userId);
 
             });
 
         });
+    </script>
+
+    <script>
+        function addStatusDeleteButton(statusId, userId) {
+
+            let lightbox = $('.uk-lightbox');
+
+            if (!lightbox.length) return;
+
+            let caption = lightbox.find('.uk-lightbox-caption');
+
+            if (!caption.length) return;
+
+            console.log(
+                'DELETE BUTTON STATUS:',
+                statusId,
+                'USER:',
+                userId
+            );
+
+            // Purana button remove
+            caption.find('.status-delete-btn').remove();
+
+            // Sirf apne status par
+            if (String(userId) !== String({{ auth()->id() }})) {
+                return;
+            }
+
+            let button = $('<button>', {
+                type: 'button',
+                class: 'status-delete-btn',
+                'data-status-id': statusId,
+                title: 'Delete status'
+            });
+
+            button.html(
+                '<ion-icon name="trash-outline"></ion-icon>'
+            );
+
+            button.css({
+                'margin-left': '10px',
+                'width': '32px',
+                'height': '32px',
+                'border-radius': '50%',
+                'border': '0',
+                'background': 'rgba(255,255,255,0.15)',
+                'color': '#fff',
+                'cursor': 'pointer',
+                'display': 'inline-flex',
+                'align-items': 'center',
+                'justify-content': 'center',
+                'vertical-align': 'middle'
+            });
+
+            caption.append(button);
+        }
+
+
+        /*
+        |--------------------------------------------------------------------------
+        | DELETE STATUS
+        |--------------------------------------------------------------------------
+        */
+
+        document.addEventListener('click', function(e) {
+
+            let button = e.target.closest('.status-delete-btn');
+
+            if (!button) return;
+
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+
+            let statusId = button.getAttribute('data-status-id');
+
+            console.log('DELETE CLICKED:', statusId);
+
+            if (!statusId) {
+                alert('Status ID not found.');
+                return;
+            }
+
+            if (!confirm('Are you sure you want to delete this status?')) {
+                return;
+            }
+
+            button.disabled = true;
+
+            $.ajax({
+
+                url: "{{ route('status.destroy') }}",
+
+                type: "DELETE",
+
+                data: {
+                    status_id: statusId,
+                    _token: "{{ csrf_token() }}"
+                },
+
+                success: function(response) {
+
+                    console.log('DELETE RESPONSE:', response);
+
+                    if (response.success) {
+
+                        $('body').fadeOut(200, function() {
+                            location.reload();
+                        });
+
+                    } else {
+
+                        button.disabled = false;
+
+                        alert(
+                            response.message ||
+                            'Unable to delete status.'
+                        );
+                    }
+                },
+
+                error: function(xhr) {
+
+                    console.log('DELETE ERROR:', xhr);
+
+                    button.disabled = false;
+
+                    alert(
+                        xhr.responseJSON?.message ||
+                        'Something went wrong.'
+                    );
+                }
+
+            });
+
+        }, true);
     </script>
 @endsection
 

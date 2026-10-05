@@ -6,6 +6,7 @@ use App\Models\Status;
 use App\Models\StatusView;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 
 class ApiStatusController extends Controller
 {
@@ -83,6 +84,42 @@ class ApiStatusController extends Controller
 
         return response()->json([
             'success' => true,
+        ]);
+    }
+
+    public function destroy(Request $request)
+    {
+        $request->validate([
+            'status_id' => 'required|integer|exists:statuses,id',
+        ]);
+
+        $user = Auth::user();
+
+        $status = Status::where('id', $request->status_id)
+            ->where('user_id', $user->id)
+            ->first();
+
+        if (! $status) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Status not found or you are not authorized to delete it.',
+            ], 404);
+        }
+
+        // Delete image
+        if ($status->image) {
+            $imagePath = public_path('storage/' . $status->image);
+
+            if (file_exists($imagePath)) {
+                unlink($imagePath);
+            }
+        }
+
+        $status->delete();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Status deleted successfully.',
         ]);
     }
 }
