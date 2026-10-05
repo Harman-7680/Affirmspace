@@ -1265,10 +1265,12 @@ class ApiDatingController extends Controller
         }
 
         $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
             ->toArray();
 
         $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
             ->pluck('user_id')
             ->toArray();
 
