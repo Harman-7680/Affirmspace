@@ -107,7 +107,28 @@ class DatingController extends Controller
                 $score += 20;
             }
 
+            // if ($score >= 40) {
+
+            //     $other->match_score = $score;
+
+            //     $matches->push($other);
+            // }
+
             if ($score >= 40) {
+
+                // Check friendship/request status
+                $friendship = Friendship::where(function ($q) use ($auth, $other) {
+                    $q->where('sender_id', $auth->id)
+                        ->where('receiver_id', $other->user_id);
+                })->orWhere(function ($q) use ($auth, $other) {
+                    $q->where('sender_id', $other->user_id)
+                        ->where('receiver_id', $auth->id);
+                })->first();
+
+                // Already friends OR request already pending
+                if ($friendship && in_array($friendship->status, ['accepted', 'pending'])) {
+                    continue;
+                }
 
                 $other->match_score = $score;
 
@@ -1099,7 +1120,26 @@ class DatingController extends Controller
                 $score += 20;
             }
 
+            // if ($score >= 40) {
+            //     $other->match_score = $score;
+            //     $scoredMatches->push($other);
+            // }
+
             if ($score >= 40) {
+
+                $friendship = Friendship::where(function ($q) use ($auth, $other) {
+                    $q->where('sender_id', $auth->id)
+                        ->where('receiver_id', $other->user_id);
+                })->orWhere(function ($q) use ($auth, $other) {
+                    $q->where('sender_id', $other->user_id)
+                        ->where('receiver_id', $auth->id);
+                })->first();
+
+                // Already friends OR friend request already pending
+                if ($friendship && in_array($friendship->status, ['accepted', 'pending'])) {
+                    continue;
+                }
+
                 $other->match_score = $score;
                 $scoredMatches->push($other);
             }

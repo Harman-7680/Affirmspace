@@ -402,8 +402,8 @@ class ApiDatingController extends Controller
         $datingUsers = $allUsers->values();
 
         return response()->json([
-            'status'  => 'success',
-            'matches' => $matches->map(function ($m) {
+            'status'       => 'success',
+            'matches'      => $matches->map(function ($m) {
 
                 return [
                     'id'                => $m->user->id,
@@ -1321,8 +1321,37 @@ class ApiDatingController extends Controller
                 $score += 20;
             }
 
+            // if ($score >= 40) {
+            //     $other->match_score = $score;
+            //     $scoredMatches->push($other);
+            // }
+
             if ($score >= 40) {
+
+                $user = $other->user;
+
+                // Friendship / Friend Request check
+                $friendship = Friendship::where(function ($q) use ($auth, $user) {
+
+                    // Current user ne request bheji
+                    $q->where('sender_id', $auth->id)
+                        ->where('receiver_id', $user->id);
+
+                })->orWhere(function ($q) use ($auth, $user) {
+
+                    // Dusre user ne request bheji
+                    $q->where('sender_id', $user->id)
+                        ->where('receiver_id', $auth->id);
+
+                })->first();
+
+                // Already friends OR request already pending → skip
+                if ($friendship && in_array($friendship->status, ['accepted', 'pending'])) {
+                    continue;
+                }
+
                 $other->match_score = $score;
+
                 $scoredMatches->push($other);
             }
         }
