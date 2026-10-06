@@ -6,6 +6,7 @@ use App\Models\AreaPrice;
 use App\Models\Event;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Mail;
 // use Stripe\Checkout\Session as CheckoutSession;
 // use Stripe\Stripe;
@@ -100,20 +101,51 @@ class ApiEventController extends Controller
 //         $totalAmount = $baseAmount + $gstAmount;
 
 // Detect customer country
+        // $countryCode = 'IN';
+
+        // try {
+        //     $ip = $request->ip();
+
+        //     if ($ip !== '127.0.0.1' && $ip !== '::1') {
+        //         $response = \Illuminate\Support\Facades\Http::timeout(5)
+        //             ->get("https://ipapi.co/{$ip}/country/");
+
+        //         if ($response->successful()) {
+        //             $detectedCountry = strtoupper(trim($response->body()));
+
+        //             if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+        //                 $countryCode = $detectedCountry;
+        //             }
+        //         }
+        //     }
+        // } catch (\Exception $e) {
+        //     // India remains default
+        // }
+
+        // Detect customer country
         $countryCode = 'IN';
 
         try {
             $ip = $request->ip();
 
             if ($ip !== '127.0.0.1' && $ip !== '::1') {
-                $response = \Illuminate\Support\Facades\Http::timeout(5)
-                    ->get("https://ipapi.co/{$ip}/country/");
+
+                $response = Http::timeout(5)
+                    ->get("https://ipwho.is/{$ip}");
 
                 if ($response->successful()) {
-                    $detectedCountry = strtoupper(trim($response->body()));
 
-                    if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
-                        $countryCode = $detectedCountry;
+                    $data = $response->json();
+
+                    if (
+                        ! empty($data['success']) &&
+                        ! empty($data['country_code'])
+                    ) {
+                        $detectedCountry = strtoupper($data['country_code']);
+
+                        if (preg_match('/^[A-Z]{2}$/', $detectedCountry)) {
+                            $countryCode = $detectedCountry;
+                        }
                     }
                 }
             }

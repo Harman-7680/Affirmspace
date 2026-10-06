@@ -568,6 +568,186 @@ class ApiProfileController extends Controller
         ]);
     }
 
+    // public function event()
+    // {
+    //     $auth = Auth::user();
+
+    //     // Only allow role = 0 users
+    //     abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+    //     // Unread notifications
+    //     $notifications = $auth->unreadNotifications;
+
+    //     // Users you blocked
+    //     // $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+    //     //     ->pluck('blocked_id')
+    //     //     ->toArray();
+
+    //     // // Users who blocked you
+    //     // $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+    //     //     ->pluck('user_id')
+    //     //     ->toArray();
+
+    //     // // Merge both
+    //     // $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+    //     // // Get all users except logged-in, hidden, and non-role 0 users
+    //     // $all_users = \App\Models\User::where('id', '!=', $auth->id)
+    //     //     ->where('role', 0)
+    //     //     ->whereNotIn('id', $hiddenUsers)
+    //     //     ->with('ratingsReceived')
+    //     //     ->inRandomOrder()
+    //     //     ->get()
+    //     //     ->map(function ($user) use ($auth) {
+    //     //         // Friend count
+    //     //         $user->friend_count = \App\Models\Friendship::where(function ($query) use ($user) {
+    //     //             $query->where('sender_id', $user->id)
+    //     //                 ->orWhere('receiver_id', $user->id);
+    //     //         })->where('status', 'accepted')->count();
+
+    //     //         // Friendship status
+    //     //         $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+    //     //             $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+    //     //         })->orWhere(function ($q) use ($auth, $user) {
+    //     //             $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+    //     //         })->first();
+
+    //     //         $user->friendship_status = $friendship?->status;
+    //     //         $user->friendship_sender = $friendship?->sender_id;
+
+    //     //         // Average rating
+    //     //         $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+
+    //     //         return $user;
+    //     //     });
+
+    //     // --- Blocked Users ---
+    //     $blockedUsers = Block::where('user_id', $auth->id)
+    //         ->whereNotNull('blocked_id')
+    //         ->pluck('blocked_id')
+    //         ->toArray();
+
+    //     $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+    //         ->pluck('user_id')
+    //         ->toArray();
+
+    //     $blockedPosts = \App\Models\Block::where('user_id', $auth->id)
+    //         ->whereNotNull('post_id')
+    //         ->pluck('post_id')
+    //         ->toArray();
+
+    //     $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+    //     // --- Muted Users ---
+    //     $mutedUsers = \App\Models\Mute::where('user_id', $auth->id)
+    //         ->pluck('muted_user_id')
+    //         ->toArray();
+
+    //     // --- Friend IDs (only accepted) ---
+    //     $friendIds = \App\Models\Friendship::where(function ($q) use ($auth) {
+    //         $q->where('sender_id', $auth->id)
+    //             ->orWhere('receiver_id', $auth->id);
+    //     })
+    //         ->where('status', 'accepted')
+    //         ->get()
+    //         ->map(function ($f) use ($auth) {
+    //             return $f->sender_id == $auth->id ? $f->receiver_id : $f->sender_id;
+    //         })
+    //         ->toArray();
+
+    //     $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
+    //         $q->where('id', $auth->id)     // own posts always allowed
+    //             ->orWhere('is_private', 0)     // public users
+    //             ->orWhereIn('id', $friendIds); // friends
+    //     })->pluck('id')->toArray();
+
+    //     // --- Fetch all users ---
+    //     $all_users = \App\Models\User::where('id', '!=', $auth->id)
+    //         ->where('role', 0)
+    //         ->whereNotIn('id', $hiddenUsers)
+    //         ->with('ratingsReceived')
+    //         ->inRandomOrder()
+    //         ->get()
+    //         ->map(function ($user) use ($auth) {
+    //             $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
+    //                 $query->where('sender_id', $user->id)
+    //                     ->orWhere('receiver_id', $user->id);
+    //             })->where('status', 'accepted')->count();
+
+    //             $user->friend_count = $friendCount;
+
+    //             $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+    //                 $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+    //             })->orWhere(function ($q) use ($auth, $user) {
+    //                 $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+    //             })->first();
+
+    //             $user->friendship_status = $friendship?->status;
+    //             $user->friendship_sender = $friendship?->sender_id;
+
+    //             $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+
+    //             return $user;
+    //         });
+
+    //     // --- Fetch all posts with filtered comments ---
+    //     $all_posts = \App\Models\Post::with([
+    //         'user',
+    //         'likes',
+    //         'comments' => function ($query) use ($hiddenUsers) {
+    //             // Hide comments by blocked users
+    //             $query->whereNotIn('user_id', $hiddenUsers)
+    //                 ->with(['user', 'replies' => function ($q) use ($hiddenUsers) {
+    //                     // Also hide replies by blocked users
+    //                     $q->whereNotIn('user_id', $hiddenUsers)
+    //                         ->with('user');
+    //                 }]);
+    //         },
+    //     ])
+    //         ->whereIn('user_id', $allowedUserIds)
+    //         ->whereNotIn('id', $blockedPosts)
+    //         ->whereNotIn('user_id', $hiddenUsers) // fully blocked users → hide all posts
+    //         ->whereNotIn('user_id', $mutedUsers)  // muted users → hide all posts
+    //         ->get()
+    //     // this map for bookmark posts
+    //         ->map(function ($post) use ($auth) {
+    //             // Total comments count (main + replies)
+    //             $post->total_comments = $post->comments->count() +
+    //             $post->comments->sum(fn($c) => $c->replies->count());
+
+    //             // Friendship status
+    //             $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $post) {
+    //                 $q->where('sender_id', $auth->id)->where('receiver_id', $post->user_id);
+    //             })->orWhere(function ($q) use ($auth, $post) {
+    //                 $q->where('sender_id', $post->user_id)->where('receiver_id', $auth->id);
+    //             })->first();
+
+    //             $post->friendship_status = $friendship?->status ?? 'not_friends';
+    //             $post->friendship_sender = $friendship?->sender_id ?? null;
+
+    //             $post->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
+    //                 ->where('post_id', $post->id)
+    //                 ->exists();
+
+    //             return $post;
+    //         })
+    //         ->sortByDesc(fn($post) => $post->likes->count())
+    //         ->values();
+
+    //     // $all_posts = Post::with(['user', 'likes', 'comments.user'])
+    //     // ->get()
+    //     // ->sortByDesc(fn($post) => $post->likes->count())
+    //     // ->values();
+
+    //     return response()->json([
+    //         'success'       => true,
+    //         'user'          => $auth,
+    //         'notifications' => $notifications,
+    //         'all_users'     => $all_users,
+    //         'posts'         => $all_posts,
+    //     ]);
+    // }
+
     public function event()
     {
         $auth = Auth::user();
@@ -578,166 +758,301 @@ class ApiProfileController extends Controller
         // Unread notifications
         $notifications = $auth->unreadNotifications;
 
-        // Users you blocked
-        // $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
-        //     ->pluck('blocked_id')
-        //     ->toArray();
+        // ---------------------------------------------------------
+        // BLOCKED USERS
+        // ---------------------------------------------------------
 
-        // // Users who blocked you
-        // $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
-        //     ->pluck('user_id')
-        //     ->toArray();
-
-        // // Merge both
-        // $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
-
-        // // Get all users except logged-in, hidden, and non-role 0 users
-        // $all_users = \App\Models\User::where('id', '!=', $auth->id)
-        //     ->where('role', 0)
-        //     ->whereNotIn('id', $hiddenUsers)
-        //     ->with('ratingsReceived')
-        //     ->inRandomOrder()
-        //     ->get()
-        //     ->map(function ($user) use ($auth) {
-        //         // Friend count
-        //         $user->friend_count = \App\Models\Friendship::where(function ($query) use ($user) {
-        //             $query->where('sender_id', $user->id)
-        //                 ->orWhere('receiver_id', $user->id);
-        //         })->where('status', 'accepted')->count();
-
-        //         // Friendship status
-        //         $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-        //             $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-        //         })->orWhere(function ($q) use ($auth, $user) {
-        //             $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-        //         })->first();
-
-        //         $user->friendship_status = $friendship?->status;
-        //         $user->friendship_sender = $friendship?->sender_id;
-
-        //         // Average rating
-        //         $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
-
-        //         return $user;
-        //     });
-
-        // --- Blocked Users ---
         $blockedUsers = Block::where('user_id', $auth->id)
             ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
             ->toArray();
 
-        $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+        $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
             ->pluck('user_id')
             ->toArray();
 
-        $blockedPosts = \App\Models\Block::where('user_id', $auth->id)
+        $blockedPosts = Block::where('user_id', $auth->id)
             ->whereNotNull('post_id')
             ->pluck('post_id')
             ->toArray();
 
-        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+        $hiddenUsers = array_unique(
+            array_merge($blockedUsers, $blockedByUsers)
+        );
 
-        // --- Muted Users ---
+        // ---------------------------------------------------------
+        // MUTED USERS
+        // ---------------------------------------------------------
+
         $mutedUsers = \App\Models\Mute::where('user_id', $auth->id)
             ->pluck('muted_user_id')
             ->toArray();
 
-        // --- Friend IDs (only accepted) ---
-        $friendIds = \App\Models\Friendship::where(function ($q) use ($auth) {
+        // ---------------------------------------------------------
+        // FRIENDS
+        // ---------------------------------------------------------
+
+        $friendships = Friendship::where(function ($q) use ($auth) {
             $q->where('sender_id', $auth->id)
                 ->orWhere('receiver_id', $auth->id);
         })
             ->where('status', 'accepted')
-            ->get()
-            ->map(function ($f) use ($auth) {
-                return $f->sender_id == $auth->id ? $f->receiver_id : $f->sender_id;
-            })
-            ->toArray();
+            ->get(['sender_id', 'receiver_id']);
+
+        $friendIds = $friendships->map(function ($friendship) use ($auth) {
+            return $friendship->sender_id == $auth->id
+                ? $friendship->receiver_id
+                : $friendship->sender_id;
+        })->toArray();
+
+        // ---------------------------------------------------------
+        // ALLOWED USER IDS
+        // ---------------------------------------------------------
 
         $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
-            $q->where('id', $auth->id)     // own posts always allowed
-                ->orWhere('is_private', 0)     // public users
-                ->orWhereIn('id', $friendIds); // friends
-        })->pluck('id')->toArray();
 
-        // --- Fetch all users ---
-        $all_users = \App\Models\User::where('id', '!=', $auth->id)
+            $q->where('id', $auth->id)
+                ->orWhere('is_private', 0);
+
+            if (! empty($friendIds)) {
+                $q->orWhereIn('id', $friendIds);
+            }
+
+        })
+            ->pluck('id')
+            ->toArray();
+
+        // ---------------------------------------------------------
+        // ALL USERS
+        // ---------------------------------------------------------
+
+        $all_users = User::where('id', '!=', $auth->id)
             ->where('role', 0)
             ->whereNotIn('id', $hiddenUsers)
             ->with('ratingsReceived')
             ->inRandomOrder()
-            ->get()
-            ->map(function ($user) use ($auth) {
-                $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
-                    $query->where('sender_id', $user->id)
-                        ->orWhere('receiver_id', $user->id);
-                })->where('status', 'accepted')->count();
+            ->get();
 
-                $user->friend_count = $friendCount;
+        // Get all friendships related to these users in ONE query
+        $userIds = $all_users->pluck('id')->toArray();
 
-                $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-                })->orWhere(function ($q) use ($auth, $user) {
-                    $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-                })->first();
+        $userFriendships = collect();
 
-                $user->friendship_status = $friendship?->status;
-                $user->friendship_sender = $friendship?->sender_id;
+        if (! empty($userIds)) {
 
-                $user->average_rating = round($user->ratingsReceived->avg('rating') ?? 0, 1);
+            $userFriendships = Friendship::where(function ($q) use ($auth, $userIds) {
 
-                return $user;
-            });
+                $q->where(function ($q2) use ($auth, $userIds) {
+                    $q2->where('sender_id', $auth->id)
+                        ->whereIn('receiver_id', $userIds);
+                })
+                    ->orWhere(function ($q2) use ($auth, $userIds) {
+                        $q2->where('receiver_id', $auth->id)
+                            ->whereIn('sender_id', $userIds);
+                    });
 
-        // --- Fetch all posts with filtered comments ---
+            })
+                ->get(['sender_id', 'receiver_id', 'status'])
+                ->keyBy(function ($friendship) use ($auth) {
+
+                    return $friendship->sender_id == $auth->id
+                        ? $friendship->receiver_id
+                        : $friendship->sender_id;
+
+                });
+        }
+
+        // Friend counts for all users in ONE query
+        $friendCounts = collect();
+
+        if (! empty($userIds)) {
+
+            $friendCounts = Friendship::where('status', 'accepted')
+                ->where(function ($q) use ($userIds) {
+                    $q->whereIn('sender_id', $userIds)
+                        ->orWhereIn('receiver_id', $userIds);
+                })
+                ->get(['sender_id', 'receiver_id'])
+                ->flatMap(function ($friendship) use ($userIds) {
+
+                    $ids = [];
+
+                    if (in_array($friendship->sender_id, $userIds)) {
+                        $ids[] = $friendship->sender_id;
+                    }
+
+                    if (in_array($friendship->receiver_id, $userIds)) {
+                        $ids[] = $friendship->receiver_id;
+                    }
+
+                    return $ids;
+                })
+                ->countBy();
+        }
+
+        $all_users = $all_users->map(function ($user) use (
+            $userFriendships,
+            $friendCounts
+        ) {
+
+            $friendship = $userFriendships->get($user->id);
+
+            $user->friend_count = $friendCounts->get($user->id, 0);
+
+            $user->friendship_status = $friendship?->status;
+
+            $user->friendship_sender = $friendship?->sender_id;
+
+            $user->average_rating = round(
+                $user->ratingsReceived->avg('rating') ?? 0,
+                1
+            );
+
+            return $user;
+        });
+
+        // ---------------------------------------------------------
+        // POSTS
+        // ---------------------------------------------------------
+
         $all_posts = \App\Models\Post::with([
             'user',
+
             'likes',
+
             'comments' => function ($query) use ($hiddenUsers) {
+
                 // Hide comments by blocked users
                 $query->whereNotIn('user_id', $hiddenUsers)
-                    ->with(['user', 'replies' => function ($q) use ($hiddenUsers) {
-                        // Also hide replies by blocked users
-                        $q->whereNotIn('user_id', $hiddenUsers)
-                            ->with('user');
-                    }]);
+
+                    ->with([
+                        'user',
+
+                        'replies' => function ($q) use ($hiddenUsers) {
+
+                            // Hide replies by blocked users
+                            $q->whereNotIn('user_id', $hiddenUsers)
+                                ->with('user');
+                        },
+                    ]);
             },
+
         ])
             ->whereIn('user_id', $allowedUserIds)
             ->whereNotIn('id', $blockedPosts)
-            ->whereNotIn('user_id', $hiddenUsers) // fully blocked users → hide all posts
-            ->whereNotIn('user_id', $mutedUsers)  // muted users → hide all posts
-            ->get()
-        // this map for bookmark posts
-            ->map(function ($post) use ($auth) {
-                // Total comments count (main + replies)
-                $post->total_comments = $post->comments->count() +
-                $post->comments->sum(fn($c) => $c->replies->count());
+            ->whereNotIn('user_id', $hiddenUsers)
+            ->whereNotIn('user_id', $mutedUsers)
+            ->get();
 
-                // Friendship status
-                $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $post) {
-                    $q->where('sender_id', $auth->id)->where('receiver_id', $post->user_id);
-                })->orWhere(function ($q) use ($auth, $post) {
-                    $q->where('sender_id', $post->user_id)->where('receiver_id', $auth->id);
-                })->first();
+        // ---------------------------------------------------------
+        // POST IDs
+        // ---------------------------------------------------------
 
-                $post->friendship_status = $friendship?->status ?? 'not_friends';
-                $post->friendship_sender = $friendship?->sender_id ?? null;
+        $postIds = $all_posts->pluck('id')->toArray();
 
-                $post->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
-                    ->where('post_id', $post->id)
-                    ->exists();
+        $postUserIds = $all_posts
+            ->pluck('user_id')
+            ->unique()
+            ->toArray();
+
+        // ---------------------------------------------------------
+        // POST FRIENDSHIPS - ONE QUERY
+        // ---------------------------------------------------------
+
+        $postFriendships = collect();
+
+        if (! empty($postUserIds)) {
+
+            $postFriendships = Friendship::where(function ($q) use (
+                $auth,
+                $postUserIds
+            ) {
+
+                $q->where(function ($q2) use ($auth, $postUserIds) {
+
+                    $q2->where('sender_id', $auth->id)
+                        ->whereIn('receiver_id', $postUserIds);
+
+                })->orWhere(function ($q2) use ($auth, $postUserIds) {
+
+                    $q2->where('receiver_id', $auth->id)
+                        ->whereIn('sender_id', $postUserIds);
+
+                });
+
+            })
+                ->get(['sender_id', 'receiver_id', 'status'])
+                ->keyBy(function ($friendship) use ($auth) {
+
+                    return $friendship->sender_id == $auth->id
+                        ? $friendship->receiver_id
+                        : $friendship->sender_id;
+
+                });
+        }
+
+        // ---------------------------------------------------------
+        // BOOKMARKS - ONE QUERY
+        // ---------------------------------------------------------
+
+        $bookmarkedPostIds = collect();
+
+        if (! empty($postIds)) {
+
+            $bookmarkedPostIds = \App\Models\Bookmark::where(
+                'user_id',
+                $auth->id
+            )
+                ->whereIn('post_id', $postIds)
+                ->pluck('post_id')
+                ->flip();
+        }
+
+        // ---------------------------------------------------------
+        // MAP POSTS
+        // ---------------------------------------------------------
+
+        $all_posts = $all_posts
+            ->map(function ($post) use (
+                $postFriendships,
+                $bookmarkedPostIds
+            ) {
+
+                // Total comments count
+                $post->total_comments =
+                $post->comments->count()
+                 +
+                $post->comments->sum(
+                    fn($comment) => $comment->replies->count()
+                );
+
+                // Friendship
+                $friendship = $postFriendships->get($post->user_id);
+
+                $post->friendship_status =
+                $friendship?->status ?? 'not_friends';
+
+                $post->friendship_sender =
+                $friendship?->sender_id ?? null;
+
+                // Bookmark
+                $post->is_bookmarked =
+                isset($bookmarkedPostIds[$post->id]);
 
                 return $post;
             })
-            ->sortByDesc(fn($post) => $post->likes->count())
+
+            // Same sorting as your existing API
+            ->sortByDesc(function ($post) {
+                return $post->likes->count();
+            })
+
             ->values();
 
-        // $all_posts = Post::with(['user', 'likes', 'comments.user'])
-        // ->get()
-        // ->sortByDesc(fn($post) => $post->likes->count())
-        // ->values();
+        // ---------------------------------------------------------
+        // RESPONSE - SAME STRUCTURE
+        // ---------------------------------------------------------
 
         return response()->json([
             'success'       => true,
