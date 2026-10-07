@@ -1368,7 +1368,11 @@ class ApiProfileController extends Controller
                 });
 
                 $p->friendship_status = $friendship?->status ?? 'not_friends';
-                $p->friendship_sender = $friendship?->sender_id ?? null;
+                // $p->friendship_sender = $friendship?->sender_id ?? null;
+
+                $p->friendship_sender = $friendship
+                    ? ((int) $friendship->sender_id === (int) $auth->id ? 1 : 0)
+                    : null;
 
                 // $p->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
                 //     ->where('post_id', $p->id)
@@ -1477,7 +1481,11 @@ class ApiProfileController extends Controller
 
             $user->friendship_status = $friendship?->status;
 
-            $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+            // $user->friendship_sender = (int) ($friendship->sender_id ?? 0);
+
+            $user->friendship_sender = $friendship
+                ? ((int) $friendship->sender_id === (int) $auth->id ? 1 : 0)
+                : null;
 
             $user->average_rating = round(
                 $user->ratings_received_avg_rating ?? 0,
