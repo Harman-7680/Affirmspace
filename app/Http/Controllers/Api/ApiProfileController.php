@@ -1933,7 +1933,7 @@ class ApiProfileController extends Controller
         ]);
 
         // Unread notifications
-        $notifications = $auth->unreadNotifications;
+        // $notifications = $auth->unreadNotifications;
 
         // --- Blocked Users ---
         $blockedUsers = Block::where('user_id', $auth->id)
@@ -2024,14 +2024,11 @@ class ApiProfileController extends Controller
         // --- Fetch Posts ---
         $all_posts = Post::with([
             'user',
-            'likes',
             'comments' => function ($query) use ($hiddenUsers) {
-
                 $query->whereNotIn('user_id', $hiddenUsers)
                     ->with([
                         'user',
                         'replies' => function ($q) use ($hiddenUsers) {
-
                             $q->whereNotIn('user_id', $hiddenUsers)
                                 ->with('user');
                         },
@@ -2044,6 +2041,12 @@ class ApiProfileController extends Controller
             ->whereNotIn('user_id', $mutedUsers)
             ->get()
             ->map(function ($post) use ($auth) {
+
+                // Total likes
+                $post->like_count = $post->likes()->count();
+
+                // Remove likes relationship from response
+                unset($post->likes);
 
                 // Total comments
                 $post->total_comments =
@@ -2076,7 +2079,7 @@ class ApiProfileController extends Controller
 
                 return $post;
             })
-            ->sortByDesc(fn($post) => $post->likes->count())
+            ->sortByDesc('like_count')
             ->values();
 
         // -------------------------------------------------
@@ -2099,11 +2102,11 @@ class ApiProfileController extends Controller
         }
 
         return response()->json([
-            'success'       => true,
-            'user'          => $auth,
-            'notifications' => $notifications,
+            'success' => true,
+            'user'    => $auth,
+            // 'notifications' => $notifications,
             // 'all_users'     => $all_users,
-            'posts'         => $all_posts,
+            'posts'   => $all_posts,
         ]);
     }
 
