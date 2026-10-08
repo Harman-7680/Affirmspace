@@ -239,7 +239,7 @@
     </p>
 
     <p class="mt-2">
-        Email: <strong>affirmspace@gmail.com</strong>
+        Email: <strong>info@affirmspace.com</strong>
     </p>
 
     <h2 class="text-lg font-semibold mt-6 mb-2">✅ Acceptance of Terms</h2>

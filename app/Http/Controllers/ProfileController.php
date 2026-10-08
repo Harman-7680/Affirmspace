@@ -371,10 +371,28 @@ class ProfileController extends Controller
     public function destroy(Request $request): RedirectResponse
     {
         $user = $request->user();
+
+        $request->validate([
+            'reason' => 'nullable|string',
+        ]);
+
+        \DB::table('deleted_users')->insert([
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name,
+            'email'      => $user->email,
+            'gender'     => $user->gender,
+            'reason'     => $request->reason,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
         Auth::logout();
+
         $user->delete();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/')->with('status', 'profile-deleted');
     }
 
@@ -518,19 +536,19 @@ class ProfileController extends Controller
         // $hiddenUsers  = array_unique(array_merge($blockedUsers, $blockedByUsers, $mutedUsers));
         // $hidden_Users = array_unique(array_merge($blockedUsers, $blockedByUsers));
 
-        $reportedPosts = \App\Models\Report::where('user_id', $auth->id)
-            ->whereNotNull('post_id')
-            ->pluck('post_id')
-            ->toArray();
+        // $reportedPosts = \App\Models\Report::where('user_id', $auth->id)
+        //     ->whereNotNull('post_id')
+        //     ->pluck('post_id')
+        //     ->toArray();
 
-        $reportedUsers = \App\Models\Report::where('user_id', $auth->id)
-            ->whereNotNull('reported_user_id')
-            ->pluck('reported_user_id')
-            ->toArray();
+        // $reportedUsers = \App\Models\Report::where('user_id', $auth->id)
+        //     ->whereNotNull('reported_user_id')
+        //     ->pluck('reported_user_id')
+        //     ->toArray();
 
-        $usersWhoReportedMe = \App\Models\Report::where('reported_user_id', $auth->id)
-            ->pluck('user_id')
-            ->toArray();
+        // $usersWhoReportedMe = \App\Models\Report::where('reported_user_id', $auth->id)
+        //     ->pluck('user_id')
+        //     ->toArray();
 
         $hiddenUsers = array_unique(array_merge(
             $blockedUsers,
@@ -1017,7 +1035,8 @@ class ProfileController extends Controller
         //             return $p;
         //         });
 
-        $tweets = Tweet::with('user')
+        // $tweets = Tweet::with('user')
+        $tweets = Tweet::with('user:id,first_name,last_name,image')
             ->whereNotIn('user_id', $hiddenUsers)
             ->where(function ($q) use ($auth, $friends) {
                 $q->where('user_id', $auth->id)
@@ -1330,7 +1349,8 @@ class ProfileController extends Controller
             ->pluck('status_id')
             ->toArray();
 
-        $statuses = Status::with('user')
+        // $statuses = Status::with('user')
+        $statuses = Status::with('user:id,first_name,last_name,image')
             ->where('created_at', '>=', now()->subDay())
             ->whereIn('user_id', $statusUserIds)
             ->whereNotIn('user_id', $hiddenUsers)

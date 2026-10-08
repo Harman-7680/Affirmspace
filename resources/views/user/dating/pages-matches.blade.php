@@ -465,7 +465,10 @@
 
                 {{-- NO MATCHES --}}
                 <div x-show="filteredUsers.length === 0" class="bg-white p-4 rounded-xl shadow text-center text-gray-600">
-                    No matched users.
+                    We're growing 💜
+                    There aren't many people matching your preferences in your area yet.
+
+                    Try expanding your distance or check back soon — new people are joining every day.
                 </div>
 
                 {{-- MATCH LIST --}}

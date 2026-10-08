@@ -399,7 +399,7 @@ class ApiDatingController extends Controller
             ->take(50)
             ->values();
 
-        $datingUsers = $allUsers->values();
+        // $datingUsers = $allUsers->values();
 
         return response()->json([
             'status'       => 'success',
@@ -427,7 +427,7 @@ class ApiDatingController extends Controller
                 ];
 
             }),
-            'dating_users' => $datingUsers,
+            // 'dating_users' => $datingUsers,
         ]);
     }
 

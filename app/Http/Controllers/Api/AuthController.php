@@ -3,17 +3,16 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\ProfileUpdateRequest;
+use App\Mail\NewUserRegisteredMail;
 use App\Models\Message;
-use App\Models\Post;
 use App\Models\RegistrationSetting;
 use App\Models\Status;
 use App\Models\User;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\NewUserRegisteredMail;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Support\Facades\Validator;
@@ -250,50 +249,50 @@ class AuthController extends Controller
         // Return response based on user role
         if ($user->role == 0) {
             $notifications = $user->unreadNotifications;
-            $friends       = $user->friendsList();
+            // $friends       = $user->friendsList();
 
-            $all_users = User::where('id', '!=', $user->id)
-                ->with('ratingsReceived')
-                ->get();
+            // $all_users = User::where('id', '!=', $user->id)
+            //     ->with('ratingsReceived')
+            //     ->get();
 
-            foreach ($all_users as $u) {
-                $u->friend_count = \App\Models\Friendship::where(function ($q) use ($u) {
-                    $q->where('sender_id', $u->id)->orWhere('receiver_id', $u->id);
-                })->where('status', 'accepted')->count();
+            // foreach ($all_users as $u) {
+            //     $u->friend_count = \App\Models\Friendship::where(function ($q) use ($u) {
+            //         $q->where('sender_id', $u->id)->orWhere('receiver_id', $u->id);
+            //     })->where('status', 'accepted')->count();
 
-                $u->is_friend = $friends->contains('id', $u->id);
+            //     $u->is_friend = $friends->contains('id', $u->id);
 
-                $friendship = \App\Models\Friendship::where(function ($q) use ($user, $u) {
-                    $q->where('sender_id', $user->id)->where('receiver_id', $u->id);
-                })->orWhere(function ($q) use ($user, $u) {
-                    $q->where('sender_id', $u->id)->where('receiver_id', $user->id);
-                })->first();
+            //     $friendship = \App\Models\Friendship::where(function ($q) use ($user, $u) {
+            //         $q->where('sender_id', $user->id)->where('receiver_id', $u->id);
+            //     })->orWhere(function ($q) use ($user, $u) {
+            //         $q->where('sender_id', $u->id)->where('receiver_id', $user->id);
+            //     })->first();
 
-                $u->friendship_status = $friendship?->status;
-                $u->friendship_sender = $friendship?->sender_id;
-                $u->average_rating    = round($u->ratingsReceived->avg('rating') ?? 0, 1);
-            }
+            //     $u->friendship_status = $friendship?->status;
+            //     $u->friendship_sender = $friendship?->sender_id;
+            //     $u->average_rating    = round($u->ratingsReceived->avg('rating') ?? 0, 1);
+            // }
 
-            $all_posts = Post::with(['user', 'likes', 'comments.user'])
-                ->orderBy('created_at', 'desc')
-                ->get();
+            // $all_posts = Post::with(['user', 'likes', 'comments.user'])
+            //     ->orderBy('created_at', 'desc')
+            //     ->get();
 
-            $statuses = Status::with('user')
-                ->where('created_at', '>=', now()->subDay())
-                ->latest()
-                ->get()
-                ->groupBy('user_id')
-                ->map(fn($group) => collect($group));
+            // $statuses = Status::with('user')
+            //     ->where('created_at', '>=', now()->subDay())
+            //     ->latest()
+            //     ->get()
+            //     ->groupBy('user_id')
+            //     ->map(fn($group) => collect($group));
 
             return response()->json([
-                'message'       => 'Login successful',
-                'role'          => 'counselee',
-                'token'         => $token,
-                'user'          => $user,
-                'notifications' => $notifications,
-                'all_users'     => $all_users,
-                'posts'         => $all_posts,
-                'statuses'      => $statuses,
+                'message' => 'Login successful',
+                'role'    => 'counselee',
+                'token'   => $token,
+                'user'    => $user,
+                // 'notifications' => $notifications,
+                // 'all_users'     => $all_users,
+                // 'posts'         => $all_posts,
+                // 'statuses'      => $statuses,
             ]);
         } elseif ($user->role == 1) {
             $notifications = $user->unreadNotifications;
@@ -668,9 +667,28 @@ class AuthController extends Controller
     public function destroy(Request $request)
     {
         $user = $request->user();
+
+        $request->validate([
+            'reason' => 'nullable|string',
+        ]);
+
+        // Save deleted user data before deleting account
+        \DB::table('deleted_users')->insert([
+            'first_name' => $user->first_name,
+            'last_name'  => $user->last_name,
+            'email'      => $user->email,
+            'gender'     => $user->gender,
+            'reason'     => $request->reason,
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
+
+        // Delete all API tokens
         $user->tokens()->delete();
-        // Auth::logout();
+
+        // Delete account
         $user->delete();
+
         return response()->json([
             'success' => true,
             'message' => 'Account deleted successfully.',

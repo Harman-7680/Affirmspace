@@ -1111,13 +1111,24 @@
                     @method('DELETE')
 
                     <div class="space-y-6">
+
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-2 text-center">
+                                Delete Your Account ⚠️
+                            </label>
+
+                            <textarea name="reason" rows="5" class="w-full border border-gray-300 rounded-lg p-3"
+                                placeholder="Please tell us why you are deleting your account..."></textarea>
+                        </div>
+
                         <div class="flex justify-center">
                             <button type="submit"
                                 onclick="return confirm('Are you Sure you Want to Delete Your Account ?');"
                                 class="bg-red-600 hover:bg-red-700 text-white font-semibold py-2 px-6 rounded">
-                                Delete Account
+                                Delete
                             </button>
                         </div>
+
                     </div>
                 </form>
             </div>

@@ -23,7 +23,7 @@ class ApiCounselorController extends Controller
     public function show($id) // particur profile page
     {
         $auth          = Auth::user();
-        $notifications = $auth->unreadNotifications;
+        // $notifications = $auth->unreadNotifications;
 
         $user = User::where('role', 1)
             ->with([
@@ -46,7 +46,7 @@ class ApiCounselorController extends Controller
         return response()->json([
             'success'        => true,
             'counselor'      => $user,
-            'notifications'  => $notifications,
+            // 'notifications'  => $notifications,
             'averageRating'  => round($averageRating ?? 0, 1),
             'totalReviews'   => $totalReviews,
             'specialization' => $user->specialization ? $user->specialization->name : null,

@@ -2,7 +2,7 @@
 
 @section('meta')
     <meta name="description"
-        content="Talk to LGBTQ+-friendly, identity-affirming counsellors online or in person. Confidential, judgment-free support — no explaining your identity first.">
+        content="Talk to LGBTQ+friendly, identity-affirming counsellors online or in person. Confidential, judgment-free support — no explaining your identity first.">
 
     <title>AffirmSpace – LGBTQ+ Counselling & Mental Health Support</title>
 
@@ -20,7 +20,7 @@
     "@type": "WebPage",
     "name": "AffirmSpace – LGBTQ+ Counselling & Mental Health Support",
     "url": "https://affirmspace.com/lgbtq-mental-health-counselling",
-    "description": "Connect with LGBTQ+-friendly, identity-affirming counsellors for confidential support online or in person."
+    "description": "Connect with LGBTQ+friendly, identity-affirming counsellors for confidential support online or in person."
 }
 </script>
 
@@ -35,7 +35,7 @@
             "name": "Is counselling on AffirmSpace confidential?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "Your conversations with a counsellor are private. AffirmSpace is designed to provide a supportive, confidential space for people seeking LGBTQ+-friendly counselling."
+                "text": "Your conversations with a counsellor are private. AffirmSpace is designed to provide a supportive, confidential space for people seeking LGBTQ+friendly counselling."
             }
         },
         {
@@ -75,7 +75,7 @@
             "name": "Does AffirmSpace provide therapy directly?",
             "acceptedAnswer": {
                 "@type": "Answer",
-                "text": "No. AffirmSpace helps people find and connect with LGBTQ+-friendly counsellors. Counselling and professional care are provided directly by the counsellor."
+                "text": "No. AffirmSpace helps people find and connect with LGBTQ+friendly counsellors. Counselling and professional care are provided directly by the counsellor."
             }
         },
         {
@@ -1605,7 +1605,7 @@
                         </h2>
 
                         <p>
-                            AffirmSpace helps you find LGBTQ+-friendly
+                            AffirmSpace helps you find LGBTQ+friendly
                             counsellors who can support you through
                             life's challenges, identity questions,
                             relationships, and personal wellbeing.
@@ -1683,7 +1683,7 @@
 
                 <p>
                     AffirmSpace connects LGBTQ+ people with
-                    LGBTQ+-friendly counsellors who already understand
+                    LGBTQ+friendly counsellors who already understand
                     the experiences and questions that can come with
                     identity, relationships, family, self-confidence,
                     and mental wellbeing.
@@ -1702,7 +1702,7 @@
                     <strong>Important:</strong>
                     AffirmSpace does not provide medical advice or treatment
                     directly. We help you find and connect with
-                    LGBTQ+-friendly counsellors. The counselling and
+                    LGBTQ+friendly counsellors. The counselling and
                     professional care itself happens between you and the
                     counsellor.
                 </div>
@@ -1740,7 +1740,7 @@
                     <p>
                         Get to know the counsellors available through
                         AffirmSpace, including their professional background,
-                        areas of focus, and approach to LGBTQ+-affirming care.
+                        areas of focus, and approach to LGBTQ+affirming care.
                     </p>
 
                 </div>
@@ -1831,7 +1831,7 @@
 
                         <p>
                             AffirmSpace is growing its network of
-                            LGBTQ+-friendly counsellors. Individual profiles
+                            LGBTQ+friendly counsellors. Individual profiles
                             with professional credentials, specialties, and
                             approaches will appear here as they are published.
                         </p>
@@ -2067,7 +2067,7 @@
                         Your conversations with a counsellor are private.
                         AffirmSpace is designed to provide a supportive,
                         confidential space for people seeking
-                        LGBTQ+-friendly counselling.
+                        LGBTQ+friendly counselling.
                     </p>
 
                 </div>
@@ -2144,7 +2144,7 @@
                     <p>
                         No. AffirmSpace does not provide medical advice or
                         treatment directly. We help you find and connect
-                        with LGBTQ+-friendly counsellors. The care itself
+                        with LGBTQ+friendly counsellors. The care itself
                         happens directly between you and the counsellor.
                     </p>
 

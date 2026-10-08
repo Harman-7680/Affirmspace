@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 use App\Models\Block;
 use App\Models\Bookmark;
+use App\Models\Comment;
 use App\Models\Event;
 use App\Models\Friendship;
 use App\Models\Message;
@@ -19,156 +20,405 @@ use Illuminate\Support\Facades\DB;
 
 class ApiProfileController extends Controller
 {
+    // public function show($id)
+    // {
+    //     $auth = Auth::user();
+    //     $user = \App\Models\User::findOrFail($id);
+
+    //     // Check if the authenticated user has blocked the profile owner
+    //     $hasBlockedUser = \App\Models\Block::where('user_id', $auth->id)
+    //         ->where('blocked_id', $user->id)
+    //         ->exists();
+
+    //     // Check if the profile owner has blocked the authenticated user
+    //     $isBlockedByUser = \App\Models\Block::where('user_id', $user->id)
+    //         ->where('blocked_id', $auth->id)
+    //         ->exists();
+
+    //     $isMuted = \App\Models\Mute::where('user_id', $auth->id)
+    //         ->where('muted_user_id', $user->id)
+    //         ->exists();
+
+    //     // Friendship status
+    //     $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+    //         $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+    //     })->orWhere(function ($q) use ($auth, $user) {
+    //         $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+    //     })->first();
+
+    //     if ($friendship) {
+    //         switch ($friendship->status) {
+    //             case 'accepted':
+    //                 $friendship_status = 'accepted';
+    //                 break;
+    //             case 'pending':
+    //                 if ($friendship->sender_id == $auth->id) {
+    //                     // Auth sent the request
+    //                     $friendship_status = 'request_sent';
+    //                 } else {
+    //                     // Auth received the request
+    //                     $friendship_status = 'pending_request';
+    //                 }
+    //                 break;
+    //             case 'rejected':
+    //                 $friendship_status = 'rejected';
+    //                 break;
+    //         }
+    //     } else {
+    //         $friendship_status = 'not_friends';
+    //     }
+
+    //     $blockedUsers = Block::where('user_id', $auth->id)
+    //         ->pluck('blocked_id')
+    //         ->toArray();
+
+    //     $blockedByUsers = Block::where('blocked_id', $auth->id)
+    //         ->pluck('user_id')
+    //         ->toArray();
+
+    //     $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+    //     // If blocked in either direction
+    //     if ($hasBlockedUser || $isBlockedByUser) {
+    //         $posts        = collect();
+    //         $thoughts     = collect(); // Added
+    //         $taggedPosts  = collect(); // Added
+    //         $events       = collect(); // Added agar events bhi show kar rahe hain
+    //         $canViewPosts = false;
+    //         $message      = "You cannot view this profile.";
+    //     } else {
+    //         // By default, allow viewing if public OR if it's the user's own profile
+    //         $canViewPosts = ! $user->is_private || $auth->id === $user->id;
+    //         $message      = null;
+
+    //         // If the account is private and it's not the auth user
+    //         if ($user->is_private && $auth->id !== $user->id) {
+    //             // Check if auth user is a friend
+    //             $friendsOfUser = $user->friendsList();
+    //             $canViewPosts  = $friendsOfUser->contains(fn($friend) => $friend->id === $auth->id);
+
+    //             if (! $canViewPosts) {
+    //                 $message = "This account is private.";
+    //             }
+    //         }
+
+    //         // Load posts if allowed
+    //         $posts = $canViewPosts
+    //             ? Post::with([
+    //             'user',
+    //             'likes',
+    //             'comments' => function ($q) use ($hiddenUsers) {
+    //                 $q->whereNull('parent_id')
+    //                     ->whereNotIn('user_id', $hiddenUsers)
+    //                     ->latest()
+    //                     ->with([
+    //                         'user',
+    //                         'replies' => function ($r) use ($hiddenUsers) {
+    //                             $r->whereNotIn('user_id', $hiddenUsers)
+    //                                 ->latest()
+    //                                 ->with('user');
+    //                         },
+    //                     ]);
+    //             },
+    //         ])
+    //             ->withCount(['likes', 'comments'])
+    //             ->where('user_id', $user->id)
+    //             ->orderBy('created_at', 'desc')
+    //             ->get()
+    //             : collect();
+
+    //         // Thoughts
+    //         $thoughts = $canViewPosts
+    //             ? \App\Models\Tweet::where('user_id', $user->id)->latest()->get()
+    //             : collect();
+
+    //         // Tagged Posts
+    //         $taggedPosts = $canViewPosts
+    //             ? \App\Models\Post::with([
+    //             'user',
+    //             'likes',
+    //             'comments' => function ($q) use ($hiddenUsers) {
+    //                 $q->whereNull('parent_id')
+    //                     ->whereNotIn('user_id', $hiddenUsers)
+    //                     ->latest()
+    //                     ->with([
+    //                         'user',
+    //                         'replies' => function ($r) use ($hiddenUsers) {
+    //                             $r->whereNotIn('user_id', $hiddenUsers)
+    //                                 ->latest()
+    //                                 ->with('user');
+    //                         },
+    //                     ]);
+    //             },
+    //             'taggedUsers',
+    //         ])
+    //             ->whereHas('taggedUsers', function ($q) use ($user) {
+    //                 $q->where('users.id', $user->id);
+    //             })
+    //             ->orderBy('created_at', 'desc')
+    //             ->get()
+    //             : collect();
+
+    //         $events = \App\Models\Event::where('user_id', $user->id)
+    //             ->where('status', 'approved')
+    //             ->latest()
+    //             ->get();
+    //     }
+
+    //     // Notifications
+    //     $notifications = $auth->unreadNotifications;
+    //     $friends       = $user->friendsList()
+    //         ->filter(fn($friend) => ! in_array($friend->id, $hiddenUsers))
+    //         ->values();
+
+    //     return response()->json([
+    //         'success'           => true,
+    //         'userProfile'       => $user,
+    //         'posts'             => $posts,
+    //         'thoughts'          => $thoughts,
+    //         'taggedPosts'       => $taggedPosts,
+    //         'notifications'     => $notifications,
+    //         'isMuted'           => $isMuted,
+    //         'friendship_status' => $friendship_status,
+    //         'canViewPosts'      => $canViewPosts,
+    //         'message'           => $message,
+    //         'hasBlockedUser'    => $hasBlockedUser,
+    //         'isBlockedByUser'   => $isBlockedByUser,
+    //         'followers'         => $friends,
+    //         'events'            => $events,
+    //     ]);
+    // }
+
     public function show($id)
     {
         $auth = Auth::user();
-        $user = \App\Models\User::findOrFail($id);
 
-        // Check if the authenticated user has blocked the profile owner
-        $hasBlockedUser = \App\Models\Block::where('user_id', $auth->id)
+        // -------------------------------------------------
+        // PROFILE USER
+        // -------------------------------------------------
+
+        $user = User::findOrFail($id);
+
+        // -------------------------------------------------
+        // BLOCK / MUTE CHECKS
+        // -------------------------------------------------
+
+        $hasBlockedUser = Block::where('user_id', $auth->id)
             ->where('blocked_id', $user->id)
             ->exists();
 
-        // Check if the profile owner has blocked the authenticated user
-        $isBlockedByUser = \App\Models\Block::where('user_id', $user->id)
+        $isBlockedByUser = Block::where('user_id', $user->id)
             ->where('blocked_id', $auth->id)
             ->exists();
 
-        $isMuted = \App\Models\Mute::where('user_id', $auth->id)
+        $isMuted = Mute::where('user_id', $auth->id)
             ->where('muted_user_id', $user->id)
             ->exists();
 
-        // Friendship status
-        $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-            $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+        // -------------------------------------------------
+        // FRIENDSHIP
+        // -------------------------------------------------
+
+        $friendship = Friendship::where(function ($q) use ($auth, $user) {
+
+            $q->where('sender_id', $auth->id)
+                ->where('receiver_id', $user->id);
+
         })->orWhere(function ($q) use ($auth, $user) {
-            $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-        })->first();
+
+            $q->where('sender_id', $user->id)
+                ->where('receiver_id', $auth->id);
+
+        })
+            ->first([
+                'sender_id',
+                'receiver_id',
+                'status',
+            ]);
 
         if ($friendship) {
+
             switch ($friendship->status) {
+
                 case 'accepted':
                     $friendship_status = 'accepted';
                     break;
+
                 case 'pending':
-                    if ($friendship->sender_id == $auth->id) {
-                        // Auth sent the request
-                        $friendship_status = 'request_sent';
-                    } else {
-                        // Auth received the request
-                        $friendship_status = 'pending_request';
-                    }
+
+                    $friendship_status =
+                    $friendship->sender_id == $auth->id
+                        ? 'request_sent'
+                        : 'pending_request';
+
                     break;
+
                 case 'rejected':
                     $friendship_status = 'rejected';
                     break;
+
+                default:
+                    $friendship_status = 'not_friends';
             }
+
         } else {
             $friendship_status = 'not_friends';
         }
 
+        // -------------------------------------------------
+        // HIDDEN USERS
+        // -------------------------------------------------
+
         $blockedUsers = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
             ->toArray();
 
         $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
             ->pluck('user_id')
             ->toArray();
 
-        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+        $hiddenUsers = array_unique(
+            array_merge($blockedUsers, $blockedByUsers)
+        );
 
-        // If blocked in either direction
+        // -------------------------------------------------
+        // DEFAULT VALUES
+        // -------------------------------------------------
+
+        $posts       = collect();
+        $thoughts    = collect();
+        $taggedPosts = collect();
+        $events      = collect();
+
+        $canViewPosts = false;
+        $message      = null;
+
+        // -------------------------------------------------
+        // BLOCKED PROFILE
+        // -------------------------------------------------
+
         if ($hasBlockedUser || $isBlockedByUser) {
-            $posts        = collect();
-            $thoughts     = collect(); // Added
-            $taggedPosts  = collect(); // Added
-            $events       = collect(); // Added agar events bhi show kar rahe hain
-            $canViewPosts = false;
-            $message      = "You cannot view this profile.";
-        } else {
-            // By default, allow viewing if public OR if it's the user's own profile
-            $canViewPosts = ! $user->is_private || $auth->id === $user->id;
-            $message      = null;
 
-            // If the account is private and it's not the auth user
+            $message = "You cannot view this profile.";
+
+        } else {
+
+            // Public profile OR own profile
+            $canViewPosts =
+            ! $user->is_private ||
+            $auth->id === $user->id;
+
+            // -------------------------------------------------
+            // PRIVATE PROFILE
+            // -------------------------------------------------
+
             if ($user->is_private && $auth->id !== $user->id) {
-                // Check if auth user is a friend
-                $friendsOfUser = $user->friendsList();
-                $canViewPosts  = $friendsOfUser->contains(fn($friend) => $friend->id === $auth->id);
+
+                $canViewPosts = $user->friendsList()
+                    ->contains('id', $auth->id);
 
                 if (! $canViewPosts) {
                     $message = "This account is private.";
                 }
             }
 
-            // Load posts if allowed
-            $posts = $canViewPosts
-                ? Post::with([
-                'user',
-                'likes',
-                'comments' => function ($q) use ($hiddenUsers) {
-                    $q->whereNull('parent_id')
-                        ->whereNotIn('user_id', $hiddenUsers)
-                        ->latest()
-                        ->with([
-                            'user',
-                            'replies' => function ($r) use ($hiddenUsers) {
-                                $r->whereNotIn('user_id', $hiddenUsers)
-                                    ->latest()
-                                    ->with('user');
-                            },
-                        ]);
-                },
-            ])
-                ->withCount(['likes', 'comments'])
-                ->where('user_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->get()
-                : collect();
+            // -------------------------------------------------
+            // LOAD PROFILE DATA
+            // -------------------------------------------------
 
-            // Thoughts
-            $thoughts = $canViewPosts
-                ? \App\Models\Tweet::where('user_id', $user->id)->latest()->get()
-                : collect();
+            if ($canViewPosts) {
 
-            // Tagged Posts
-            $taggedPosts = $canViewPosts
-                ? \App\Models\Post::with([
-                'user',
-                'likes',
-                'comments' => function ($q) use ($hiddenUsers) {
-                    $q->whereNull('parent_id')
-                        ->whereNotIn('user_id', $hiddenUsers)
-                        ->latest()
-                        ->with([
-                            'user',
-                            'replies' => function ($r) use ($hiddenUsers) {
-                                $r->whereNotIn('user_id', $hiddenUsers)
-                                    ->latest()
-                                    ->with('user');
-                            },
-                        ]);
-                },
-                'taggedUsers',
-            ])
-                ->whereHas('taggedUsers', function ($q) use ($user) {
-                    $q->where('users.id', $user->id);
-                })
-                ->orderBy('created_at', 'desc')
-                ->get()
-                : collect();
+                // -------------------------------------------------
+                // USER POSTS
+                // -------------------------------------------------
 
-            $events = \App\Models\Event::where('user_id', $user->id)
-                ->where('status', 'approved')
-                ->latest()
-                ->get();
+                $posts = Post::withCount([
+                    'likes as like_count',
+                    'comments as comment_count',
+                ])
+                    ->with([
+                        'user:id,first_name,last_name,image',
+                        'taggedUsers:id,first_name,last_name,image',
+                    ])
+                    ->where('user_id', $user->id)
+                    ->latest()
+                    ->get();
+
+                // -------------------------------------------------
+                // THOUGHTS
+                // -------------------------------------------------
+
+                $thoughts = Tweet::where('user_id', $user->id)
+                    ->latest()
+                    ->get();
+
+                // -------------------------------------------------
+                // TAGGED POSTS
+                // -------------------------------------------------
+
+                $taggedPosts = Post::withCount([
+                    'likes as like_count',
+                    'comments as comment_count',
+                ])
+                    ->with([
+                        'user:id,first_name,last_name,image',
+                        'taggedUsers:id,first_name,last_name,image',
+                    ])
+                    ->whereHas('taggedUsers', function ($q) use ($user) {
+                        $q->where('users.id', $user->id);
+                    })
+                    ->latest()
+                    ->get();
+
+                // -------------------------------------------------
+                // EVENTS
+                // -------------------------------------------------
+
+                $events = Event::where('user_id', $user->id)
+                    ->where('status', 'approved')
+                    ->latest()
+                    ->get();
+            }
         }
 
-        // Notifications
+        // -------------------------------------------------
+        // NOTIFICATIONS
+        // -------------------------------------------------
+
         $notifications = $auth->unreadNotifications;
-        $friends       = $user->friendsList()
-            ->filter(fn($friend) => ! in_array($friend->id, $hiddenUsers))
-            ->values();
+
+        // -------------------------------------------------
+        // FRIENDS / FOLLOWERS
+        // -------------------------------------------------
+
+        $friendIds = Friendship::where(function ($q) use ($user) {
+            $q->where('sender_id', $user->id)
+                ->orWhere('receiver_id', $user->id);
+        })
+            ->where('status', 'accepted')
+            ->get(['sender_id', 'receiver_id'])
+            ->map(function ($friendship) use ($user) {
+                return $friendship->sender_id == $user->id
+                    ? $friendship->receiver_id
+                    : $friendship->sender_id;
+            })
+            ->toArray();
+
+        $friends = User::select([
+            'id',
+            'first_name',
+            'last_name',
+            'image',
+        ])
+            ->whereIn('id', $friendIds)
+            ->whereNotIn('id', $hiddenUsers)
+            ->get();
+
+        // -------------------------------------------------
+        // RESPONSE
+        // -------------------------------------------------
 
         return response()->json([
             'success'           => true,
@@ -188,27 +438,189 @@ class ApiProfileController extends Controller
         ]);
     }
 
+//     public function profileDetails(Request $request)
+//     {
+//         // i get both users data based on roles
+//         $user = Auth::user();
+
+//         // Common data for all roles
+//         $notifications = $user->unreadNotifications;
+
+//         $appointments = Message::with('availability')
+//             ->where(function ($query) use ($user) {
+//                 $query->where('sender_id', $user->id)
+//                     ->orWhere('receiver_id', $user->id);
+//             })
+//             ->orderBy('created_at', 'desc')
+//             ->get();
+
+//         // If Counselee (role = 0, for example)
+//         if ($user->role == 0) {
+//             // User posts
+//             $posts = Post::where('user_id', $user->id)
+//                 ->with('taggedUsers')
+//                 ->latest()
+//                 ->get();
+
+//             // Thoughts
+//             $tweets = Tweet::where('user_id', $user->id)
+//                 ->latest()
+//                 ->get();
+
+// // Tagged Posts
+//             $taggedPosts = $user->taggedPosts()
+//                 ->with(['user', 'taggedUsers'])
+//                 ->latest()
+//                 ->get();
+
+//             // Friendships
+//             $friendships = Friendship::where(function ($query) use ($user) {
+//                 $query->where('sender_id', $user->id)
+//                     ->orWhere('receiver_id', $user->id);
+//             })->where('status', 'accepted')->get();
+
+//             // Friend IDs
+//             $followerIds = $friendships->map(function ($friend) use ($user) {
+//                 return $friend->sender_id == $user->id ? $friend->receiver_id : $friend->sender_id;
+//             });
+
+//             // Only user blocks (not post blocks)
+//             $blockedIds = \App\Models\Block::where('user_id', $user->id)
+//                 ->whereNotNull('blocked_id')
+//                 ->pluck('blocked_id')
+//                 ->toArray();
+
+//             // Muted users
+//             $mutedIds = \App\Models\Mute::where('user_id', $user->id)
+//                 ->pluck('muted_user_id')
+//                 ->toArray();
+
+//             // Followers = friends excluding blocked users (muted still appear)
+//             $followers = User::whereIn('id', $followerIds)
+//                 ->whereNotIn('id', $blockedIds)
+//                 ->get();
+
+//             // Blocked users list
+//             $blockedUsers = User::whereIn('id', $blockedIds)->get();
+
+//             // Muted users list (exclude blocked)
+//             $mutedUsers = User::whereIn('id', $mutedIds)
+//                 ->whereNotIn('id', $blockedIds)
+//                 ->get();
+
+//             $bookmarkedPosts = \App\Models\Bookmark::where('user_id', $user->id)
+//                 ->with('post.user')
+//                 ->latest()
+//                 ->get()
+//                 ->pluck('post')
+//                 ->filter()
+//                 ->values();
+
+//             return response()->json([
+//                 'success'         => true,
+//                 'role'            => 'counselee',
+//                 'user'            => $user,
+//                 'is_private'      => (bool) $user->is_private,
+//                 'uploaded_post'   => $posts,
+//                 'notifications'   => $notifications,
+//                 'followers'       => $followers,
+//                 'blockedUsers'    => $blockedUsers,
+//                 'mutedUsers'      => $mutedUsers,
+//                 'appointments'    => $appointments,
+//                 'bookmarkedPosts' => $bookmarkedPosts,
+//                 'thoughts'        => $tweets,
+//                 'taggedPosts'     => $taggedPosts,
+//             ]);
+//         }
+
+//         // If Counselor (role = 1)
+//         if ($user->role == 1) {
+//             // Notifications
+//             $notifications = $user->unreadNotifications;
+
+//             // Availabilities (future dates only)
+//             $availabilities = $user->availabilities()
+//                 ->where('available_date', '>=', now()->toDateString())
+//                 ->orderBy('available_date')
+//                 ->orderBy('start_time')
+//                 ->get();
+
+//             // Latest 4 messages
+//             $messages = Message::where('receiver_id', $user->id)
+//                 ->orderBy('created_at', 'desc')
+//                 ->take(4)
+//                 ->get();
+
+//             // Ratings
+//             $averageRating = $user->ratingsReceived()->avg('rating');
+//             $totalReviews  = $user->ratingsReceived()->count();
+
+//             // Friend count (optional)
+//             $friendCount = $user->friends()->count();
+
+//             // Appointments (if relation exists)
+//             $appointments = Message::with([
+//                 'availability',
+//                 'sender:id,first_name,last_name,image',
+//                 'receiver:id,first_name,last_name,image',
+//             ])
+//                 ->where(function ($query) use ($user) {
+//                     $query->where('sender_id', $user->id)
+//                         ->orWhere('receiver_id', $user->id);
+//                 })
+//                 ->orderBy('created_at', 'desc')
+//                 ->get();
+
+//             $specialization = $user->specialization ? [
+//                 'id'   => $user->specialization->id,
+//                 'name' => $user->specialization->name,
+//             ] : null;
+
+//             return response()->json([
+//                 'success'        => true,
+//                 'role'           => 'counselor',
+//                 'user'           => $user,
+//                 'notifications'  => $notifications,
+//                 'availabilities' => $availabilities,
+//                 'messages'       => $messages,
+//                 'appointments'   => $appointments,
+//                 'averageRating'  => round($averageRating ?? 0, 1),
+//                 'totalReviews'   => $totalReviews,
+//                 'friendCount'    => $friendCount,
+//                 'specialization' => $specialization,
+//             ]);
+//         }
+
+//         // For Admin (role = 2) or other roles
+//         return response()->json([
+//             'success'       => true,
+//             'role'          => 'other',
+//             'user'          => $user,
+//             'notifications' => $notifications,
+//         ]);
+//     }
+
     public function profileDetails(Request $request)
     {
-        // i get both users data based on roles
         $user = Auth::user();
 
-        // Common data for all roles
+        // -------------------------------------------------
+        // COMMON
+        // -------------------------------------------------
+
         $notifications = $user->unreadNotifications;
 
-        $appointments = Message::with('availability')
-            ->where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // -------------------------------------------------
+        // COUNSELEE
+        // -------------------------------------------------
 
-        // If Counselee (role = 0, for example)
         if ($user->role == 0) {
+
             // User posts
             $posts = Post::where('user_id', $user->id)
-                ->with('taggedUsers')
+                ->with([
+                    'taggedUsers:id,first_name,last_name,image',
+                ])
                 ->latest()
                 ->get();
 
@@ -217,49 +629,115 @@ class ApiProfileController extends Controller
                 ->latest()
                 ->get();
 
-// Tagged Posts
+            // Tagged Posts
             $taggedPosts = $user->taggedPosts()
-                ->with(['user', 'taggedUsers'])
+                ->with([
+                    'user:id,first_name,last_name,image',
+                    'taggedUsers:id,first_name,last_name,image',
+                ])
                 ->latest()
                 ->get();
 
-            // Friendships
+            // -------------------------------------------------
+            // FRIENDSHIPS
+            // -------------------------------------------------
+
             $friendships = Friendship::where(function ($query) use ($user) {
                 $query->where('sender_id', $user->id)
                     ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->get();
+            })
+                ->where('status', 'accepted')
+                ->get(['sender_id', 'receiver_id']);
 
-            // Friend IDs
-            $followerIds = $friendships->map(function ($friend) use ($user) {
-                return $friend->sender_id == $user->id ? $friend->receiver_id : $friend->sender_id;
-            });
+            $followerIds = $friendships
+                ->map(function ($friend) use ($user) {
+                    return $friend->sender_id == $user->id
+                        ? $friend->receiver_id
+                        : $friend->sender_id;
+                })
+                ->toArray();
 
-            // Only user blocks (not post blocks)
-            $blockedIds = \App\Models\Block::where('user_id', $user->id)
+            // -------------------------------------------------
+            // BLOCKED
+            // -------------------------------------------------
+
+            $blockedIds = Block::where('user_id', $user->id)
                 ->whereNotNull('blocked_id')
                 ->pluck('blocked_id')
                 ->toArray();
 
-            // Muted users
-            $mutedIds = \App\Models\Mute::where('user_id', $user->id)
+            // -------------------------------------------------
+            // MUTED
+            // -------------------------------------------------
+
+            $mutedIds = Mute::where('user_id', $user->id)
                 ->pluck('muted_user_id')
                 ->toArray();
 
-            // Followers = friends excluding blocked users (muted still appear)
-            $followers = User::whereIn('id', $followerIds)
+            // -------------------------------------------------
+            // FOLLOWERS
+            // -------------------------------------------------
+
+            $followers = User::select([
+                'id',
+                'first_name',
+                'last_name',
+                'image',
+            ])
+                ->whereIn('id', $followerIds)
                 ->whereNotIn('id', $blockedIds)
                 ->get();
 
-            // Blocked users list
-            $blockedUsers = User::whereIn('id', $blockedIds)->get();
+            // -------------------------------------------------
+            // BLOCKED USERS
+            // -------------------------------------------------
 
-            // Muted users list (exclude blocked)
-            $mutedUsers = User::whereIn('id', $mutedIds)
+            $blockedUsers = User::select([
+                'id',
+                'first_name',
+                'last_name',
+                'image',
+            ])
+                ->whereIn('id', $blockedIds)
+                ->get();
+
+            // -------------------------------------------------
+            // MUTED USERS
+            // -------------------------------------------------
+
+            $mutedUsers = User::select([
+                'id',
+                'first_name',
+                'last_name',
+                'image',
+            ])
+                ->whereIn('id', $mutedIds)
                 ->whereNotIn('id', $blockedIds)
                 ->get();
 
-            $bookmarkedPosts = \App\Models\Bookmark::where('user_id', $user->id)
-                ->with('post.user')
+            // -------------------------------------------------
+            // APPOINTMENTS
+            // -------------------------------------------------
+
+            $appointments = Message::with([
+                'availability',
+            ])
+                ->where(function ($query) use ($user) {
+                    $query->where('sender_id', $user->id)
+                        ->orWhere('receiver_id', $user->id);
+                })
+                ->orderByDesc('created_at')
+                ->get();
+
+            // -------------------------------------------------
+            // BOOKMARKED POSTS
+            // -------------------------------------------------
+
+            $bookmarkedPosts = Bookmark::where('user_id', $user->id)
+                ->with([
+                    'post:id,user_id',
+                    'post.user:id,first_name,last_name,image',
+                ])
                 ->latest()
                 ->get()
                 ->pluck('post')
@@ -283,32 +761,43 @@ class ApiProfileController extends Controller
             ]);
         }
 
-        // If Counselor (role = 1)
-        if ($user->role == 1) {
-            // Notifications
-            $notifications = $user->unreadNotifications;
+        // -------------------------------------------------
+        // COUNSELOR
+        // -------------------------------------------------
 
-            // Availabilities (future dates only)
+        if ($user->role == 1) {
+
+            // Future availabilities only
             $availabilities = $user->availabilities()
                 ->where('available_date', '>=', now()->toDateString())
                 ->orderBy('available_date')
                 ->orderBy('start_time')
                 ->get();
 
-            // Latest 4 messages
+            // Latest 4 received messages
             $messages = Message::where('receiver_id', $user->id)
-                ->orderBy('created_at', 'desc')
-                ->take(4)
+                ->orderByDesc('created_at')
+                ->limit(4)
                 ->get();
 
-            // Ratings
-            $averageRating = $user->ratingsReceived()->avg('rating');
-            $totalReviews  = $user->ratingsReceived()->count();
+            // Rating - single query
+            $ratingData = $user->ratingsReceived()
+                ->selectRaw('AVG(rating) as average_rating, COUNT(*) as total_reviews')
+                ->first();
 
-            // Friend count (optional)
+            $averageRating = round(
+                $ratingData->average_rating ?? 0,
+                1
+            );
+
+            $totalReviews = (int) (
+                $ratingData->total_reviews ?? 0
+            );
+
+            // Friend count
             $friendCount = $user->friends()->count();
 
-            // Appointments (if relation exists)
+            // Appointments
             $appointments = Message::with([
                 'availability',
                 'sender:id,first_name,last_name,image',
@@ -318,13 +807,16 @@ class ApiProfileController extends Controller
                     $query->where('sender_id', $user->id)
                         ->orWhere('receiver_id', $user->id);
                 })
-                ->orderBy('created_at', 'desc')
+                ->orderByDesc('created_at')
                 ->get();
 
-            $specialization = $user->specialization ? [
+            // Specialization
+            $specialization = $user->specialization
+                ? [
                 'id'   => $user->specialization->id,
                 'name' => $user->specialization->name,
-            ] : null;
+            ]
+                : null;
 
             return response()->json([
                 'success'        => true,
@@ -334,14 +826,17 @@ class ApiProfileController extends Controller
                 'availabilities' => $availabilities,
                 'messages'       => $messages,
                 'appointments'   => $appointments,
-                'averageRating'  => round($averageRating ?? 0, 1),
+                'averageRating'  => $averageRating,
                 'totalReviews'   => $totalReviews,
                 'friendCount'    => $friendCount,
                 'specialization' => $specialization,
             ]);
         }
 
-        // For Admin (role = 2) or other roles
+        // -------------------------------------------------
+        // ADMIN / OTHER
+        // -------------------------------------------------
+
         return response()->json([
             'success'       => true,
             'role'          => 'other',
@@ -350,35 +845,161 @@ class ApiProfileController extends Controller
         ]);
     }
 
+    // public function timeline(Request $request)
+    // {
+    //     $auth = Auth::user();
+    //     abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+    //     // $notifications = $auth->unreadNotifications;
+
+    //     // All users except logged-in user
+    //     $all_users = \App\Models\User::where('id', '!=', $auth->id)->get();
+
+    //     foreach ($all_users as $user) {
+    //         $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
+    //             $query->where('sender_id', $user->id)
+    //                 ->orWhere('receiver_id', $user->id);
+    //         })->where('status', 'accepted')->count();
+    //         $user->friend_count = $friendCount;
+
+    //         $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
+    //             $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+    //         })->orWhere(function ($q) use ($auth, $user) {
+    //             $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+    //         })->first();
+
+    //         $user->friendship_status = $friendship ? $friendship->status : null;
+    //         $user->friendship_sender = $friendship ? $friendship->sender_id : null;
+
+    //         $averageRating        = $user->ratingsReceived()->avg('rating');
+    //         $user->average_rating = round($averageRating ?? 0, 1);
+    //     }
+
+    //     $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
+    //         ->whereNotNull('blocked_id')
+    //         ->pluck('blocked_id')
+    //         ->toArray();
+
+    //     $blockedByUsers = \App\Models\Block::where('blocked_id', $auth->id)
+    //         ->whereNotNull('user_id')
+    //         ->pluck('user_id')
+    //         ->toArray();
+
+    //     $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+
+    //     $all_posts = \App\Models\Post::with(['user', 'likes', 'comments' => function ($q) use ($hiddenUsers) {
+    //         $q->whereNull('parent_id') // top-level only
+    //             ->whereNotIn('user_id', $hiddenUsers)
+    //             ->with(['user', 'replies' => function ($r) use ($hiddenUsers) {
+    //                 $r->whereNotIn('user_id', $hiddenUsers)
+    //                     ->with('user');
+    //             }])
+    //             ->latest();
+    //     }])
+    //         ->where('user_id', $auth->id)
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
+
+    //     $taggedPosts = \App\Models\Post::with([
+    //         'user',
+    //         'likes',
+    //         'comments' => function ($q) use ($hiddenUsers) {
+    //             $q->whereNull('parent_id')
+    //                 ->whereNotIn('user_id', $hiddenUsers)
+    //                 ->with([
+    //                     'user',
+    //                     'replies' => function ($r) use ($hiddenUsers) {
+    //                         $r->whereNotIn('user_id', $hiddenUsers)
+    //                             ->with('user');
+    //                     },
+    //                 ])
+    //                 ->latest();
+    //         },
+    //         'taggedUsers',
+    //     ])
+    //         ->whereHas('taggedUsers', function ($q) use ($auth) {
+    //             // Only posts where logged-in user is tagged
+    //             $q->where('users.id', $auth->id);
+    //         })
+    //         ->where('user_id', '!=', $auth->id)
+    //         ->whereNotIn('user_id', $hiddenUsers)
+    //         ->orderBy('created_at', 'desc')
+    //         ->get();
+
+    //     $posts_count = \App\Models\Post::with(['user', 'likes', 'comments.user'])
+    //         ->where('user_id', $auth->id)
+    //         ->count();
+
+    //     // Recent statuses (last 24h)
+    //     $statuses = \App\Models\Status::with('user')
+    //         ->where('created_at', '>=', now()->subDay())
+    //         ->latest()
+    //         ->get()
+    //         ->groupBy('user_id')
+    //         ->map(fn($group) => collect($group));
+
+    //     $authFriendCount = \App\Models\Friendship::where(function ($query) use ($auth) {
+    //         $query->where('sender_id', $auth->id)
+    //             ->orWhere('receiver_id', $auth->id);
+    //     })
+    //         ->where('status', 'accepted')
+    //         ->count();
+
+    //     // Friends
+    //     $sentFriends = $auth->sentFriendships()
+    //         ->where('status', 'accepted')
+    //         ->with('receiver')
+    //         ->get()
+    //         ->pluck('receiver');
+
+    //     $receivedFriends = $auth->receivedFriendships()
+    //         ->where('status', 'accepted')
+    //         ->with('sender')
+    //         ->get()
+    //         ->pluck('sender');
+
+    //     $friends = $sentFriends->merge($receivedFriends)
+    //         ->filter(fn($friend) =>
+    //             $friend->id !== $auth->id && ! in_array($friend->id, $hiddenUsers)
+    //         )
+    //         ->values();
+
+    //     $tweets = Tweet::where('user_id', Auth::id())
+    //         ->latest()
+    //         ->get();
+
+    //     // Current user ke events fetch karein
+    //     $events = \App\Models\Event::where('user_id', $auth->id)
+    //         ->latest()
+    //         ->get();
+
+    //     return response()->json([
+    //         'success'         => true,
+    //         'user'            => $auth,
+    //         'authFriendCount' => $authFriendCount,
+    //         'all_users'       => $all_users,
+    //         'all_posts'       => $all_posts,
+    //         'taggedPosts'     => $taggedPosts,
+    //         // 'notifications'   => $notifications,
+    //         'statuses'        => $statuses,
+    //         'friends'         => $friends,
+    //         'posts_count'     => $posts_count,
+    //         'tweets'          => $tweets,
+    //         'events'          => $events,
+    //     ]);
+    // }
+
     public function timeline(Request $request)
     {
         $auth = Auth::user();
+
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
-        $notifications = $auth->unreadNotifications;
-
-        // All users except logged-in user
-        $all_users = \App\Models\User::where('id', '!=', $auth->id)->get();
-
-        foreach ($all_users as $user) {
-            $friendCount = \App\Models\Friendship::where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->count();
-            $user->friend_count = $friendCount;
-
-            $friendship = \App\Models\Friendship::where(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-            })->first();
-
-            $user->friendship_status = $friendship ? $friendship->status : null;
-            $user->friendship_sender = $friendship ? $friendship->sender_id : null;
-
-            $averageRating        = $user->ratingsReceived()->avg('rating');
-            $user->average_rating = round($averageRating ?? 0, 1);
-        }
+        /*
+    |--------------------------------------------------------------------------
+    | Hidden Users
+    |--------------------------------------------------------------------------
+    */
 
         $blockedUsers = \App\Models\Block::where('user_id', $auth->id)
             ->whereNotNull('blocked_id')
@@ -390,40 +1011,149 @@ class ApiProfileController extends Controller
             ->pluck('user_id')
             ->toArray();
 
-        $hiddenUsers = array_unique(array_merge($blockedUsers, $blockedByUsers));
+        $hiddenUsers = array_unique(array_merge(
+            $blockedUsers,
+            $blockedByUsers
+        ));
 
-        $all_posts = \App\Models\Post::with(['user', 'likes', 'comments' => function ($q) use ($hiddenUsers) {
-            $q->whereNull('parent_id') // top-level only
-                ->whereNotIn('user_id', $hiddenUsers)
-                ->with(['user', 'replies' => function ($r) use ($hiddenUsers) {
-                    $r->whereNotIn('user_id', $hiddenUsers)
-                        ->with('user');
-                }])
-                ->latest();
-        }])
+        /*
+    |--------------------------------------------------------------------------
+    | All Users
+    |--------------------------------------------------------------------------
+    */
+
+        // $all_users = \App\Models\User::select([
+        //     'id',
+        //     'first_name',
+        //     'last_name',
+        //     'image',
+        // ])
+        //     ->where('id', '!=', $auth->id)
+        //     ->withAvg('ratingsReceived', 'rating')
+        //     ->get();
+
+        /*
+    |--------------------------------------------------------------------------
+    | Friend Counts
+    |--------------------------------------------------------------------------
+    */
+
+        $friendCounts = \App\Models\Friendship::selectRaw('
+        sender_id as user_id,
+        COUNT(*) as total
+    ')
+            ->where('status', 'accepted')
+            ->groupBy('sender_id')
+            ->pluck('total', 'user_id');
+
+        $receiverCounts = \App\Models\Friendship::selectRaw('
+        receiver_id as user_id,
+        COUNT(*) as total
+    ')
+            ->where('status', 'accepted')
+            ->groupBy('receiver_id')
+            ->pluck('total', 'user_id');
+
+        foreach ($receiverCounts as $id => $count) {
+            $friendCounts[$id] =
+                ($friendCounts[$id] ?? 0) + $count;
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Friendships With Auth User
+    |--------------------------------------------------------------------------
+    */
+
+        $friendships = \App\Models\Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })
+            ->get([
+                'sender_id',
+                'receiver_id',
+                'status',
+            ]);
+
+        $friendshipMap = [];
+
+        foreach ($friendships as $friendship) {
+
+            $otherId = $friendship->sender_id == $auth->id
+                ? $friendship->receiver_id
+                : $friendship->sender_id;
+
+            $friendshipMap[$otherId] = $friendship;
+        }
+
+        /*
+    |--------------------------------------------------------------------------
+    | Attach User Data
+    |--------------------------------------------------------------------------
+    */
+
+        // foreach ($all_users as $user) {
+
+        //     $user->friend_count =
+        //     $friendCounts[$user->id] ?? 0;
+
+        //     $friendship =
+        //     $friendshipMap[$user->id] ?? null;
+
+        //     $user->friendship_status =
+        //     $friendship?->status;
+
+        //     $user->friendship_sender = $friendship
+        //         ? (
+        //         (int) $friendship->sender_id === (int) $auth->id
+        //             ? 1
+        //             : 0
+        //     )
+        //         : null;
+
+        //     $user->average_rating = round(
+        //         $user->ratings_received_avg_rating ?? 0,
+        //         1
+        //     );
+        // }
+
+        /*
+    |--------------------------------------------------------------------------
+    | My Posts
+    |--------------------------------------------------------------------------
+    */
+
+        $all_posts = \App\Models\Post::with([
+            'user:id,first_name,last_name,image',
+        ])
+            ->withCount([
+                'likes as like_count',
+                'comments as comment_count' => function ($q) {
+                    $q->whereNull('parent_id');
+                },
+            ])
             ->where('user_id', $auth->id)
             ->orderBy('created_at', 'desc')
             ->get();
 
+        /*
+    |--------------------------------------------------------------------------
+    | Tagged Posts
+    |--------------------------------------------------------------------------
+    */
+
         $taggedPosts = \App\Models\Post::with([
-            'user',
-            'likes',
-            'comments' => function ($q) use ($hiddenUsers) {
-                $q->whereNull('parent_id')
-                    ->whereNotIn('user_id', $hiddenUsers)
-                    ->with([
-                        'user',
-                        'replies' => function ($r) use ($hiddenUsers) {
-                            $r->whereNotIn('user_id', $hiddenUsers)
-                                ->with('user');
-                        },
-                    ])
-                    ->latest();
-            },
-            'taggedUsers',
+            'user:id,first_name,last_name,image',
+
+            'taggedUsers:id,first_name,last_name,image',
         ])
+            ->withCount([
+                'likes as like_count',
+                'comments as comment_count' => function ($q) {
+                    $q->whereNull('parent_id');
+                },
+            ])
             ->whereHas('taggedUsers', function ($q) use ($auth) {
-                // Only posts where logged-in user is tagged
                 $q->where('users.id', $auth->id);
             })
             ->where('user_id', '!=', $auth->id)
@@ -431,17 +1161,38 @@ class ApiProfileController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
-        $posts_count = \App\Models\Post::with(['user', 'likes', 'comments.user'])
-            ->where('user_id', $auth->id)
-            ->count();
+        /*
+    |--------------------------------------------------------------------------
+    | Posts Count
+    |--------------------------------------------------------------------------
+    */
 
-        // Recent statuses (last 24h)
-        $statuses = \App\Models\Status::with('user')
+        $posts_count = \App\Models\Post::where(
+            'user_id',
+            $auth->id
+        )->count();
+
+        /*
+    |--------------------------------------------------------------------------
+    | Recent Statuses
+    |--------------------------------------------------------------------------
+    */
+
+        $statuses = \App\Models\Status::with([
+            'user:id,first_name,last_name,image',
+        ])
             ->where('created_at', '>=', now()->subDay())
+            ->whereNotIn('user_id', $hiddenUsers)
             ->latest()
             ->get()
             ->groupBy('user_id')
             ->map(fn($group) => collect($group));
+
+        /*
+    |--------------------------------------------------------------------------
+    | Auth Friend Count
+    |--------------------------------------------------------------------------
+    */
 
         $authFriendCount = \App\Models\Friendship::where(function ($query) use ($auth) {
             $query->where('sender_id', $auth->id)
@@ -450,42 +1201,65 @@ class ApiProfileController extends Controller
             ->where('status', 'accepted')
             ->count();
 
-        // Friends
+        /*
+    |--------------------------------------------------------------------------
+    | Friends
+    |--------------------------------------------------------------------------
+    */
+
         $sentFriends = $auth->sentFriendships()
             ->where('status', 'accepted')
-            ->with('receiver')
+            ->with('receiver:id,first_name,last_name,image,bio')
             ->get()
             ->pluck('receiver');
 
         $receivedFriends = $auth->receivedFriendships()
             ->where('status', 'accepted')
-            ->with('sender')
+            ->with('sender:id,first_name,last_name,image,bio')
             ->get()
             ->pluck('sender');
 
-        $friends = $sentFriends->merge($receivedFriends)
-            ->filter(fn($friend) =>
-                $friend->id !== $auth->id && ! in_array($friend->id, $hiddenUsers)
-            )
+        $friends = $sentFriends
+            ->merge($receivedFriends)
+            ->filter(function ($friend) use ($auth, $hiddenUsers) {
+                return $friend->id !== $auth->id
+                && ! in_array($friend->id, $hiddenUsers);
+            })
             ->values();
 
-        $tweets = Tweet::where('user_id', Auth::id())
+        /*
+    |--------------------------------------------------------------------------
+    | Tweets
+    |--------------------------------------------------------------------------
+    */
+
+        $tweets = Tweet::where('user_id', $auth->id)
             ->latest()
             ->get();
 
-        // Current user ke events fetch karein
+        /*
+    |--------------------------------------------------------------------------
+    | Events
+    |--------------------------------------------------------------------------
+    */
+
         $events = \App\Models\Event::where('user_id', $auth->id)
             ->latest()
             ->get();
+
+        /*
+    |--------------------------------------------------------------------------
+    | Response
+    |--------------------------------------------------------------------------
+    */
 
         return response()->json([
             'success'         => true,
             'user'            => $auth,
             'authFriendCount' => $authFriendCount,
-            'all_users'       => $all_users,
+            // 'all_users'       => $all_users,
             'all_posts'       => $all_posts,
             'taggedPosts'     => $taggedPosts,
-            'notifications'   => $notifications,
             'statuses'        => $statuses,
             'friends'         => $friends,
             'posts_count'     => $posts_count,
@@ -502,7 +1276,7 @@ class ApiProfileController extends Controller
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
         // Unread notifications of the logged-in user
-        $notifications = $auth->unreadNotifications;
+        // $notifications = $auth->unreadNotifications;
 
         // Get all counselors (role = 1) except the logged-in user
         $all_users = User::where('id', '!=', $auth->id)
@@ -513,20 +1287,20 @@ class ApiProfileController extends Controller
 
         // Attach extra data
         foreach ($all_users as $user) {
-            $friendCount = Friendship::where(function ($query) use ($user) {
-                $query->where('sender_id', $user->id)
-                    ->orWhere('receiver_id', $user->id);
-            })->where('status', 'accepted')->count();
-            $user->friend_count = $friendCount;
+            // $friendCount = Friendship::where(function ($query) use ($user) {
+            //     $query->where('sender_id', $user->id)
+            //         ->orWhere('receiver_id', $user->id);
+            // })->where('status', 'accepted')->count();
+            // $user->friend_count = $friendCount;
 
-            $friendship = Friendship::where(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
-            })->orWhere(function ($q) use ($auth, $user) {
-                $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
-            })->first();
+            // $friendship = Friendship::where(function ($q) use ($auth, $user) {
+            //     $q->where('sender_id', $auth->id)->where('receiver_id', $user->id);
+            // })->orWhere(function ($q) use ($auth, $user) {
+            //     $q->where('sender_id', $user->id)->where('receiver_id', $auth->id);
+            // })->first();
 
-            $user->friendship_status = $friendship ? $friendship->status : null;
-            $user->friendship_sender = $friendship ? $friendship->sender_id : null;
+            // $user->friendship_status = $friendship ? $friendship->status : null;
+            // $user->friendship_sender = $friendship ? $friendship->sender_id : null;
 
             $averageRating        = $user->ratingsReceived()->avg('rating');
             $user->average_rating = round($averageRating ?? 0, 1);
@@ -546,25 +1320,25 @@ class ApiProfileController extends Controller
         }
 
         // Fetch all posts with user, likes, and comments
-        $all_posts = Post::with(['user', 'likes', 'comments.user'])
-            ->orderBy('created_at', 'desc')
-            ->get();
+        // $all_posts = Post::with(['user', 'likes', 'comments.user'])
+        //     ->orderBy('created_at', 'desc')
+        //     ->get();
 
         // Fetch statuses created in the last day
-        $statuses = Status::with('user')
-            ->where('created_at', '>=', now()->subDay())
-            ->latest()
-            ->get()
-            ->groupBy('user_id')
-            ->map(fn($group) => collect($group));
+        // $statuses = Status::with('user')
+        //     ->where('created_at', '>=', now()->subDay())
+        //     ->latest()
+        //     ->get()
+        //     ->groupBy('user_id')
+        //     ->map(fn($group) => collect($group));
 
         return response()->json([
-            'success'       => true,
-            'user'          => $auth,
-            'notifications' => $notifications,
-            'counselors'    => $all_users,
-            'posts'         => $all_posts,
-            'statuses'      => $statuses,
+            'success'    => true,
+            'user'       => $auth,
+            // 'notifications' => $notifications,
+            'counselors' => $all_users,
+            // 'posts'         => $all_posts,
+            // 'statuses'      => $statuses,
         ]);
     }
 
@@ -756,7 +1530,7 @@ class ApiProfileController extends Controller
         abort_if($auth->role != 0, 403, 'Unauthorized access');
 
         // Unread notifications
-        $notifications = $auth->unreadNotifications;
+        // $notifications = $auth->unreadNotifications;
 
         // ---------------------------------------------------------
         // BLOCKED USERS
@@ -827,11 +1601,25 @@ class ApiProfileController extends Controller
         // ALL USERS
         // ---------------------------------------------------------
 
-        $all_users = User::where('id', '!=', $auth->id)
+        // $all_users = User::where('id', '!=', $auth->id)
+        //     ->where('role', 0)
+        //     ->whereNotIn('id', $hiddenUsers)
+        //     ->with('ratingsReceived')
+        //     ->inRandomOrder()
+        //     ->get();
+
+        $all_users = User::select([
+            'id',
+            'first_name',
+            'last_name',
+            'image',
+        ])
+            ->where('id', '!=', $auth->id)
             ->where('role', 0)
             ->whereNotIn('id', $hiddenUsers)
-            ->with('ratingsReceived')
+            ->withAvg('ratingsReceived', 'rating')
             ->inRandomOrder()
+        // ->limit(15)
             ->get();
 
         // Get all friendships related to these users in ONE query
@@ -916,29 +1704,44 @@ class ApiProfileController extends Controller
         // POSTS
         // ---------------------------------------------------------
 
-        $all_posts = \App\Models\Post::with([
-            'user',
+        // $all_posts = \App\Models\Post::with([
+        //     'user',
 
+        //     'likes',
+
+        //     'comments' => function ($query) use ($hiddenUsers) {
+
+        //         // Hide comments by blocked users
+        //         $query->whereNotIn('user_id', $hiddenUsers)
+
+        //             ->with([
+        //                 'user',
+
+        //                 'replies' => function ($q) use ($hiddenUsers) {
+
+        //                     // Hide replies by blocked users
+        //                     $q->whereNotIn('user_id', $hiddenUsers)
+        //                         ->with('user');
+        //                 },
+        //             ]);
+        //     },
+
+        // ])
+        //     ->whereIn('user_id', $allowedUserIds)
+        //     ->whereNotIn('id', $blockedPosts)
+        //     ->whereNotIn('user_id', $hiddenUsers)
+        //     ->whereNotIn('user_id', $mutedUsers)
+        //     ->get();
+
+        $all_posts = \App\Models\Post::withCount([
             'likes',
-
-            'comments' => function ($query) use ($hiddenUsers) {
-
-                // Hide comments by blocked users
-                $query->whereNotIn('user_id', $hiddenUsers)
-
-                    ->with([
-                        'user',
-
-                        'replies' => function ($q) use ($hiddenUsers) {
-
-                            // Hide replies by blocked users
-                            $q->whereNotIn('user_id', $hiddenUsers)
-                                ->with('user');
-                        },
-                    ]);
+            'comments as comment_count' => function ($q) {
+                $q->whereNull('parent_id');
             },
-
         ])
+            ->with([
+                'user:id,first_name,last_name,image',
+            ])
             ->whereIn('user_id', $allowedUserIds)
             ->whereNotIn('id', $blockedPosts)
             ->whereNotIn('user_id', $hiddenUsers)
@@ -1019,35 +1822,26 @@ class ApiProfileController extends Controller
                 $bookmarkedPostIds
             ) {
 
-                // Total comments count
-                $post->total_comments =
-                $post->comments->count()
-                 +
-                $post->comments->sum(
-                    fn($comment) => $comment->replies->count()
-                );
+                $post->like_count = $post->likes_count;
+                unset($post->likes_count);
 
-                // Friendship
                 $friendship = $postFriendships->get($post->user_id);
 
                 $post->friendship_status =
                 $friendship?->status ?? 'not_friends';
 
                 $post->friendship_sender =
-                $friendship?->sender_id ?? null;
+                $friendship
+                    ? ((int) $friendship->sender_id ===
+                    (int) $post->user_id ? 0 : 1)
+                    : null;
 
-                // Bookmark
                 $post->is_bookmarked =
                 isset($bookmarkedPostIds[$post->id]);
 
                 return $post;
             })
-
-            // Same sorting as your existing API
-            ->sortByDesc(function ($post) {
-                return $post->likes->count();
-            })
-
+            ->sortByDesc('like_count')
             ->values();
 
         // ---------------------------------------------------------
@@ -1055,11 +1849,11 @@ class ApiProfileController extends Controller
         // ---------------------------------------------------------
 
         return response()->json([
-            'success'       => true,
-            'user'          => $auth,
-            'notifications' => $notifications,
-            'all_users'     => $all_users,
-            'posts'         => $all_posts,
+            'success'   => true,
+            'user'      => $auth,
+            // 'notifications' => $notifications,
+            'all_users' => $all_users,
+            'posts'     => $all_posts,
         ]);
     }
 
@@ -1278,106 +2072,184 @@ class ApiProfileController extends Controller
             ->unique()
             ->toArray();
 
-        $all_posts = Post::with([
-            'user',
-            'likes',
-            'comments' => function ($q) use ($auth, $blockedUserIds) {
-                // IDs of users blocked by auth or who have blocked auth
-                // $blockedUserIds = Block::where('user_id', $auth->id)
-                //     ->whereNotNull('blocked_id')
-                //     ->pluck('blocked_id')
-                //     ->merge(
-                //         Block::where('blocked_id', $auth->id)
-                //             ->whereNotNull('user_id')
-                //             ->pluck('user_id')
-                //     )
-                //     ->unique()
-                //     ->toArray();
+        //     $all_posts = Post::with([
+        //         'user',
+        //         'likes',
+        //         'comments' => function ($q) use ($auth, $blockedUserIds) {
+        //             // IDs of users blocked by auth or who have blocked auth
+        //             // $blockedUserIds = Block::where('user_id', $auth->id)
+        //             //     ->whereNotNull('blocked_id')
+        //             //     ->pluck('blocked_id')
+        //             //     ->merge(
+        //             //         Block::where('blocked_id', $auth->id)
+        //             //             ->whereNotNull('user_id')
+        //             //             ->pluck('user_id')
+        //             //     )
+        //             //     ->unique()
+        //             //     ->toArray();
 
-                $q->whereNull('parent_id')
-                    ->whereNotIn('user_id', $blockedUserIds)
-                    ->whereHas('user', function ($userQuery) use ($auth) {
-                        $userQuery->where('is_private', 0) // public
-                            ->orWhere('id', $auth->id);        // self
-                    })
-                    ->with(['user', 'replies' => function ($r) use ($blockedUserIds, $auth) {
-                        $r->whereNotIn('user_id', $blockedUserIds)
-                            ->whereHas('user', function ($userQuery) use ($auth) {
-                                $userQuery->where('is_private', 0)
-                                    ->orWhere('id', $auth->id);
-                            })
-                            ->with('user');
-                    }])
-                    ->latest();
+        //             $q->whereNull('parent_id')
+        //                 ->whereNotIn('user_id', $blockedUserIds)
+        //                 ->whereHas('user', function ($userQuery) use ($auth) {
+        //                     $userQuery->where('is_private', 0) // public
+        //                         ->orWhere('id', $auth->id);        // self
+        //                 })
+        //                 ->with(['user', 'replies' => function ($r) use ($blockedUserIds, $auth) {
+        //                     $r->whereNotIn('user_id', $blockedUserIds)
+        //                         ->whereHas('user', function ($userQuery) use ($auth) {
+        //                             $userQuery->where('is_private', 0)
+        //                                 ->orWhere('id', $auth->id);
+        //                         })
+        //                         ->with('user');
+        //                 }])
+        //                 ->latest();
+        //         },
+        //     ])
+        //         ->whereNotIn('user_id', $hiddenUsers)
+        //         ->whereNotIn('id', $hiddenPosts)
+        //     // ->where(function ($q) use ($auth, $reportedPosts) {
+        //     //     $q->whereNotIn('id', $reportedPosts)
+        //     //         ->orWhere('user_id', $auth->id);
+        //     // })
+        //         ->where(function ($q) use ($auth, $friends) {
+        //             $q->where('user_id', $auth->id)
+        //                 ->orWhereHas('user', function ($u) use ($friends) {
+        //                     $u->where('is_private', 0)
+        //                         ->orWhereIn('users.id', $friends); // include private friends
+        //                 });
+        //         })
+        //         ->whereDoesntHave('user', fn($q) =>
+        //             $q->whereHas('blockedUsers', fn($q2) => $q2->where('blocks.blocked_id', $auth->id))
+        //         )
+        //         ->whereDoesntHave('user', fn($q) =>
+        //             $q->whereHas('blockedByUsers', fn($q2) => $q2->where('blocks.user_id', $auth->id))
+        //         )
+        //     // ->inRandomOrder()
+        //     // --- Smart dynamic friend priority
+        //         ->when(! empty($friends), function ($q) use ($friends, $boostHours) {
+        //             $friendIds = implode(',', array_map('intval', $friends));
+
+        //             $q->orderByRaw("
+        //     CASE
+        //         WHEN user_id IN ($friendIds)
+        //              AND created_at >= NOW() - INTERVAL $boostHours HOUR
+        //         THEN 1
+        //         ELSE 0
+        //     END DESC
+        // ");
+        //         })
+        //         ->inRandomOrder() // randomize only within same priority
+        //         ->orderBy('posts.created_at', 'desc')
+        //         ->get()
+        //         ->map(function ($p) use ($auth, $friendships, $bookmarkIds) {
+        //             // Total comments (including replies)
+        //             $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
+
+        //             // Friendship status between auth user and post owner
+        //             // $friendship = Friendship::where(function ($q) use ($auth, $p) {
+        //             //     $q->where('sender_id', $auth->id)->where('receiver_id', $p->user_id);
+        //             // })->orWhere(function ($q) use ($auth, $p) {
+        //             //     $q->where('sender_id', $p->user_id)->where('receiver_id', $auth->id);
+        //             // })->first();
+
+        //             $friendship = $friendships->first(function ($item) use ($auth, $p) {
+
+        //                 return
+        //                     ($item->sender_id == $auth->id && $item->receiver_id == $p->user_id) ||
+
+        //                     ($item->receiver_id == $auth->id && $item->sender_id == $p->user_id);
+
+        //             });
+
+        //             $p->friendship_status = $friendship?->status ?? 'not_friends';
+        //             // $p->friendship_sender = $friendship?->sender_id ?? null;
+
+        //             $p->friendship_sender = $friendship
+        //                 ? ((int) $friendship->sender_id === (int) $auth->id ? 1 : 0)
+        //                 : null;
+
+        //             // $p->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
+        //             //     ->where('post_id', $p->id)
+        //             //     ->exists();
+
+        //             $p->is_bookmarked = isset($bookmarkIds[$p->id]);
+
+        //             return $p;
+        //         });
+
+        $all_posts = Post::withCount([
+            'likes',
+            'comments as comment_count' => function ($q) {
+                $q->whereNull('parent_id');
             },
+        ])->with([
+            'user:id,first_name,last_name,image',
         ])
             ->whereNotIn('user_id', $hiddenUsers)
             ->whereNotIn('id', $hiddenPosts)
-        // ->where(function ($q) use ($auth, $reportedPosts) {
-        //     $q->whereNotIn('id', $reportedPosts)
-        //         ->orWhere('user_id', $auth->id);
-        // })
+
             ->where(function ($q) use ($auth, $friends) {
+
                 $q->where('user_id', $auth->id)
+
                     ->orWhereHas('user', function ($u) use ($friends) {
                         $u->where('is_private', 0)
-                            ->orWhereIn('users.id', $friends); // include private friends
+                            ->orWhereIn('users.id', $friends);
                     });
             })
+
             ->whereDoesntHave('user', fn($q) =>
-                $q->whereHas('blockedUsers', fn($q2) => $q2->where('blocks.blocked_id', $auth->id))
+                $q->whereHas('blockedUsers', fn($q2) =>
+                    $q2->where('blocks.blocked_id', $auth->id)
+                )
             )
+
             ->whereDoesntHave('user', fn($q) =>
-                $q->whereHas('blockedByUsers', fn($q2) => $q2->where('blocks.user_id', $auth->id))
+                $q->whereHas('blockedByUsers', fn($q2) =>
+                    $q2->where('blocks.user_id', $auth->id)
+                )
             )
-        // ->inRandomOrder()
-        // --- Smart dynamic friend priority
+
             ->when(! empty($friends), function ($q) use ($friends, $boostHours) {
+
                 $friendIds = implode(',', array_map('intval', $friends));
 
                 $q->orderByRaw("
-        CASE
-            WHEN user_id IN ($friendIds)
-                 AND created_at >= NOW() - INTERVAL $boostHours HOUR
-            THEN 1
-            ELSE 0
-        END DESC
-    ");
+            CASE
+                WHEN user_id IN ($friendIds)
+                     AND created_at >= NOW() - INTERVAL $boostHours HOUR
+                THEN 1
+                ELSE 0
+            END DESC
+        ");
             })
-            ->inRandomOrder() // randomize only within same priority
+
+            ->inRandomOrder()
             ->orderBy('posts.created_at', 'desc')
             ->get()
+
             ->map(function ($p) use ($auth, $friendships, $bookmarkIds) {
-                // Total comments (including replies)
-                $p->total_comments = $p->comments->count() + $p->comments->sum(fn($c) => $c->replies->count());
 
-                // Friendship status between auth user and post owner
-                // $friendship = Friendship::where(function ($q) use ($auth, $p) {
-                //     $q->where('sender_id', $auth->id)->where('receiver_id', $p->user_id);
-                // })->orWhere(function ($q) use ($auth, $p) {
-                //     $q->where('sender_id', $p->user_id)->where('receiver_id', $auth->id);
-                // })->first();
+                // Like count
+                $p->like_count = $p->likes_count;
+                unset($p->likes_count);
 
+                // Friendship status
                 $friendship = $friendships->first(function ($item) use ($auth, $p) {
 
                     return
                         ($item->sender_id == $auth->id && $item->receiver_id == $p->user_id) ||
-
                         ($item->receiver_id == $auth->id && $item->sender_id == $p->user_id);
-
                 });
 
-                $p->friendship_status = $friendship?->status ?? 'not_friends';
-                // $p->friendship_sender = $friendship?->sender_id ?? null;
+                $p->friendship_status =
+                $friendship?->status ?? 'not_friends';
 
                 $p->friendship_sender = $friendship
                     ? ((int) $friendship->sender_id === (int) $auth->id ? 1 : 0)
                     : null;
 
-                // $p->is_bookmarked = \App\Models\Bookmark::where('user_id', $auth->id)
-                //     ->where('post_id', $p->id)
-                //     ->exists();
-
+                // Bookmark
                 $p->is_bookmarked = isset($bookmarkIds[$p->id]);
 
                 return $p;
@@ -1421,10 +2293,42 @@ class ApiProfileController extends Controller
         //     ->limit(15)
         //     ->get();
 
-        $all_users = User::where('role', 0)
+        // $all_users = User::where('role', 0)
+        //     ->where('id', '!=', $auth->id)
+        //     ->whereNotIn('id', $hiddenUsers)
+        //     ->with('specialization')
+        //     ->withAvg('ratingsReceived', 'rating')
+        //     ->inRandomOrder()
+        //     ->limit(15)
+        //     ->get();
+
+        // Accepted + Pending friendship users
+        $excludedFriendUserIds = Friendship::where(function ($q) use ($auth) {
+            $q->where('sender_id', $auth->id)
+                ->orWhere('receiver_id', $auth->id);
+        })
+            ->whereIn('status', ['accepted', 'pending'])
+            ->get(['sender_id', 'receiver_id'])
+            ->map(function ($friendship) use ($auth) {
+                return $friendship->sender_id == $auth->id
+                    ? $friendship->receiver_id
+                    : $friendship->sender_id;
+            })
+            ->unique()
+            ->values()
+            ->toArray();
+
+        $all_users = User::select([
+            'id',
+            'first_name',
+            'last_name',
+            'image',
+        ])
+            ->where('role', 0)
             ->where('id', '!=', $auth->id)
             ->whereNotIn('id', $hiddenUsers)
-            ->with('specialization')
+            ->whereNotIn('id', $excludedFriendUserIds)
+            ->with('specialization:id,name')
             ->withAvg('ratingsReceived', 'rating')
             ->inRandomOrder()
             ->limit(15)
@@ -1494,14 +2398,16 @@ class ApiProfileController extends Controller
         }
 
         // Statuses (last 24h)
-        $userId    = auth()->id();
+        $userId = auth()->id();
+
+// Accepted friends
         $friendIds = \DB::table('friendships')
             ->where('status', 'accepted')
             ->where(function ($query) use ($userId) {
                 $query->where('sender_id', $userId)
                     ->orWhere('receiver_id', $userId);
             })
-            ->get()
+            ->get(['sender_id', 'receiver_id'])
             ->map(function ($friendship) use ($userId) {
                 return $friendship->sender_id == $userId
                     ? $friendship->receiver_id
@@ -1511,14 +2417,20 @@ class ApiProfileController extends Controller
             ->values()
             ->toArray();
 
-        $friendIds[] = $auth->id; // include myself
-                                  // dd($friendIds);
+// Include myself
+        $friendIds[] = $userId;
 
-        $viewedStatusIds = \App\Models\StatusView::where('viewer_id', $auth->id)
+// Viewed status IDs
+        $viewedStatusIds = \App\Models\StatusView::where('viewer_id', $userId)
             ->pluck('status_id')
             ->toArray();
 
-        $statuses = Status::with('user')
+        $viewedStatusMap = array_flip($viewedStatusIds);
+
+// Statuses
+        $statuses = Status::with([
+            'user:id,first_name,last_name,image',
+        ])
             ->where('created_at', '>=', now()->subDay())
             ->whereIn('user_id', $friendIds)
             ->whereNotIn('user_id', $hiddenUsers)
@@ -1527,10 +2439,11 @@ class ApiProfileController extends Controller
             ->groupBy('user_id')
             ->map(fn($group) => collect($group));
 
-        $statuses = $statuses->sortBy(function ($userStatuses) use ($viewedStatusIds) {
+// Unviewed users first
+        $statuses = $statuses->sortBy(function ($userStatuses) use ($viewedStatusMap) {
 
-            $isViewed = $userStatuses->every(function ($status) use ($viewedStatusIds) {
-                return in_array($status->id, $viewedStatusIds);
+            $isViewed = $userStatuses->every(function ($status) use ($viewedStatusMap) {
+                return isset($viewedStatusMap[$status->id]);
             });
 
             return $isViewed ? 1 : 0;
@@ -1654,7 +2567,7 @@ class ApiProfileController extends Controller
         abort_if($user->role != 0, 403, 'Unauthorized access');
 
         /* ================= UNREAD NOTIFICATIONS ================= */
-        $notifications = $user->unreadNotifications;
+        // $notifications = $user->unreadNotifications;
 
         /* ================= FRIENDS ================= */
         $friendIds = \App\Models\Friendship::where('status', 'accepted')
@@ -1802,7 +2715,7 @@ class ApiProfileController extends Controller
         return response()->json([
             'status'           => true,
             'user'             => $user,
-            'notifications'    => $notifications,
+            // 'notifications'    => $notifications,
             'friends'          => $chatUsers,
             'receiver'         => $receiver,
             'receiverChatType' => $receiverChatType,
@@ -1929,6 +2842,195 @@ class ApiProfileController extends Controller
         ], 200);
     }
 
+    // public function eventPost(Request $request)
+    // {
+    //     $auth = Auth::user();
+
+    //     // Only allow role = 0 users
+    //     abort_if($auth->role != 0, 403, 'Unauthorized access');
+
+    //     $request->validate([
+    //         'post_id' => 'required|integer|exists:posts,id',
+    //     ]);
+
+    //     // Unread notifications
+    //     // $notifications = $auth->unreadNotifications;
+
+    //     // --- Blocked Users ---
+    //     $blockedUsers = Block::where('user_id', $auth->id)
+    //         ->whereNotNull('blocked_id')
+    //         ->pluck('blocked_id')
+    //         ->toArray();
+
+    //     $blockedByUsers = Block::where('blocked_id', $auth->id)
+    //         ->pluck('user_id')
+    //         ->toArray();
+
+    //     $blockedPosts = Block::where('user_id', $auth->id)
+    //         ->whereNotNull('post_id')
+    //         ->pluck('post_id')
+    //         ->toArray();
+
+    //     $hiddenUsers = array_unique(
+    //         array_merge($blockedUsers, $blockedByUsers)
+    //     );
+
+    //     // --- Muted Users ---
+    //     $mutedUsers = Mute::where('user_id', $auth->id)
+    //         ->pluck('muted_user_id')
+    //         ->toArray();
+
+    //     // --- Friend IDs ---
+    //     $friendIds = Friendship::where(function ($q) use ($auth) {
+    //         $q->where('sender_id', $auth->id)
+    //             ->orWhere('receiver_id', $auth->id);
+    //     })
+    //         ->where('status', 'accepted')
+    //         ->get()
+    //         ->map(function ($f) use ($auth) {
+    //             return $f->sender_id == $auth->id
+    //                 ? $f->receiver_id
+    //                 : $f->sender_id;
+    //         })
+    //         ->toArray();
+
+    //     // --- Allowed Users ---
+    //     $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
+    //         $q->where('id', $auth->id)
+    //             ->orWhere('is_private', 0)
+    //             ->orWhereIn('id', $friendIds);
+    //     })
+    //         ->pluck('id')
+    //         ->toArray();
+
+    //     // --- Fetch all users ---
+    //     // $all_users = User::where('id', '!=', $auth->id)
+    //     //     ->where('role', 0)
+    //     //     ->whereNotIn('id', $hiddenUsers)
+    //     //     ->with('ratingsReceived')
+    //     //     ->inRandomOrder()
+    //     //     ->get()
+    //     //     ->map(function ($user) use ($auth) {
+
+    //     //         $friendCount = Friendship::where(function ($query) use ($user) {
+    //     //             $query->where('sender_id', $user->id)
+    //     //                 ->orWhere('receiver_id', $user->id);
+    //     //         })
+    //     //             ->where('status', 'accepted')
+    //     //             ->count();
+
+    //     //         $user->friend_count = $friendCount;
+
+    //     //         $friendship = Friendship::where(function ($q) use ($auth, $user) {
+    //     //             $q->where('sender_id', $auth->id)
+    //     //                 ->where('receiver_id', $user->id);
+    //     //         })
+    //     //             ->orWhere(function ($q) use ($auth, $user) {
+    //     //                 $q->where('sender_id', $user->id)
+    //     //                     ->where('receiver_id', $auth->id);
+    //     //             })
+    //     //             ->first();
+
+    //     //         $user->friendship_status = $friendship?->status;
+    //     //         $user->friendship_sender = $friendship?->sender_id;
+
+    //     //         $user->average_rating = round(
+    //     //             $user->ratingsReceived->avg('rating') ?? 0,
+    //     //             1
+    //     //         );
+
+    //     //         return $user;
+    //     //     });
+
+    //     // --- Fetch Posts ---
+    //     $all_posts = Post::with([
+    //         'user',
+    //         'comments' => function ($query) use ($hiddenUsers) {
+    //             $query->whereNotIn('user_id', $hiddenUsers)
+    //                 ->with([
+    //                     'user',
+    //                     'replies' => function ($q) use ($hiddenUsers) {
+    //                         $q->whereNotIn('user_id', $hiddenUsers)
+    //                             ->with('user');
+    //                     },
+    //                 ]);
+    //         },
+    //     ])
+    //         ->whereIn('user_id', $allowedUserIds)
+    //         ->whereNotIn('id', $blockedPosts)
+    //         ->whereNotIn('user_id', $hiddenUsers)
+    //         ->whereNotIn('user_id', $mutedUsers)
+    //         ->get()
+    //         ->map(function ($post) use ($auth) {
+
+    //             // Total likes
+    //             $post->like_count = $post->likes()->count();
+
+    //             // Remove likes relationship from response
+    //             unset($post->likes);
+
+    //             // Total comments
+    //             $post->total_comments =
+    //             $post->comments->count() +
+    //             $post->comments->sum(
+    //                 fn($c) => $c->replies->count()
+    //             );
+
+    //             // Friendship status
+    //             $friendship = Friendship::where(function ($q) use ($auth, $post) {
+    //                 $q->where('sender_id', $auth->id)
+    //                     ->where('receiver_id', $post->user_id);
+    //             })
+    //                 ->orWhere(function ($q) use ($auth, $post) {
+    //                     $q->where('sender_id', $post->user_id)
+    //                         ->where('receiver_id', $auth->id);
+    //                 })
+    //                 ->first();
+
+    //             $post->friendship_status =
+    //             $friendship?->status ?? 'not_friends';
+
+    //             $post->friendship_sender =
+    //             $friendship?->sender_id ?? null;
+
+    //             // Bookmark
+    //             $post->is_bookmarked = Bookmark::where('user_id', $auth->id)
+    //                 ->where('post_id', $post->id)
+    //                 ->exists();
+
+    //             return $post;
+    //         })
+    //         ->sortByDesc('like_count')
+    //         ->values();
+
+    //     // -------------------------------------------------
+    //     // Requested post ko TOP par le aao
+    //     // -------------------------------------------------
+
+    //     $requestedPost = $all_posts->firstWhere(
+    //         'id',
+    //         (int) $request->post_id
+    //     );
+
+    //     if ($requestedPost) {
+
+    //         $all_posts = $all_posts
+    //             ->reject(function ($post) use ($requestedPost) {
+    //                 return $post->id == $requestedPost->id;
+    //             })
+    //             ->prepend($requestedPost)
+    //             ->values();
+    //     }
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'user'    => $auth,
+    //         // 'notifications' => $notifications,
+    //         // 'all_users'     => $all_users,
+    //         'posts'   => $all_posts,
+    //     ]);
+    // }
+
     public function eventPost(Request $request)
     {
         $auth = Auth::user();
@@ -1940,16 +3042,17 @@ class ApiProfileController extends Controller
             'post_id' => 'required|integer|exists:posts,id',
         ]);
 
-        // Unread notifications
-        // $notifications = $auth->unreadNotifications;
+        // -------------------------------------------------
+        // BLOCKED USERS / POSTS
+        // -------------------------------------------------
 
-        // --- Blocked Users ---
         $blockedUsers = Block::where('user_id', $auth->id)
             ->whereNotNull('blocked_id')
             ->pluck('blocked_id')
             ->toArray();
 
         $blockedByUsers = Block::where('blocked_id', $auth->id)
+            ->whereNotNull('user_id')
             ->pluck('user_id')
             ->toArray();
 
@@ -1962,136 +3065,172 @@ class ApiProfileController extends Controller
             array_merge($blockedUsers, $blockedByUsers)
         );
 
-        // --- Muted Users ---
+        // -------------------------------------------------
+        // MUTED USERS
+        // -------------------------------------------------
+
         $mutedUsers = Mute::where('user_id', $auth->id)
             ->pluck('muted_user_id')
             ->toArray();
 
-        // --- Friend IDs ---
+        // -------------------------------------------------
+        // FRIEND IDS
+        // -------------------------------------------------
+
         $friendIds = Friendship::where(function ($q) use ($auth) {
             $q->where('sender_id', $auth->id)
                 ->orWhere('receiver_id', $auth->id);
         })
             ->where('status', 'accepted')
-            ->get()
-            ->map(function ($f) use ($auth) {
-                return $f->sender_id == $auth->id
-                    ? $f->receiver_id
-                    : $f->sender_id;
+            ->get(['sender_id', 'receiver_id'])
+            ->map(function ($friendship) use ($auth) {
+                return $friendship->sender_id == $auth->id
+                    ? $friendship->receiver_id
+                    : $friendship->sender_id;
             })
             ->toArray();
 
-        // --- Allowed Users ---
+        // -------------------------------------------------
+        // ALLOWED USERS
+        // -------------------------------------------------
+
         $allowedUserIds = User::where(function ($q) use ($auth, $friendIds) {
+
             $q->where('id', $auth->id)
-                ->orWhere('is_private', 0)
-                ->orWhereIn('id', $friendIds);
+                ->orWhere('is_private', 0);
+
+            if (! empty($friendIds)) {
+                $q->orWhereIn('id', $friendIds);
+            }
+
         })
             ->pluck('id')
             ->toArray();
 
-        // --- Fetch all users ---
-        // $all_users = User::where('id', '!=', $auth->id)
-        //     ->where('role', 0)
-        //     ->whereNotIn('id', $hiddenUsers)
-        //     ->with('ratingsReceived')
-        //     ->inRandomOrder()
-        //     ->get()
-        //     ->map(function ($user) use ($auth) {
+        // -------------------------------------------------
+        // POSTS
+        // -------------------------------------------------
 
-        //         $friendCount = Friendship::where(function ($query) use ($user) {
-        //             $query->where('sender_id', $user->id)
-        //                 ->orWhere('receiver_id', $user->id);
-        //         })
-        //             ->where('status', 'accepted')
-        //             ->count();
+        $all_posts = Post::withCount([
+            'likes as like_count',
 
-        //         $user->friend_count = $friendCount;
-
-        //         $friendship = Friendship::where(function ($q) use ($auth, $user) {
-        //             $q->where('sender_id', $auth->id)
-        //                 ->where('receiver_id', $user->id);
-        //         })
-        //             ->orWhere(function ($q) use ($auth, $user) {
-        //                 $q->where('sender_id', $user->id)
-        //                     ->where('receiver_id', $auth->id);
-        //             })
-        //             ->first();
-
-        //         $user->friendship_status = $friendship?->status;
-        //         $user->friendship_sender = $friendship?->sender_id;
-
-        //         $user->average_rating = round(
-        //             $user->ratingsReceived->avg('rating') ?? 0,
-        //             1
-        //         );
-
-        //         return $user;
-        //     });
-
-        // --- Fetch Posts ---
-        $all_posts = Post::with([
-            'user',
-            'comments' => function ($query) use ($hiddenUsers) {
-                $query->whereNotIn('user_id', $hiddenUsers)
-                    ->with([
-                        'user',
-                        'replies' => function ($q) use ($hiddenUsers) {
-                            $q->whereNotIn('user_id', $hiddenUsers)
-                                ->with('user');
-                        },
-                    ]);
-            },
+            'comments as comment_count',
         ])
+            ->with([
+                'user:id,first_name,last_name,image',
+            ])
             ->whereIn('user_id', $allowedUserIds)
             ->whereNotIn('id', $blockedPosts)
             ->whereNotIn('user_id', $hiddenUsers)
             ->whereNotIn('user_id', $mutedUsers)
-            ->get()
-            ->map(function ($post) use ($auth) {
+            ->inRandomOrder()
+            ->get();
 
-                // Total likes
-                $post->like_count = $post->likes()->count();
+        // -------------------------------------------------
+        // POST USER IDS
+        // -------------------------------------------------
 
-                // Remove likes relationship from response
-                unset($post->likes);
+        $postUserIds = $all_posts
+            ->pluck('user_id')
+            ->unique()
+            ->toArray();
 
-                // Total comments
-                $post->total_comments =
-                $post->comments->count() +
-                $post->comments->sum(
-                    fn($c) => $c->replies->count()
-                );
+        $postIds = $all_posts
+            ->pluck('id')
+            ->toArray();
 
-                // Friendship status
-                $friendship = Friendship::where(function ($q) use ($auth, $post) {
-                    $q->where('sender_id', $auth->id)
-                        ->where('receiver_id', $post->user_id);
-                })
-                    ->orWhere(function ($q) use ($auth, $post) {
-                        $q->where('sender_id', $post->user_id)
-                            ->where('receiver_id', $auth->id);
-                    })
-                    ->first();
+        // -------------------------------------------------
+        // FRIENDSHIPS - ONE QUERY
+        // -------------------------------------------------
+
+        $postFriendships = collect();
+
+        if (! empty($postUserIds)) {
+
+            $postFriendships = Friendship::where(function ($q) use (
+                $auth,
+                $postUserIds
+            ) {
+
+                $q->where(function ($q2) use ($auth, $postUserIds) {
+
+                    $q2->where('sender_id', $auth->id)
+                        ->whereIn('receiver_id', $postUserIds);
+
+                })->orWhere(function ($q2) use ($auth, $postUserIds) {
+
+                    $q2->where('receiver_id', $auth->id)
+                        ->whereIn('sender_id', $postUserIds);
+
+                });
+
+            })
+                ->get([
+                    'sender_id',
+                    'receiver_id',
+                    'status',
+                ])
+                ->keyBy(function ($friendship) use ($auth) {
+
+                    return $friendship->sender_id == $auth->id
+                        ? $friendship->receiver_id
+                        : $friendship->sender_id;
+                });
+        }
+
+        // -------------------------------------------------
+        // BOOKMARKS - ONE QUERY
+        // -------------------------------------------------
+
+        $bookmarkedPostIds = collect();
+
+        if (! empty($postIds)) {
+
+            $bookmarkedPostIds = Bookmark::where('user_id', $auth->id)
+                ->whereIn('post_id', $postIds)
+                ->pluck('post_id')
+                ->flip();
+        }
+
+        // -------------------------------------------------
+        // MAP POSTS
+        // -------------------------------------------------
+
+        $all_posts = $all_posts
+            ->map(function ($post) use (
+                $auth,
+                $postFriendships,
+                $bookmarkedPostIds
+            ) {
+
+                // Friendship
+                $friendship = $postFriendships->get($post->user_id);
 
                 $post->friendship_status =
                 $friendship?->status ?? 'not_friends';
 
-                $post->friendship_sender =
-                $friendship?->sender_id ?? null;
+                // 1 = auth user sent request
+                // 0 = other user sent request
+                // null = no request
+                $post->friendship_sender = $friendship
+                    ? (
+                    (int) $friendship->sender_id === (int) $auth->id
+                        ? 1
+                        : 0
+                )
+                    : null;
 
                 // Bookmark
-                $post->is_bookmarked = Bookmark::where('user_id', $auth->id)
-                    ->where('post_id', $post->id)
-                    ->exists();
+                $post->is_bookmarked =
+                isset($bookmarkedPostIds[$post->id]);
 
                 return $post;
             })
-            ->sortByDesc('like_count')
+            // ->sortByDesc('like_count')
             ->values();
 
         // -------------------------------------------------
-        // Requested post ko TOP par le aao
+        // REQUESTED POST TOP PAR
         // -------------------------------------------------
 
         $requestedPost = $all_posts->firstWhere(
@@ -2109,11 +3248,13 @@ class ApiProfileController extends Controller
                 ->values();
         }
 
+        // -------------------------------------------------
+        // RESPONSE
+        // -------------------------------------------------
+
         return response()->json([
             'success' => true,
             'user'    => $auth,
-            // 'notifications' => $notifications,
-            // 'all_users'     => $all_users,
             'posts'   => $all_posts,
         ]);
     }
@@ -2127,6 +3268,63 @@ class ApiProfileController extends Controller
         return response()->json([
             'success'            => true,
             'notification_count' => 0,
+        ]);
+    }
+
+    public function comments(Request $request, $postId)
+    {
+        $auth = Auth::user();
+
+        // Blocked users
+        $blockedUserIds = Block::where('user_id', $auth->id)
+            ->whereNotNull('blocked_id')
+            ->pluck('blocked_id')
+            ->merge(
+                Block::where('blocked_id', $auth->id)
+                    ->whereNotNull('user_id')
+                    ->pluck('user_id')
+            )
+            ->unique()
+            ->toArray();
+
+        // Check post exists
+        $post = Post::find($postId);
+
+        if (! $post) {
+            return response()->json([
+                'status'  => false,
+                'message' => 'Post not found',
+            ], 404);
+        }
+
+        $comments = Comment::where('post_id', $postId)
+            ->whereNull('parent_id')
+            ->whereNotIn('user_id', $blockedUserIds)
+            ->whereHas('user', function ($q) use ($auth) {
+                $q->where('is_private', 0)
+                    ->orWhere('id', $auth->id);
+            })
+            ->with([
+                'user:id,first_name,last_name,image',
+
+                'replies' => function ($q) use ($blockedUserIds, $auth) {
+
+                    $q->whereNotIn('user_id', $blockedUserIds)
+                        ->whereHas('user', function ($userQuery) use ($auth) {
+                            $userQuery->where('is_private', 0)
+                                ->orWhere('id', $auth->id);
+                        })
+                        ->with('user:id,first_name,last_name,image')
+                        ->latest();
+                },
+            ])
+            ->latest()
+            ->get();
+
+        return response()->json([
+            'status'   => true,
+            'post_id'  => (int) $postId,
+            'comments' => $comments,
         ]);
     }
 }
