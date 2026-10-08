@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\ApiFriendController;
 use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
 use App\Http\Controllers\Api\ApiProfileController;
+use App\Http\Controllers\Api\ApiSocialLoginController;
 use App\Http\Controllers\Api\ApiStatusController;
 use App\Http\Controllers\Api\ApiTweetController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
@@ -168,6 +169,13 @@ Route::prefix('social')->group(function () {
     Route::get('complete-profile', [SocialLoginController::class, 'showCompleteProfileForm']);
     Route::post('complete-profile', [SocialLoginController::class, 'completeProfile']);
 });
+
+Route::post('/social/google', [ApiSocialLoginController::class, 'googleLogin']);
+Route::post('/social/facebook', [ApiSocialLoginController::class, 'facebookLogin']);
+Route::post('/social/complete-profile', [ApiSocialLoginController::class, 'completeProfile']);
+Route::post('/social/check-email', [ApiSocialLoginController::class, 'checkEmail']);
+Route::post('/social/send-otp', [ApiSocialLoginController::class, 'sendOtp']);
+Route::post('/social/verify-otp', [ApiSocialLoginController::class, 'verifyOtp']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/group-rooms', [ApiJitsiRoomController::class, 'rooms']);
