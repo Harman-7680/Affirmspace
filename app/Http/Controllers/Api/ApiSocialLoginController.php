@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
-class SocialLoginController extends Controller
+class ApiSocialLoginController extends Controller
 {
     /*
     |--------------------------------------------------------------------------
