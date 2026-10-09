@@ -8,6 +8,7 @@ use App\Models\RegistrationSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
@@ -194,20 +195,45 @@ class SocialLoginController extends Controller
         }
 
         if ($existingUser) {
-            $request->validate(['otp_verified' => 'required|in:1']);
+            // $request->validate(['otp_verified' => 'required|in:1']);
             // $existingUser->update([
             //     'social_id'         => $socialId,
             //     'email_verified_at' => now(),
             // ]);
 
-            if ($existingUser && $existingUser->pending_email === $email) {
+            if ($existingUser->role == 2) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Social login not allowed for this role.',
+                ], 403);
+            }
+
+            // Deactivated check
+            if ($existingUser->status == 0) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Account is deactivated.',
+                ], 403);
+            }
+
+            // Server-side OTP check
+            if (! Cache::get('otp_verified_' . $email)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'OTP not verified for this email.',
+                ], 422);
+            }
+
+            // Ab update
+            if ($existingUser->pending_email === $email) {
                 $existingUser->email         = $existingUser->pending_email;
                 $existingUser->pending_email = null;
             }
-
             $existingUser->social_id         = $socialId;
             $existingUser->email_verified_at = now();
             $existingUser->save();
+
+            Cache::forget('otp_verified_' . $email);
 
             $existingUser->tokens()->delete();
             \DB::table('sessions')->where('user_id', $existingUser->id)->delete();
@@ -235,17 +261,29 @@ class SocialLoginController extends Controller
         }
 
         // New user → validate all fields
+        $request->validate(['email' => 'required|email|max:50']);
+        $email = $request->email;
+
+        if (! Cache::get('otp_verified_' . $email)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP not verified for this email.',
+            ], 422);
+        }
+
         $rules = [
-            'first_name'   => 'required|string|max:25',
-            'last_name'    => 'required|string|max:25',
-            'email'        => 'required|email|max:50',
-            'otp_verified' => 'required|in:1',
-            'gender'       => 'required|string',
-            'role'         => 'required|in:0,1',
-            'address'      => 'required|string',
-            'refer_code'   => ['nullable', 'exists:users,refer_code'],
-            'refer_code'   => ['nullable', 'exists:users,refer_code'],
+            'first_name' => 'required|string|max:25',
+            'last_name'  => 'required|string|max:25',
+            'gender'     => 'required|string',
+            'role'       => 'required|in:0,1',
+            'address'    => 'required|string',
+            'refer_code' => ['nullable', 'exists:users,refer_code'],
         ];
+
+        if ($request->role == 1) {
+            $rules['specialization_id'] = 'required|exists:specializations,id';
+        }
+
         $request->validate($rules);
 
         // Generate refer code
@@ -271,6 +309,8 @@ class SocialLoginController extends Controller
             'social_id'         => $socialId,
             'specialization_id' => $request->role == 1 ? $request->specialization_id : null,
         ]);
+
+        Cache::forget('otp_verified_' . $email);
 
         // Total counts after new user registration
         $totalCounselees = User::where('role', 0)->count();
@@ -332,26 +372,61 @@ class SocialLoginController extends Controller
     }
 
     // Send OTP
+    // public function sendOtp(Request $request)
+    // {
+    //     $request->validate(['email' => 'required|email']);
+    //     $email = $request->email;
+    //     $otp   = rand(100000, 999999);
+
+    //     Session::put('otp_email', $email);
+    //     Session::put('otp_code', $otp);
+    //     Session::put('otp_expires', now()->addMinutes(5));
+
+    //     // $exists = User::where('email', $email)->exists();
+    //     $exists = User::where('email', $email)
+    //         ->orWhere('pending_email', $email)
+    //         ->exists();
+    //     Mail::to($email)->send(new OtpMail($otp));
+
+    //     return response()->json(['success' => true, 'exists' => $exists]);
+    // }
+
+    // // Verify OTP
+    // public function verifyOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'otp'   => 'required|digits:6',
+    //     ]);
+
+    //     if (Session::get('otp_email') === $request->email &&
+    //         Session::get('otp_code') == $request->otp &&
+    //         now()->lt(Session::get('otp_expires'))) {
+
+    //         Session::forget(['otp_email', 'otp_code', 'otp_expires']);
+    //         return response()->json(['success' => true]);
+    //     }
+
+    //     return response()->json(['success' => false, 'message' => 'Wrong OTP']);
+    // }
+
     public function sendOtp(Request $request)
     {
         $request->validate(['email' => 'required|email']);
         $email = $request->email;
         $otp   = rand(100000, 999999);
 
-        Session::put('otp_email', $email);
-        Session::put('otp_code', $otp);
-        Session::put('otp_expires', now()->addMinutes(5));
+        Cache::put('otp_' . $email, $otp, now()->addMinutes(5));
 
-        // $exists = User::where('email', $email)->exists();
         $exists = User::where('email', $email)
             ->orWhere('pending_email', $email)
             ->exists();
+
         Mail::to($email)->send(new OtpMail($otp));
 
         return response()->json(['success' => true, 'exists' => $exists]);
     }
 
-    // Verify OTP
     public function verifyOtp(Request $request)
     {
         $request->validate([
@@ -359,11 +434,11 @@ class SocialLoginController extends Controller
             'otp'   => 'required|digits:6',
         ]);
 
-        if (Session::get('otp_email') === $request->email &&
-            Session::get('otp_code') == $request->otp &&
-            now()->lt(Session::get('otp_expires'))) {
+        $cachedOtp = Cache::get('otp_' . $request->email);
 
-            Session::forget(['otp_email', 'otp_code', 'otp_expires']);
+        if ($cachedOtp && $cachedOtp == $request->otp) {
+            Cache::put('otp_verified_' . $request->email, true, now()->addMinutes(10));
+            Cache::forget('otp_' . $request->email);
             return response()->json(['success' => true]);
         }
 

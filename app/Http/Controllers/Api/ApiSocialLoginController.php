@@ -7,8 +7,8 @@ use App\Mail\OtpMail;
 use App\Models\RegistrationSetting;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Facades\Session;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
@@ -381,25 +381,6 @@ class ApiSocialLoginController extends Controller
             ]);
 
             /*
-            | Pending email -> main email
-            */
-
-            if ($existingUser->pending_email === $email) {
-
-                $existingUser->email         = $existingUser->pending_email;
-                $existingUser->pending_email = null;
-            }
-
-            /*
-            | Attach social login
-            */
-
-            $existingUser->social_id         = $socialId;
-            $existingUser->email_verified_at = now();
-
-            $existingUser->save();
-
-            /*
             | Admin check
             */
 
@@ -422,6 +403,35 @@ class ApiSocialLoginController extends Controller
                     'message' => 'Account is deactivated.',
                 ], 403);
             }
+
+            if (! Cache::get('otp_verified_' . $email)) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'OTP not verified for this email.',
+                ], 422);
+            }
+
+            /*
+            | Pending email -> main email
+            */
+
+            if ($existingUser->pending_email === $email) {
+
+                $existingUser->email         = $existingUser->pending_email;
+                $existingUser->pending_email = null;
+            }
+
+            /*
+            | Attach social login
+            */
+
+            $existingUser->social_id         = $socialId;
+            $existingUser->email_verified_at = now();
+
+            $existingUser->save();
+
+            // OTP verified flag clear
+            Cache::forget('otp_verified_' . $email);
 
             /*
             | Remove old tokens
@@ -485,23 +495,32 @@ class ApiSocialLoginController extends Controller
         |--------------------------------------------------------------------------
         */
 
+        // Pehle email check karo
+        $request->validate([
+            'email' => 'required|email|max:50',
+        ]);
+
+        $email = $request->email;
+
+// Ab Cache check
+        if (! Cache::get('otp_verified_' . $email)) {
+            return response()->json([
+                'success' => false,
+                'message' => 'OTP not verified for this email.',
+            ], 422);
+        }
+
+// Baaki rules
         $rules = [
-            'first_name'   => 'required|string|max:25',
-            'last_name'    => 'required|string|max:25',
-            'email'        => 'required|email|max:50',
-            'otp_verified' => 'required|in:1',
-            'gender'       => 'required|string',
-            'role'         => 'required|in:0,1',
-            'address'      => 'required|string',
-            'refer_code'   => ['nullable', 'exists:users,refer_code'],
+            'first_name' => 'required|string|max:25',
+            'last_name'  => 'required|string|max:25',
+            'gender'     => 'required|string',
+            'role'       => 'required|in:0,1',
+            'address'    => 'required|string',
+            'refer_code' => ['nullable', 'exists:users,refer_code'],
         ];
 
-        /*
-        | Counselor specialization
-        */
-
         if ($request->role == 1) {
-
             $rules['specialization_id'] = 'required|exists:specializations,id';
         }
 
@@ -582,6 +601,8 @@ class ApiSocialLoginController extends Controller
                 ? $request->specialization_id
                 : null,
         ]);
+
+        Cache::forget('otp_verified_' . $email);
 
         /*
         |--------------------------------------------------------------------------
@@ -712,42 +733,96 @@ class ApiSocialLoginController extends Controller
     |--------------------------------------------------------------------------
     */
 
+    // public function sendOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //     ]);
+
+    //     $email = $request->email;
+
+    //     $otp = rand(100000, 999999);
+
+    //     Session::put('otp_email', $email);
+    //     Session::put('otp_code', $otp);
+    //     Session::put(
+    //         'otp_expires',
+    //         now()->addMinutes(5)
+    //     );
+
+    //     $exists = User::where('email', $email)
+    //         ->orWhere('pending_email', $email)
+    //         ->exists();
+
+    //     Mail::to($email)->send(
+    //         new OtpMail($otp)
+    //     );
+
+    //     return response()->json([
+    //         'success' => true,
+    //         'exists'  => $exists,
+    //     ]);
+    // }
+
+    // /*
+    // |--------------------------------------------------------------------------
+    // | VERIFY OTP
+    // |--------------------------------------------------------------------------
+    // */
+
+    // public function verifyOtp(Request $request)
+    // {
+    //     $request->validate([
+    //         'email' => 'required|email',
+    //         'otp'   => 'required|digits:6',
+    //     ]);
+
+    //     if (
+    //         Session::get('otp_email') === $request->email &&
+    //         Session::get('otp_code') == $request->otp &&
+    //         now()->lt(
+    //             Session::get('otp_expires')
+    //         )
+    //     ) {
+
+    //         Session::forget([
+    //             'otp_email',
+    //             'otp_code',
+    //             'otp_expires',
+    //         ]);
+
+    //         return response()->json([
+    //             'success' => true,
+    //         ]);
+    //     }
+
+    //     return response()->json([
+    //         'success' => false,
+    //         'message' => 'Wrong OTP',
+    //     ], 422);
+    // }
+
     public function sendOtp(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
+        $request->validate(['email' => 'required|email']);
 
         $email = $request->email;
+        $otp   = rand(100000, 999999);
 
-        $otp = rand(100000, 999999);
-
-        Session::put('otp_email', $email);
-        Session::put('otp_code', $otp);
-        Session::put(
-            'otp_expires',
-            now()->addMinutes(5)
-        );
+        // OTP 5 min ke liye cache me
+        Cache::put('otp_' . $email, $otp, now()->addMinutes(5));
 
         $exists = User::where('email', $email)
             ->orWhere('pending_email', $email)
             ->exists();
 
-        Mail::to($email)->send(
-            new OtpMail($otp)
-        );
+        Mail::to($email)->send(new OtpMail($otp));
 
         return response()->json([
             'success' => true,
             'exists'  => $exists,
         ]);
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | VERIFY OTP
-    |--------------------------------------------------------------------------
-    */
 
     public function verifyOtp(Request $request)
     {
@@ -756,23 +831,17 @@ class ApiSocialLoginController extends Controller
             'otp'   => 'required|digits:6',
         ]);
 
-        if (
-            Session::get('otp_email') === $request->email &&
-            Session::get('otp_code') == $request->otp &&
-            now()->lt(
-                Session::get('otp_expires')
-            )
-        ) {
+        $cachedOtp = Cache::get('otp_' . $request->email);
 
-            Session::forget([
-                'otp_email',
-                'otp_code',
-                'otp_expires',
-            ]);
+        if ($cachedOtp && $cachedOtp == $request->otp) {
 
-            return response()->json([
-                'success' => true,
-            ]);
+            // Verified flag 10 min ke liye set karo
+            Cache::put('otp_verified_' . $request->email, true, now()->addMinutes(10));
+
+            // OTP hata do
+            Cache::forget('otp_' . $request->email);
+
+            return response()->json(['success' => true]);
         }
 
         return response()->json([

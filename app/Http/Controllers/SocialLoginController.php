@@ -236,6 +236,15 @@ class SocialLoginController extends Controller
         }
 
         if ($existingUser) {
+            if ($existingUser->role == 2) {
+                return redirect()->route('login')->with('error', 'Social login not allowed for this role.');
+            }
+
+            // Deactivated check
+            if ($existingUser->status == 0) {
+                return redirect()->route('login')->withErrors(['email' => 'Sorry, your account is deactivated.']);
+            }
+            
             // validate OTP
             $request->validate(['otp_verified' => 'required|in:1']);
             // $existingUser->update([
