@@ -236,60 +236,27 @@
 
                                     {{-- Gender --}}
                                     <div class="md:flex items-center gap-10">
-                                        <label class="md:w-32 text-right">Gender</label>
-                                        <div class="flex-1 max-md:mt-4">
-                                            <select name="gender" class="border rounded-md w-full p-2">
-                                                <option value="Woman"
-                                                    {{ old('gender', $user->gender) == 'Woman' ? 'selected' : '' }}>Woman
-                                                </option>
-                                                <option value="Man"
-                                                    {{ old('gender', $user->gender) == 'Man' ? 'selected' : '' }}>Man
-                                                </option>
-                                                <option value="Trans Woman"
-                                                    {{ old('gender', $user->gender) == 'Trans Woman' ? 'selected' : '' }}>
-                                                    Trans
-                                                    Woman</option>
-                                                <option value="Trans Man"
-                                                    {{ old('gender', $user->gender) == 'Trans Man' ? 'selected' : '' }}>
-                                                    Trans Man
-                                                </option>
-                                                <option value="Non-binary"
-                                                    {{ old('gender', $user->gender) == 'Non-binary' ? 'selected' : '' }}>
-                                                    Non-binary
-                                                </option>
-                                                <option value="Genderqueer"
-                                                    {{ old('gender', $user->gender) == 'Genderqueer' ? 'selected' : '' }}>
-                                                    Genderqueer</option>
-                                                <option value="Agender"
-                                                    {{ old('gender', $user->gender) == 'Agender' ? 'selected' : '' }}>
-                                                    Agender
-                                                </option>
-                                                <option value="Bigender"
-                                                    {{ old('gender', $user->gender) == 'Bigender' ? 'selected' : '' }}>
-                                                    Bigender
-                                                </option>
-                                                <option value="Genderfluid"
-                                                    {{ old('gender', $user->gender) == 'Genderfluid' ? 'selected' : '' }}>
-                                                    Genderfluid</option>
-                                                <option value="Two-Spirit"
-                                                    {{ old('gender', $user->gender) == 'Two-Spirit' ? 'selected' : '' }}>
-                                                    Two-Spirit
-                                                </option>
-                                                <option value="Intersex"
-                                                    {{ old('gender', $user->gender) == 'Intersex' ? 'selected' : '' }}>
-                                                    Intersex
-                                                </option>
-                                                <option value="Questioning"
-                                                    {{ old('gender', $user->gender) == 'Questioning' ? 'selected' : '' }}>
-                                                    Questioning</option>
-                                                <option value="Prefer not to say"
-                                                    {{ old('gender', $user->gender) == 'Prefer not to say' ? 'selected' : '' }}>
-                                                    Prefer not to say</option>
-                                                {{-- <option value="Other"
-                                                    {{ old('gender', $user->gender) == 'Other' ? 'selected' : '' }}>Other
-                                                </option> --}}
-                                            </select>
+                                        <label for="genderSearch" class="md:w-32 text-right">Gender Indetity</label>
+
+                                        <div class="flex-1 max-md:mt-4 relative">
+
+                                            {{-- Search Input --}}
+                                            <input type="text" id="genderSearch"
+                                                placeholder="Search..." autocomplete="off"
+                                                value="{{ old('gender', $user->gender) }}"
+                                                class="border rounded-md w-full p-2">
+
+                                            {{-- Actual value submitted to Laravel --}}
+                                            <input type="hidden" name="gender" id="gender"
+                                                value="{{ old('gender', $user->gender) }}">
+
+                                            {{-- Suggestions --}}
+                                            <div id="genderSuggestions"
+                                                class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg z-50">
+                                            </div>
+
                                             <x-input-error class="mt-2" :messages="$errors->get('gender')" />
+
                                         </div>
                                     </div>
 
@@ -1287,5 +1254,135 @@
             input.select();
             document.execCommand('copy');
         }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('genderSearch');
+            const genderInput = document.getElementById('gender');
+            const suggestionsBox = document.getElementById('genderSuggestions');
+
+            if (!searchInput || !genderInput || !suggestionsBox) return;
+
+            const genderOptions = [
+                'Man',
+                'Woman',
+                'Non-binary',
+                'Transgender',
+                'Trans Man',
+                'Trans Woman',
+                'Cisgender Man',
+                'Cisgender Woman',
+                'Genderfluid',
+                'Genderqueer',
+                'Agender',
+                'Bigender',
+                'Demigender',
+                'Demiboy',
+                'Demigirl',
+                'Pangender',
+                'Polygender',
+                'Multigender',
+                'Androgynous',
+                'Neutrois',
+                'Maverique',
+                'Xenogender',
+                'Gender Non-conforming',
+                'Gender-expansive',
+                'Transmasculine',
+                'Transfeminine',
+                'Intergender',
+                'Intersex',
+                'Two-Spirit',
+                'Third Gender',
+                'Questioning My Gender',
+                'Another Gender Identity',
+                'Prefer not to say',
+                'Other'
+            ];
+
+            function showSuggestions(query) {
+
+                suggestionsBox.innerHTML = '';
+
+                const searchTerm = query.trim().toLowerCase();
+
+                const filteredOptions = genderOptions.filter(function(gender) {
+                    return gender.toLowerCase().includes(searchTerm);
+                });
+
+                if (filteredOptions.length === 0) {
+
+                    const noResult = document.createElement('div');
+                    noResult.className = 'px-4 py-2.5 text-sm text-slate-500';
+                    noResult.textContent = 'No matching gender identity found';
+
+                    suggestionsBox.appendChild(noResult);
+
+                } else {
+
+                    filteredOptions.forEach(function(gender) {
+
+                        const option = document.createElement('div');
+
+                        option.textContent = gender;
+
+                        option.className =
+                            'px-4 py-2.5 text-sm cursor-pointer ' +
+                            'text-slate-700 dark:text-slate-200 ' +
+                            'hover:bg-slate-100 dark:hover:bg-white/10';
+
+                        option.addEventListener('mousedown', function(event) {
+                            event.preventDefault();
+
+                            searchInput.value = gender;
+                            genderInput.value = gender;
+
+                            suggestionsBox.classList.add('hidden');
+                        });
+
+                        suggestionsBox.appendChild(option);
+                    });
+                }
+
+                suggestionsBox.classList.remove('hidden');
+            }
+
+            // Empty input par dropdown open nahi hoga
+            searchInput.addEventListener('focus', function() {
+
+                if (this.value.trim() !== '') {
+                    showSuggestions(this.value);
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            // Typing ke according options filter honge
+            searchInput.addEventListener('input', function() {
+
+                genderInput.value = '';
+
+                if (this.value.trim() === '') {
+                    suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                showSuggestions(this.value);
+            });
+
+            // Dropdown ke bahar click karne par hide
+            document.addEventListener('click', function(event) {
+
+                if (
+                    !searchInput.contains(event.target) &&
+                    !suggestionsBox.contains(event.target)
+                ) {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+        });
     </script>
 @endsection

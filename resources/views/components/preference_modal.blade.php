@@ -19,7 +19,7 @@
                 {{-- Identity (Static) --}}
                 <div class="space-y-0.5">
                     <label class="block text-[9px] font-bold uppercase tracking-wider" style="color: black;">Your
-                        Identity</label>
+                        Registered Identity</label>
                     <div class="w-full border border-gray-200 rounded-lg p-1.5 bg-gray-50 font-semibold text-[10px] truncate"
                         style="color: black;">
                         {{ $user->gender ?? 'Not Set' }}
@@ -137,8 +137,29 @@
                             {{ ($details->gender ?? '') == 'Man' ? 'selected' : '' }}>Man</option>
                         <option value="Woman" style="color: black;"
                             {{ ($details->gender ?? '') == 'Woman' ? 'selected' : '' }}>Woman</option>
-                        <option value="Non Binary" style="color: black;"
-                            {{ ($details->gender ?? '') == 'Non Binary' ? 'selected' : '' }}>Non Binary</option>
+                        <option value="Trans Woman" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Trans Woman' ? 'selected' : '' }}>Trans Woman</option>
+                        <option value="Trans Man" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Trans Man' ? 'selected' : '' }}>Trans Man</option>
+                        <option value="Non-binary" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Non-binary' ? 'selected' : '' }}>Non-binary</option>
+                        <option value="Genderqueer" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Genderqueer' ? 'selected' : '' }}>Genderqueer</option>
+                        <option value="Agender" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Agender' ? 'selected' : '' }}>Agender</option>
+                        <option value="Bigender" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Bigender' ? 'selected' : '' }}>Bigender</option>
+                        <option value="Genderfluid" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Genderfluid' ? 'selected' : '' }}>Genderfluid</option>
+                        <option value="Two-Spirit" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Two-Spirit' ? 'selected' : '' }}>Two-Spirit</option>
+                        <option value="Intersex" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Intersex' ? 'selected' : '' }}>Intersex</option>
+                        <option value="Questioning" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Questioning' ? 'selected' : '' }}>Questioning</option>
+                        <option value="Prefer not to say" style="color: black;"
+                            {{ ($details->gender ?? '') == 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say
+                        </option>
                     </select>
                 </div>
 

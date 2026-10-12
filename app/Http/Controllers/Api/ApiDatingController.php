@@ -662,7 +662,7 @@ class ApiDatingController extends Controller
                 case 3:
 
                     $request->validate([
-                        'identity'          => 'required|string|in:Man,Woman,Non-binary,Transgender',
+                        'identity'          => 'required|string|in:Man,Woman,Trans Woman,Trans Man,Non-binary,Genderqueer,Agender,Bigender,Genderfluid,Two-Spirit,Intersex,Questioning,Prefer not to say',
                         'preference'        => 'required|string',
                         'relationship_type' => 'required|string',
                     ]);

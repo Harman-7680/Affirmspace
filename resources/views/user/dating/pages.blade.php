@@ -85,8 +85,17 @@
                             <option value="" disabled selected>Select identity</option>
                             <option value="Man">Man</option>
                             <option value="Woman">Woman</option>
+                            <option value="Trans Woman">Trans Woman</option>
+                            <option value="Trans Man">Trans Man</option>
                             <option value="Non-binary">Non-binary</option>
-                            <option value="Transgender">Transgender</option>
+                            <option value="Genderqueer">Genderqueer</option>
+                            <option value="Agender">Agender</option>
+                            <option value="Bigender">Bigender</option>
+                            <option value="Genderfluid">Genderfluid</option>
+                            <option value="Two-Spirit">Two-Spirit</option>
+                            <option value="Intersex">Intersex</option>
+                            <option value="Questioning">Questioning</option>
+                            <option value="Prefer not to say">Prefer not to say</option>
                         </select>
                         <p class="error-msg text-red-500 text-[9px] mt-0.5 hidden"></p>
                     </div>
@@ -96,7 +105,7 @@
                         <p class="text-[9px] text-gray-500 mb-1.5">Choose who you naturally feel drawn to connect with.</p>
                         <select name="preference" class="f-input text-[10px] py-1 px-1.5" required>
                             <option value="" disabled selected>Select preference</option>
-                            @foreach (['Woman', 'Man', 'Non-binary', 'Everyone'] as $item)
+                            @foreach (['Man', 'Woman', 'Trans Woman', 'Trans Man', 'Non-binary', 'Genderqueer', 'Agender', 'Bigender', 'Genderfluid', 'Two-Spirit', 'Intersex', 'Questioning', 'Prefer not to say'] as $item)
                                 <option value="{{ $item }}">{{ $item }}</option>
                             @endforeach
                         </select>
@@ -212,14 +221,14 @@
 
                 {{-- STEP 5: GENDER & PRONOUNS --}}
                 <div class="q-block hidden">
-                    <h2 class="q-title" style="color:black;">Gender & Pronouns</h2>
+                    <h2 class="q-title" style="color:black;">Identity & Pronouns</h2>
                     <p class="sub-text" style="color:black;">We proudly welcome all identities. Confirm your gender
                         details.</p>
 
                     <div class="space-y-3">
                         <div>
                             <label class="text-xs font-bold mb-1 block" style="color:black;">Your Registered
-                                Gender</label>
+                                Identity</label>
                             <div class="static-box py-3 px-4 font-semibold bg-white" style="color:black;">
                                 {{ $user->gender ?? 'Not Specified' }}
                             </div>

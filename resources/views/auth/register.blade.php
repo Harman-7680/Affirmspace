@@ -39,7 +39,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="robots" content="noindex, nofollow">
-    
+
     <!-- Favicon -->
     <link href="{{ asset('images/new_logo.png') }}" rel="icon" type="image/png">
 
@@ -257,41 +257,25 @@
 
                         <!-- Select Gender -->
                         <div>
-                            <label for="gender" class="block">Select Gender</label>
-                            <div class="mt-2.5">
-                                <select id="gender" name="gender"
+                            <label for="genderSearch" class="block">Gender Identity</label>
+
+                            <div class="mt-2.5 relative">
+
+                                <!-- Search Input -->
+                                <input type="text" id="genderSearch" placeholder="Search..."
+                                    autocomplete="off" value="{{ old('gender') }}"
                                     class="!w-full !rounded-lg !bg-transparent !shadow-sm !border-slate-200 dark:!border-slate-800 dark:!bg-white/5">
-                                    <option value="">Select Gender</option>
-                                    <option value="Man" {{ old('gender') == 'Man' ? 'selected' : '' }}>Man</option>
-                                    <option value="Woman" {{ old('gender') == 'Woman' ? 'selected' : '' }}>Woman
-                                    </option>
-                                    <option value="Trans Woman"
-                                        {{ old('gender') == 'Trans Woman' ? 'selected' : '' }}>Trans Woman</option>
-                                    <option value="Trans Man" {{ old('gender') == 'Trans Man' ? 'selected' : '' }}>
-                                        Trans Man</option>
-                                    <option value="Non-binary" {{ old('gender') == 'Non-binary' ? 'selected' : '' }}>
-                                        Non-binary</option>
-                                    <option value="Genderqueer"
-                                        {{ old('gender') == 'Genderqueer' ? 'selected' : '' }}>Genderqueer</option>
-                                    <option value="Agender" {{ old('gender') == 'Agender' ? 'selected' : '' }}>Agender
-                                    </option>
-                                    <option value="Bigender" {{ old('gender') == 'Bigender' ? 'selected' : '' }}>
-                                        Bigender</option>
-                                    <option value="Genderfluid"
-                                        {{ old('gender') == 'Genderfluid' ? 'selected' : '' }}>Genderfluid</option>
-                                    <option value="Two-Spirit" {{ old('gender') == 'Two-Spirit' ? 'selected' : '' }}>
-                                        Two-Spirit</option>
-                                    <option value="Intersex" {{ old('gender') == 'Intersex' ? 'selected' : '' }}>
-                                        Intersex</option>
-                                    <option value="Questioning"
-                                        {{ old('gender') == 'Questioning' ? 'selected' : '' }}>Questioning</option>
-                                    <option value="Prefer not to say"
-                                        {{ old('gender') == 'Prefer not to say' ? 'selected' : '' }}>Prefer not to say
-                                    </option>
-                                    <option value="Other" {{ old('gender') == 'Other' ? 'selected' : '' }}>Other
-                                    </option>
-                                </select>
+
+                                <!-- Actual value submitted to Laravel -->
+                                <input type="hidden" id="gender" name="gender" value="{{ old('gender') }}">
+
+                                <!-- Suggestions -->
+                                <div id="genderSuggestions"
+                                    class="hidden absolute left-0 right-0 mt-1 max-h-60 overflow-y-auto rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg z-50">
+                                </div>
+
                                 <x-input-error :messages="$errors->get('gender')" class="mt-2" />
+
                             </div>
                         </div>
 
@@ -595,6 +579,150 @@
             ) {
                 e.preventDefault();
             }
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+
+            const searchInput = document.getElementById('genderSearch');
+            const genderInput = document.getElementById('gender');
+            const suggestionsBox = document.getElementById('genderSuggestions');
+
+            if (!searchInput || !genderInput || !suggestionsBox) return;
+
+            const genderOptions = [
+
+                // Common identities
+                'Man',
+                'Woman',
+                'Non-binary',
+                'Transgender',
+                'Trans man',
+                'Trans woman',
+                'Cisgender man',
+                'Cisgender woman',
+
+                // Non-binary and gender-diverse identities
+                'Genderfluid',
+                'Genderqueer',
+                'Agender',
+                'Bigender',
+                'Demigender',
+                'Demiboy',
+                'Demigirl',
+                'Pangender',
+                'Polygender',
+                'Multigender',
+                'Androgynous',
+                'Neutrois',
+                'Maverique',
+                'Xenogender',
+                'Gender non-conforming',
+                'Gender-expansive',
+
+                // Additional identities and terms
+                'Transmasculine',
+                'Transfeminine',
+                'Intergender',
+                'Intersex',
+                'Two-Spirit',
+                'Third gender',
+                'Questioning my gender',
+                'Another gender identity',
+                'Prefer not to say'
+
+            ];
+
+            function showSuggestions(query = '') {
+
+                suggestionsBox.innerHTML = '';
+
+                const searchTerm = query.trim().toLowerCase();
+
+                const filteredOptions = genderOptions.filter(function(gender) {
+                    return gender.toLowerCase().includes(searchTerm);
+                });
+
+                if (filteredOptions.length === 0) {
+
+                    const noResult = document.createElement('div');
+
+                    noResult.className = 'px-4 py-3 text-sm text-slate-500';
+                    noResult.textContent = 'No matching gender identity found';
+
+                    suggestionsBox.appendChild(noResult);
+
+                } else {
+
+                    filteredOptions.forEach(function(gender) {
+
+                        const option = document.createElement('div');
+
+                        option.textContent = gender;
+
+                        option.className =
+                            'px-4 py-2.5 text-sm cursor-pointer ' +
+                            'text-slate-700 dark:text-slate-200 ' +
+                            'hover:bg-slate-100 dark:hover:bg-white/10';
+
+                        option.addEventListener('mousedown', function(event) {
+                            event.preventDefault();
+
+                            // Set selected gender
+                            searchInput.value = gender;
+                            genderInput.value = gender;
+
+                            // Hide suggestions
+                            suggestionsBox.classList.add('hidden');
+                        });
+
+                        suggestionsBox.appendChild(option);
+
+                    });
+
+                }
+
+                suggestionsBox.classList.remove('hidden');
+            }
+
+            // Focus par dropdown tabhi dikhe jab input mein text ho
+            searchInput.addEventListener('focus', function() {
+                if (this.value.trim() !== '') {
+                    showSuggestions(this.value);
+                } else {
+                    suggestionsBox.classList.add('hidden');
+                }
+            });
+
+            // Typing ke saath suggestions filter hon
+            searchInput.addEventListener('input', function() {
+
+                // Previous selection clear karo
+                genderInput.value = '';
+
+                // Empty input par suggestions hide karo
+                if (this.value.trim() === '') {
+                    suggestionsBox.classList.add('hidden');
+                    return;
+                }
+
+                // Typed text ke according suggestions dikhao
+                showSuggestions(this.value);
+            });
+
+            // Close suggestions when clicking outside
+            document.addEventListener('click', function(event) {
+
+                if (
+                    !searchInput.contains(event.target) &&
+                    !suggestionsBox.contains(event.target)
+                ) {
+                    suggestionsBox.classList.add('hidden');
+                }
+
+            });
+
         });
     </script>
 </body>
