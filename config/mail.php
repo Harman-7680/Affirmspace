@@ -14,7 +14,7 @@ return [
     |
     */
 
-    'default' => env('MAIL_MAILER', 'log'),
+    'default'       => env('MAIL_MAILER', 'log'),
 
     /*
     |--------------------------------------------------------------------------
@@ -34,7 +34,7 @@ return [
     |
     */
 
-    'mailers' => [
+    'mailers'       => [
         'smtp'     => [
             'transport'    => 'smtp',
             'url'          => env('MAIL_URL'),
@@ -93,9 +93,12 @@ return [
     |
     */
 
-    'from'    => [
+    'from'          => [
         'address' => env('MAIL_FROM_ADDRESS', 'hello@example.com'),
         'name'    => env('MAIL_FROM_NAME', 'Example'),
     ],
+
+    'admin_email'   => env('ADMIN_EMAIL', 'affirmspace@gmail.com'),
+    'contact_email' => env('CONTACT_EMAIL', 'info@affirmspace.com'),
 
 ];

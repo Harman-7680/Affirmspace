@@ -546,7 +546,7 @@ SVG;
         $totalCounselees = \App\Models\User::where('role', 0)->count();
         $totalCounselors = \App\Models\User::where('role', 1)->count();
 
-        Mail::to('admin@gmail.com')->send(
+        Mail::to(config('mail.admin_email'))->send(
             new NewUserRegisteredMail(
                 $user,
                 $totalCounselees,

@@ -83,7 +83,7 @@ class PostActionController extends Controller
             'reason'              => $request->reason ?? 'Spam',
         ];
 
-        Mail::to('admin@gmail.com')->send(new ReportNotification($reportData));
+        Mail::to(config('mail.admin_email'))->send(new ReportNotification($reportData));
 
         return response()->json(['status' => 'success', 'message' => 'Post reported']);
     }
@@ -110,7 +110,7 @@ class PostActionController extends Controller
             'reason'              => $request->reason ?? 'Abuse',
         ];
 
-        Mail::to('admin@gmail.com')->send(new ReportNotification($reportData));
+        Mail::to(config('mail.admin_email'))->send(new ReportNotification($reportData));
 
         return response()->json(['status' => 'success', 'message' => 'User reported']);
     }

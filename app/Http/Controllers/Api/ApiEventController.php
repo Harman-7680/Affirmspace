@@ -281,7 +281,7 @@ class ApiEventController extends Controller
             $event->save();
 
             Mail::send('emails.event_payment_success', ['event' => $event], function ($msg) use ($event) {
-                $msg->to("admin@gmail.com")
+                $msg->to(config('mail.admin_email'))
                     ->subject("New Paid Event: {$event->name} Pending Approval");
             });
 

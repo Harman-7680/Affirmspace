@@ -783,7 +783,7 @@ class CounselorController extends Controller
             'doc3' => $doc3,
         ], function ($message) use ($user) {
 
-            $message->to('admin@gmail.com')
+            $message->to(config('mail.admin_email'))
                 ->subject('New Counselor Documents Submitted by ' . $user->name);
 
         });

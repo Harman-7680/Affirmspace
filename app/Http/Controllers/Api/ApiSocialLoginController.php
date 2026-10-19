@@ -620,7 +620,7 @@ class ApiSocialLoginController extends Controller
             1
         )->count();
 
-        Mail::to('admin@gmail.com')->send(
+        Mail::to(config('mail.admin_email'))->send(
 
             new NewUserRegisteredMail(
                 $user,

@@ -454,7 +454,7 @@ class AdminController extends Controller
             'message' => 'required|string',
         ]);
 
-        $adminEmail = 'admin@gmail.com';
+        $adminEmail = config('mail.admin_email');
 
         Mail::to($adminEmail)->send(new ContactAdminMail($validated));
 
@@ -487,7 +487,7 @@ class AdminController extends Controller
             'message' => $validated['message'],
         ]);
 
-        $adminEmail = 'admin@gmail.com';
+        $adminEmail = config('mail.admin_email');
 
         Mail::to($adminEmail)->send(new ContactAdminMail($validated));
 
@@ -518,7 +518,7 @@ class AdminController extends Controller
             'message' => $validated['message'],
         ]);
 
-        $adminEmail = 'admin@gmail.com';
+        $adminEmail = config('mail.admin_email');
 
         Mail::to($adminEmail)->send(new ContactAdminMail($validated));
 
