@@ -17,7 +17,9 @@ use App\Http\Controllers\DatingController;
 use App\Http\Controllers\DatingMessageController;
 use App\Http\Controllers\EventChatController;
 use App\Http\Controllers\EventController;
+use App\Http\Controllers\FriendChatGroupController;
 use App\Http\Controllers\FriendController;
+use App\Http\Controllers\GroupChatController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\LiveChatController;
@@ -192,12 +194,12 @@ Route::get('/area-prices', function () {
 });
 
 // This route show events on page sidebar notification button
-Route::middleware('auth', 'profile.complete')->group(function () {
+Route::middleware('auth', 'verified', 'profile.complete')->group(function () {
     Route::get('/notifications', [ProfileController::class, 'notifications'])->name('notifications');
 });
 
 // profile related routes
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::get('/user/{id}', [ProfileController::class, 'show'])->name('user.profile');
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
@@ -275,7 +277,7 @@ Route::middleware('auth')->group(function () {
 });
 
 // post related routes
-Route::middleware('auth')->group(function () {
+Route::middleware('auth', 'verified')->group(function () {
     Route::get('/posts/create', [PostController::class, 'create'])->name('posts.create');
     Route::post('/posts', [PostController::class, 'store'])->name('posts.store');
     Route::put('posts/update/{id}', [PostController::class, 'update'])->name('posts.update');
@@ -359,7 +361,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 });
 
 // rooms related routes
-Route::middleware('auth', 'profile.complete')->group(function () {
+Route::middleware('auth', 'verified', 'profile.complete')->group(function () {
     Route::get('/groups', [JitsiRoomController::class, 'groups'])->name('groups');
     Route::get('/upgrade', [JitsiRoomController::class, 'upgrade'])->name('upgrade');
     Route::post('/jitsi/store', [JitsiRoomController::class, 'store'])->name('jitsi.store');
@@ -438,6 +440,21 @@ Route::group([], function () {
 Route::middleware('auth')->group(function () {
     Route::post('/chat/send', [LiveChatController::class, 'send']);
     Route::get('/fetch-messages/{id}', [LiveChatController::class, 'fetch']);
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/group-chat/{roomId}', [GroupChatController::class, 'show'])->name('group-chat.show');
+    Route::get('/group-chat/{roomId}/messages', [GroupChatController::class, 'fetch'])->name('group-chat.fetch');
+    Route::post('/group-chat/{roomId}/send', [GroupChatController::class, 'send'])->name('group-chat.send');
+    Route::post('/group-chat/{roomId}/join', [GroupChatController::class, 'joinGroup'])->name('group-chat.join');
+});
+
+Route::middleware('auth')->group(function () {
+    Route::get('/friend-chat-groups/create', [FriendChatGroupController::class, 'create'])->name('friend-chat-groups.create');
+    Route::post('/friend-chat-groups', [FriendChatGroupController::class, 'store'])->name('friend-chat-groups.store');
+    Route::get('/friend-chat-groups/{groupId}', [FriendChatGroupController::class, 'show'])->name('friend-chat-groups.show');
+    Route::post('/friend-chat-groups/{groupId}/messages', [FriendChatGroupController::class, 'sendMessage'])->name('friend-chat-groups.messages.send');
+    Route::get('/friend-chat-groups/{groupId}/messages', [FriendChatGroupController::class, 'fetchMessages'])->name('friend-chat-groups.messages.fetch');
 });
 
 Route::get('/group-call-page', function () {return view('user.chat.group_call_webview');});

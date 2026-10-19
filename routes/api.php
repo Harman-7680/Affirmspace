@@ -18,6 +18,9 @@ use App\Http\Controllers\Api\ApiStatusController;
 use App\Http\Controllers\Api\ApiTweetController;
 use App\Http\Controllers\Api\AppRegistrationPaymentController;
 use App\Http\Controllers\Api\AuthController;
+use App\Http\Controllers\Api\FriendChatGroupApiController;
+use App\Http\Controllers\Api\GroupChatApiController;
+use App\Http\Controllers\Api\LiveChatApiController;
 use App\Http\Controllers\Api\SocialLoginController;
 use App\Http\Controllers\ChatController;
 use App\Http\Controllers\PostActionController;
@@ -192,6 +195,31 @@ Route::middleware('auth:sanctum')->group(function () {
 
 Route::post('/notifications/read', [ApiProfileController::class, 'markNotificationsRead'])
     ->middleware('auth:sanctum');
+
+Route::middleware('auth:sanctum')->prefix('chat')->group(function () {
+    Route::post('/send', [LiveChatApiController::class, 'send'])->name('api.chat.send');
+    Route::get('/messages/{userId}', [LiveChatApiController::class, 'fetch'])->name('api.chat.messages');
+});
+
+Route::middleware('auth:sanctum')->prefix('group-chat')->group(function () {
+    Route::post('/rooms/{roomId}/join', [GroupChatApiController::class, 'joinGroup'])->name('api.group-chat.join');
+    Route::get('/rooms/{roomId}/messages', [GroupChatApiController::class, 'fetch'])->name('api.group-chat.messages');
+    Route::post('/rooms/{roomId}/messages', [GroupChatApiController::class, 'send'])->name('api.group-chat.send');
+});
+
+Route::middleware('auth:sanctum')->prefix('friend-chat-groups')->group(function () {
+    // Accepted friends list
+    Route::get('/friends', [FriendChatGroupApiController::class, 'friends']);
+    // List all groups of logged-in user.
+    Route::get('/', [FriendChatGroupApiController::class, 'index']);
+    // Create a new group.
+    Route::post('/', [FriendChatGroupApiController::class, 'store']);
+    // Group messages.
+    Route::get('/{groupId}/messages', [FriendChatGroupApiController::class, 'fetchMessages']);
+    Route::post('/{groupId}/messages', [FriendChatGroupApiController::class, 'sendMessage']);
+    // Group details.
+    Route::get('/{groupId}', [FriendChatGroupApiController::class, 'show']);
+});
 
 // this route for both app and website
 Route::post('/events/by-location', [ProfileController::class, 'getEventsByLocation']);
