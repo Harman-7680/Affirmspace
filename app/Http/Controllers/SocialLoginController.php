@@ -9,11 +9,66 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use Laravel\Socialite\Facades\Socialite;
 
 class SocialLoginController extends Controller
 {
+    /**
+     * Generate and save default initials avatar.
+     */
+    private function generateInitialsAvatar(User $user): void
+    {
+        $firstName = trim($user->first_name ?? '');
+        $lastName  = trim($user->last_name ?? '');
+
+        $initials = mb_strtoupper(
+            mb_substr($firstName, 0, 1) .
+            mb_substr($lastName, 0, 1)
+        );
+
+        if ($initials === '') {
+            $initials = 'U';
+        }
+
+        // Generate a consistent background color for this user.
+        $hash = md5((string) $user->id);
+
+        $red   = 50 + (hexdec(substr($hash, 0, 2)) % 100);
+        $green = 50 + (hexdec(substr($hash, 2, 2)) % 100);
+        $blue  = 50 + (hexdec(substr($hash, 4, 2)) % 100);
+
+        $background = sprintf('#%02X%02X%02X', $red, $green, $blue);
+
+        // Escape initials for safe SVG output.
+        $escapedInitials = htmlspecialchars(
+            $initials,
+            ENT_QUOTES | ENT_XML1,
+            'UTF-8'
+        );
+
+        $svg = <<<SVG
+<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256">
+    <circle cx="128" cy="128" r="128" fill="{$background}"/>
+    <text x="128" y="128"
+          font-family="Arial, sans-serif"
+          font-size="88"
+          font-weight="bold"
+          fill="#FFFFFF"
+          text-anchor="middle"
+          dominant-baseline="central">{$escapedInitials}</text>
+</svg>
+SVG;
+
+        $avatarPath = 'profile_images/initials_' . $user->id . '.svg';
+
+        if (Storage::disk('public')->put($avatarPath, $svg)) {
+            $user->image = $avatarPath;
+            $user->save();
+        }
+    }
+
     // Redirect to provider
     public function redirectToProvider($provider)
     {
@@ -244,7 +299,7 @@ class SocialLoginController extends Controller
             if ($existingUser->status == 0) {
                 return redirect()->route('login')->withErrors(['email' => 'Sorry, your account is deactivated.']);
             }
-            
+
             // validate OTP
             $request->validate(['otp_verified' => 'required|in:1']);
             // $existingUser->update([
@@ -325,6 +380,9 @@ class SocialLoginController extends Controller
             'social_id'         => $socialId,
             'specialization_id' => $request->role == 1 ? $request->specialization_id : null,
         ]);
+
+        // Generate default initials avatar for new social-login users.
+        $this->generateInitialsAvatar($user);
 
         // Total counts after new user registration
         $totalCounselees = User::where('role', 0)->count();
