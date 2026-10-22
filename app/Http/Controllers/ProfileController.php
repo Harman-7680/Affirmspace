@@ -1753,6 +1753,14 @@ class ProfileController extends Controller
             $receiverChatType = $receiverType;
         }
 
+        // Permanent groups where the logged-in user is a member
+        $groups = \App\Models\FriendChatGroup::whereHas('members', function ($query) {
+            $query->where('users.id', auth()->id());
+        })
+            ->withCount('members')
+            ->latest()
+            ->get();
+
         return view('user.messages', [
             'user'             => $user,
             'notifications'    => $notifications,
@@ -1761,6 +1769,7 @@ class ProfileController extends Controller
             'hiddenUsers'      => $hiddenUsers,
             'receiverChatType' => $receiverChatType,
             'userId'           => $user->id,
+            'groups'           => $groups,
         ]);
     }
 

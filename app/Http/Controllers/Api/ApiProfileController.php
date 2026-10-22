@@ -2711,6 +2711,14 @@ class ApiProfileController extends Controller
             $receiverChatType = $receiverType;
         }
 
+        // Permanent groups where the logged-in user is a member
+        $groups = \App\Models\FriendChatGroup::whereHas('members', function ($query) {
+            $query->where('users.id', auth()->id());
+        })
+            ->withCount('members')
+            ->latest()
+            ->get();
+
         /* ================= RESPONSE ================= */
         return response()->json([
             'status'           => true,
@@ -2722,6 +2730,7 @@ class ApiProfileController extends Controller
             'chatMessages'     => $chatMessages,
             'hiddenUsers'      => $hiddenUsers,
             'userId'           => $user->id,
+            'groups'           => $groups,
         ]);
     }
 

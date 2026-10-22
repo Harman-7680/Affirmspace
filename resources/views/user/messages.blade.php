@@ -17,6 +17,34 @@
                             <div class="flex mt-2 items-center justify-between">
 
                                 <h2 class="text-2xl font-bold text-black ml-1 dark:text-white"> Friend Chats </h1>
+                                    <a href="{{ route('friend-chat-groups.create') }}" title="Create Groups"
+                                        style="display: inline-flex;
+           align-items: center;
+           justify-content: center;
+           gap: 6px;
+           padding: 8px 12px;
+           background-color: #527d7a;
+           color: #ffffff;
+           border-radius: 8px;
+           font-size: 12px;
+           font-weight: 600;
+           text-decoration: none;
+           white-space: nowrap;
+           flex-shrink: 0;
+           min-height: 36px;">
+
+                                        {{-- Create Group Icon --}}
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="17" height="17"
+                                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" style="flex-shrink: 0;">
+
+                                            <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                            <circle cx="10" cy="7" r="4" />
+                                            <line x1="19" y1="8" x2="19" y2="14" />
+                                            <line x1="16" y1="11" x2="22" y2="11" />
+
+                                        </svg>
+                                    </a>
                                     <!-- right action buttons -->
                                     {{-- <div class="flex items-center gap-2.5">
                                         <button class="group">
@@ -64,40 +92,75 @@
                                     }),
                                 ) }},
                             
-                                // filtered list (used for display)
+                                myGroupsList: {{ Js::from(
+                                    $groups->map(function ($group) {
+                                        return [
+                                            'id' => $group->id,
+                                            'name' => $group->name,
+                                            'image' => $group->image,
+                                            'members_count' => $group->members_count,
+                                        ];
+                                    }),
+                                ) }},
+                            
                                 get filteredFriends() {
+                                    const searchText = this.search.toLowerCase().trim();
+                            
                                     return this.myFriendsList.filter(friend => {
-                                        const matchesSearch = friend.name.toLowerCase().includes(this.search.toLowerCase());
-                                        const matchesFilter = this.filterType === 'all' || friend.chat_type === this.filterType;
+                                        const matchesSearch = friend.name.toLowerCase().includes(searchText);
+                                        const matchesFilter =
+                                            this.filterType === 'all' ||
+                                            this.filterType === friend.chat_type;
+                            
                                         return matchesSearch && matchesFilter;
                                     });
                                 },
                             
-                                //  COUNTS (respect search)
+                                get filteredGroups() {
+                                    const searchText = this.search.toLowerCase().trim();
+                            
+                                    return this.myGroupsList.filter(group => {
+                                        const matchesSearch = group.name.toLowerCase().includes(searchText);
+                                        const matchesFilter =
+                                            this.filterType === 'all' ||
+                                            this.filterType === 'groups';
+                            
+                                        return matchesSearch && matchesFilter;
+                                    });
+                                },
+                            
                                 get allCount() {
                                     return this.myFriendsList.filter(f =>
-                                        f.name.toLowerCase().includes(this.search.toLowerCase())
+                                        f.name.toLowerCase().includes(this.search.toLowerCase().trim())
+                                    ).length + this.myGroupsList.filter(g =>
+                                        g.name.toLowerCase().includes(this.search.toLowerCase().trim())
                                     ).length;
                                 },
                             
                                 get friendCount() {
                                     return this.myFriendsList.filter(f =>
                                         f.chat_type === 'friend' &&
-                                        f.name.toLowerCase().includes(this.search.toLowerCase())
+                                        f.name.toLowerCase().includes(this.search.toLowerCase().trim())
                                     ).length;
                                 },
                             
                                 get counselorCount() {
                                     return this.myFriendsList.filter(f =>
                                         f.chat_type === 'counselor' &&
-                                        f.name.toLowerCase().includes(this.search.toLowerCase())
+                                        f.name.toLowerCase().includes(this.search.toLowerCase().trim())
                                     ).length;
                                 },
                             
                                 get datingCount() {
                                     return this.myFriendsList.filter(f =>
                                         f.chat_type === 'dating' &&
-                                        f.name.toLowerCase().includes(this.search.toLowerCase())
+                                        f.name.toLowerCase().includes(this.search.toLowerCase().trim())
+                                    ).length;
+                                },
+                            
+                                get groupsCount() {
+                                    return this.myGroupsList.filter(g =>
+                                        g.name.toLowerCase().includes(this.search.toLowerCase().trim())
                                     ).length;
                                 }
                             }"
@@ -145,6 +208,22 @@
                                         <span class="text-[10px] bg-white/80 text-black px-1.5 rounded-full leading-none"
                                             x-text="datingCount"></span>
                                     </button>
+
+                                    {{-- GROUPS --}}
+                                    <button @click="filterType = 'groups'"
+                                        :style="filterType === 'groups'
+                                            ?
+                                            'background-color: #16a34a !important; color: #ffffff !important;' :
+                                            'background-color: #e5e7eb !important; color: #374151 !important;'"
+                                        class="px-2 py-0.5 text-xs rounded-md flex items-center gap-1">
+
+                                        <span>Groups</span>
+
+                                        <span
+                                            style="background-color: rgba(255,255,255,0.8) !important; color: #000000 !important;"
+                                            class="text-[10px] px-1.5 rounded-full leading-none" x-text="groupsCount">
+                                        </span>
+                                    </button>
                                 </div>
 
                                 <!-- Search bar -->
@@ -191,8 +270,54 @@
                                     </a>
                                 </template>
 
-                                <div x-show="filteredFriends.length === 0" class="text-gray-500 text-sm mt-2">
-                                    No matching users.
+                                {{-- Permanent Groups --}}
+                                <template x-for="group in filteredGroups" :key="'group-' + group.id">
+                                    <a :href="`/friend-chat-groups/${group.id}`"
+                                        class="flex items-center gap-3 p-2 hover:bg-gray-100
+               dark:hover:bg-slate-700 rounded-lg transition">
+
+                                        {{-- Group Image --}}
+                                        <div class="w-14 h-14 shrink-0 relative">
+                                            <template x-if="group.image">
+                                                <img :src="`{{ asset('storage') }}/${group.image}`" alt=""
+                                                    class="rounded-full w-14 h-14 object-cover">
+                                            </template>
+
+                                            <template x-if="!group.image">
+                                                <div
+                                                    class="rounded-full w-14 h-14 bg-purple-100
+                            flex items-center justify-center">
+                                                    <ion-icon name="people" class="text-2xl text-purple-600">
+                                                    </ion-icon>
+                                                </div>
+                                            </template>
+                                        </div>
+
+                                        {{-- Group Details --}}
+                                        <div class="min-w-0 flex-1">
+                                            <div class="font-semibold text-sm text-gray-900 dark:text-white truncate"
+                                                x-text="group.name">
+                                            </div>
+
+                                            <span class="text-xs text-purple-600 dark:text-purple-400">
+                                                👥 Group · <span x-text="group.members_count"></span> members
+                                            </span>
+                                        </div>
+
+                                    </a>
+                                </template>
+
+                                <div x-show="filterType === 'groups'
+        ? filteredGroups.length === 0
+        : filteredFriends.length === 0"
+                                    class="text-gray-500 text-sm mt-2">
+
+                                    <span
+                                        x-text="filterType === 'groups'
+        ? 'No groups found.'
+        : 'No matching users.'">
+                                    </span>
+
                                 </div>
                             </div>
                         </div>
@@ -742,7 +867,7 @@
                                 $inputId = $receiverChatType === 'dating' ? 'datingMessage' : 'messageInput';
                             @endphp
 
-                            <div class="relative m-4 flex items-center gap-2">
+                            {{-- <div class="relative m-4 flex items-center gap-2">
 
                                 <!-- Emoji Button -->
                                 <button type="button" id="emojiBtn" class="px-3 py-2 bg-gray-200 rounded text-xl">
@@ -785,6 +910,83 @@
                                     <!-- Emoji Grid -->
                                     <div id="emojiList" class="grid grid-cols-6 gap-2 text-2xl"></div>
                                 </div>
+                            </div> --}}
+                            <div class="relative m-4">
+
+                                {{-- Selected attachment preview --}}
+                                @if (in_array($receiverChatType, ['friend', 'counselor']))
+                                    <div id="friendAttachmentPreview"
+                                        class="hidden mb-2 p-3 rounded-lg border border-gray-200 dark:border-gray-700
+        text-sm text-gray-700 dark:text-gray-200 flex items-center justify-between gap-3">
+
+                                        <span id="friendAttachmentName" class="min-w-0 break-all"></span>
+
+                                        <button type="button" id="friendRemoveAttachment"
+                                            class="text-red-500 hover:text-red-700 shrink-0"
+                                            aria-label="Remove attachment">
+                                            ✕
+                                        </button>
+                                    </div>
+
+                                    <input type="file" id="friendAttachment" class="hidden"
+                                        accept="image/jpeg,image/png,image/gif,image/webp,application/pdf,.doc,.docx,.xls,.xlsx,.txt,video/mp4,video/webm,video/quicktime,audio/mpeg,audio/wav">
+                                @endif
+
+                                <div class="flex items-center gap-2">
+
+                                    {{-- Attachment button: friend and counselor chat --}}
+                                    @if (in_array($receiverChatType, ['friend', 'counselor']))
+                                        <button type="button" id="friendAttachmentButton"
+                                            class="px-3 py-2 border rounded-lg dark:border-gray-600
+        hover:bg-gray-100 dark:hover:bg-gray-700"
+                                            title="Attach a file" aria-label="Attach a file">
+                                            📎
+                                        </button>
+                                    @endif
+
+                                    {{-- Emoji button --}}
+                                    <button type="button" id="emojiBtn" class="px-3 py-2 bg-gray-200 rounded text-xl">
+                                        😊
+                                    </button>
+
+                                    {{-- Message input --}}
+                                    <input type="text" id="{{ $inputId }}"
+                                        class="w-full p-2 border rounded dark:bg-gray-900 dark:border-gray-600"
+                                        placeholder="Type a message..." autocomplete="off" />
+
+                                    {{-- Send button --}}
+                                    @if ($receiverChatType !== 'dating')
+                                        <button id="sendButton" class="bg-blue-500 text-white px-4 py-2 rounded shrink-0">
+                                            Send
+                                        </button>
+                                    @else
+                                        @if ($receiver->has_details && $receiver->sender_has_details)
+                                            <button onclick="sendDatingMessage()"
+                                                class="bg-blue-500 text-white px-4 py-2 rounded">
+                                                Send
+                                            </button>
+                                        @endif
+                                    @endif
+
+                                </div>
+
+                                {{-- Emoji popup --}}
+                                <div id="emojiBox"
+                                    class="hidden absolute left-0 w-80 max-w-[90vw] bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg p-2 z-[9999]"
+                                    style="bottom: calc(100% + 12px); top: auto; margin: 0;">
+
+                                    <div
+                                        class="flex justify-between mb-2 text-xs font-semibold text-gray-600 dark:text-gray-300">
+                                        <button type="button" onclick="loadEmoji('Smileys')">Smileys</button>
+                                        <button type="button" onclick="loadEmoji('People')">People</button>
+                                        <button type="button" onclick="loadEmoji('Animals')">Animals</button>
+                                        <button type="button" onclick="loadEmoji('Food')">Food</button>
+                                        <button type="button" onclick="loadEmoji('Symbols')">Symbols</button>
+                                    </div>
+
+                                    <div id="emojiList" class="grid grid-cols-6 gap-2 text-2xl"></div>
+                                </div>
+
                             </div>
                         @endif
                     @endif

@@ -31,8 +31,8 @@
                             <img src="{{ asset('images/new_logo.png') }}" alt="{{ $room->room_name }}"
                                 class="w-16 h-16 rounded-full object-cover">
                             <div>
-                                <a href="javascript:void(0)" class="block text-base font-semibold text-gray-800 joinRoomBtn"
-                                    data-room="{{ $room->room_code }}" data-room-id="{{ $room->id }}">
+                                <a href="{{ route('group-chat.show', $room->id) }}"
+                                    class="block text-base font-semibold text-gray-800">
                                     {{ $room->room_name }}
                                 </a>
                                 <div class="text-sm text-gray-500">
@@ -42,11 +42,14 @@
                             </div>
                         </div>
                         <div class="mt-4 sm:mt-0">
-                            <button class="gradient-btn text-white px-6 py-2 rounded-full text-sm joinRoomBtn"
-                                data-room="{{ $room->room_code }}" data-room-id="{{ $room->id }}">
-                                <span class="inline-block text-base leading-none">+</span>
-                                <span>Join</span>
-                            </button>
+                            <form action="{{ route('group-chat.join', $room->id) }}" method="POST">
+                                @csrf
+
+                                <button type="submit" class="gradient-btn text-white px-6 py-2 rounded-full text-sm">
+                                    <span class="inline-block text-base leading-none">+</span>
+                                    <span>Join</span>
+                                </button>
+                            </form>
                         </div>
                     </div>
                 @endforeach
