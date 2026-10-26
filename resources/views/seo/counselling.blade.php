@@ -1816,6 +1816,10 @@
                                     <p>
                                         {{ $counsellor->bio }}
                                     </p>
+                                @else
+                                    <p>
+                                        AffirmSpace Verified Counselor.
+                                    </p>
                                 @endif
 
                             </div>
