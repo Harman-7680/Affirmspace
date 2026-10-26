@@ -5,6 +5,8 @@ use App\Events\MessageSent;
 use App\Http\Controllers\Controller;
 use App\Models\ChatMessage;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Crypt;
@@ -110,6 +112,71 @@ class LiveChatApiController extends Controller
             ));
         } catch (\Throwable $e) {
             Log::error('API chat broadcast failed', [
+                'message_id' => $msg->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
+        /*
+ * Firebase push notification for API chat.
+ */
+        try {
+            $sender = Auth::user();
+
+            $senderName = trim(
+                ($sender->first_name ?? '') . ' ' .
+                ($sender->last_name ?? '')
+            );
+
+            if ($senderName === '') {
+                $senderName = 'Someone';
+            }
+
+            // Prepare notification body.
+            if ($plainMessage !== null && trim($plainMessage) !== '') {
+                $notificationBody = $plainMessage;
+            } elseif ($attachmentName !== null) {
+                $notificationBody = 'Sent an attachment: ' . $attachmentName;
+            } else {
+                $notificationBody = 'You received a new message.';
+            }
+
+            // Avoid excessively long push notification text.
+            if (mb_strlen($notificationBody) > 200) {
+                $notificationBody = mb_substr($notificationBody, 0, 197) . '...';
+            }
+
+            // Fetch all registered devices of the receiver.
+            $tokens = UserDevice::where('user_id', $msg->receiver_id)
+                ->whereNotNull('device_token')
+                ->where('device_token', '!=', '')
+                ->pluck('device_token')
+                ->unique();
+
+            foreach ($tokens as $token) {
+                try {
+                    app(FirebaseNotificationService::class)->send(
+                        $token,
+                        $senderName,
+                        $notificationBody,
+                        [
+                            'type'        => 'chat_message',
+                            'sender_id'   => (string) $msg->sender_id,
+                            'receiver_id' => (string) $msg->receiver_id,
+                            'message_id'  => (string) $msg->id,
+                        ]
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('API chat Firebase notification failed', [
+                        'message_id'  => $msg->id,
+                        'receiver_id' => $msg->receiver_id,
+                        'error'       => $e->getMessage(),
+                    ]);
+                }
+            }
+
+        } catch (\Throwable $e) {
+            Log::error('API chat notification processing failed', [
                 'message_id' => $msg->id,
                 'error'      => $e->getMessage(),
             ]);

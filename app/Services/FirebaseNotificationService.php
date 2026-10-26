@@ -39,13 +39,14 @@ class FirebaseNotificationService
 
             // Prevent crash if token invalid
             Log::error('FCM Send Failed', [
-                'error' => $e->getMessage(),
-                'token' => $deviceToken,
+                'error'        => $e->getMessage(),
+                'token_suffix' => substr($deviceToken, -8),
             ]);
 
             $errorMessage = strtolower($e->getMessage());
 
             if (
+                str_contains($errorMessage, 'notregistered') ||
                 str_contains($errorMessage, 'requested entity was not found') ||
                 str_contains($errorMessage, 'registration-token-not-registered') ||
                 str_contains($errorMessage, 'invalid-argument')

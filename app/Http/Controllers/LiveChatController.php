@@ -66,6 +66,9 @@ namespace App\Http\Controllers;
 
 use App\Events\MessageSent;
 use App\Models\ChatMessage;
+use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Support\Facades\Log;
@@ -183,6 +186,49 @@ class LiveChatController extends Controller
             ]);
         }
 
+        /*
+ * Send Firebase push notification to the receiver.
+ */
+        try {
+            $sender = auth()->user();
+
+            $senderName = trim(
+                ($sender->first_name ?? '') . ' ' .
+                ($sender->last_name ?? '')
+            );
+
+            if ($senderName === '') {
+                $senderName = 'Someone';
+            }
+
+            // Use plaintext only for the push notification body.
+            if ($plainMessage !== null && trim($plainMessage) !== '') {
+                $notificationBody = $plainMessage;
+            } elseif ($attachmentName) {
+                $notificationBody = 'Sent an attachment: ' . $attachmentName;
+            } else {
+                $notificationBody = 'You received a new message.';
+            }
+
+            $this->sendFirebaseSafe(
+                (int) $request->receiver_id,
+                $senderName,
+                $notificationBody,
+                [
+                    'type'        => 'chat_message',
+                    'sender_id'   => (string) $msg->sender_id,
+                    'receiver_id' => (string) $msg->receiver_id,
+                    'message_id'  => (string) $msg->id,
+                ]
+            );
+
+        } catch (\Throwable $e) {
+            Log::error('Chat Firebase notification failed', [
+                'message_id' => $msg->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
+
         return response()->json([
             'success' => true,
             'data'    => $payload,
@@ -232,5 +278,38 @@ class LiveChatController extends Controller
             });
 
         return response()->json($messages);
+    }
+
+    private function sendFirebaseSafe(
+        $userId,
+        string $title,
+        string $body,
+        array $data = []
+    ): void {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token')
+            ->unique();
+
+        if ($tokens->isEmpty()) {
+            return;
+        }
+
+        foreach ($tokens as $token) {
+            try {
+                app(FirebaseNotificationService::class)->send(
+                    $token,
+                    $title,
+                    $body,
+                    $data
+                );
+            } catch (\Throwable $e) {
+                Log::warning('Firebase push skipped', [
+                    'user_id' => $userId,
+                    'error'   => $e->getMessage(),
+                ]);
+            }
+        }
     }
 }

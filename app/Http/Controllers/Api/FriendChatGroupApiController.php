@@ -6,8 +6,11 @@ use App\Models\FriendChatGroup;
 use App\Models\FriendChatGroupMessage;
 use App\Models\Friendship;
 use App\Models\User;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
 class FriendChatGroupApiController extends Controller
@@ -422,6 +425,76 @@ class FriendChatGroupApiController extends Controller
         }
 
         $message->load('user:id,first_name,last_name,image');
+
+        /*
+ * Firebase push notifications for group members.
+ */
+        try {
+            $senderName = trim(
+                ($user->first_name ?? '') . ' ' .
+                ($user->last_name ?? '')
+            );
+
+            if ($senderName === '') {
+                $senderName = 'Someone';
+            }
+
+            // Prepare notification body.
+            if ($messageText !== '') {
+                $notificationBody = $messageText;
+            } elseif ($attachmentName !== null) {
+                $notificationBody = 'Shared an attachment: ' . $attachmentName;
+            } else {
+                $notificationBody = 'Sent a new message.';
+            }
+
+            // Keep notification body reasonably short.
+            if (mb_strlen($notificationBody) > 200) {
+                $notificationBody = mb_substr($notificationBody, 0, 197) . '...';
+            }
+
+            // Get all group members except the sender.
+            $memberIds = $group->members()
+                ->where('users.id', '!=', $user->id)
+                ->pluck('users.id');
+
+            foreach ($memberIds as $memberId) {
+                $tokens = UserDevice::where('user_id', $memberId)
+                    ->whereNotNull('device_token')
+                    ->where('device_token', '!=', '')
+                    ->pluck('device_token')
+                    ->unique();
+
+                foreach ($tokens as $token) {
+                    try {
+                        app(FirebaseNotificationService::class)->send(
+                            $token,
+                            $group->name,
+                            $senderName . ': ' . $notificationBody,
+                            [
+                                'type'       => 'friend_group_message',
+                                'group_id'   => (string) $group->id,
+                                'message_id' => (string) $message->id,
+                                'sender_id'  => (string) $user->id,
+                            ]
+                        );
+                    } catch (\Throwable $e) {
+                        Log::warning('API friend group FCM notification failed', [
+                            'group_id'   => $group->id,
+                            'message_id' => $message->id,
+                            'user_id'    => $memberId,
+                            'error'      => $e->getMessage(),
+                        ]);
+                    }
+                }
+            }
+        } catch (\Throwable $e) {
+            Log::error('API friend group notification processing failed', [
+                'group_id'   => $group->id,
+                'message_id' => $message->id,
+                'error'      => $e->getMessage(),
+            ]);
+        }
 
         return response()->json([
             'success' => true,
