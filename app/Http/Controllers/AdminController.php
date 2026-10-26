@@ -404,7 +404,7 @@ class AdminController extends Controller
 
     public function verificationList()
     {
-        $users         = UserDetail::with('user')->get();
+        $users         = UserDetail::with('user')->latest()->get();
         $notifications = Auth::user()->unreadNotifications;
 
         return view('admin.verify-user', compact('users', 'notifications'));
