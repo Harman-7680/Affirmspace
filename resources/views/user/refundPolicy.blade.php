@@ -791,7 +791,7 @@
                             <h2>Refund Policy</h2>
 
                             <p class="as-refund-effective">
-                                Effective Date: [DD Month YYYY]
+                                Effective Date: 22-09-2026
                             </p>
 
                         </div>

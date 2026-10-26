@@ -153,6 +153,10 @@
                         Refund Policy
                     </a>
 
+                    <a href="{{ route('childSafety') }}">
+                        Child Safety
+                    </a>
+
                 </div>
 
             </div>

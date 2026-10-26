@@ -408,6 +408,7 @@ Route::get('/terms', function () {return view('user.terms');})->name('terms');
 Route::get('/about-affirmspace', function () {return view('user.aboutUs');})->name('aboutUs');
 Route::get('/privacy', function () {return view('user.privacy');})->name('privacy');
 Route::get('/refundpolicy', function () {return view('user.refundPolicy');})->name('refundPolicy');
+Route::get('/childsafetystandards', function () {return view('user.childSafety');})->name('childSafety');
 Route::get('/contactwithadmin', function () {return view('user.contactWithAdmin');})->name('contactWithAdmin');
 Route::post('/contactWithAdminSend/send', [AdminController::class, 'contactWithAdmin'])->middleware('throttle:3,1')->name('AdminSend');
 Route::post('/newsletter/subscribe', [AdminController::class, 'newsletterSubscribe'])->middleware('throttle:3,1')->name('newsletter.subscribe');
