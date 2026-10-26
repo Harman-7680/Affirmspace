@@ -94,8 +94,8 @@
 @section('css')
     <style>
         /* =========================================================
-           GLOBAL
-        ========================================================= */
+               GLOBAL
+            ========================================================= */
 
         .counselling-page {
             width: 100%;
@@ -108,8 +108,8 @@
 
 
         /* =========================================================
-           HERO
-        ========================================================= */
+               HERO
+            ========================================================= */
 
         .therapy-hero {
             background: #fffaf8;
@@ -219,8 +219,8 @@
 
 
         /* =========================================================
-           HERO SUPPORTING LINE
-        ========================================================= */
+               HERO SUPPORTING LINE
+            ========================================================= */
 
         .hero-supporting-line {
             display: flex;
@@ -239,8 +239,8 @@
 
 
         /* =========================================================
-           TRUST CARDS
-        ========================================================= */
+               TRUST CARDS
+            ========================================================= */
 
         .therapy-features-wrapper {
             padding: 35px 0 60px;
@@ -298,8 +298,8 @@
 
 
         /* =========================================================
-           SUPPORT / WHAT WE CAN HELP WITH
-        ========================================================= */
+               SUPPORT / WHAT WE CAN HELP WITH
+            ========================================================= */
 
         .support-section {
             padding: 30px 0 80px;
@@ -412,8 +412,8 @@
 
 
         /* =========================================================
-           SUPPORT AREAS
-        ========================================================= */
+               SUPPORT AREAS
+            ========================================================= */
 
         .support-areas {
             margin-top: 25px;
@@ -439,8 +439,8 @@
 
 
         /* =========================================================
-           INTRODUCTION
-        ========================================================= */
+               INTRODUCTION
+            ========================================================= */
 
         .about-counselling {
             padding: 85px 20px;
@@ -494,8 +494,8 @@
 
 
         /* =========================================================
-           COUNSELLORS
-        ========================================================= */
+               COUNSELLORS
+            ========================================================= */
 
         .counsellors-section {
             padding: 85px 20px;
@@ -623,8 +623,8 @@
 
 
         /* =========================================================
-           SOMEWHERE TO PUT IT DOWN
-        ========================================================= */
+               SOMEWHERE TO PUT IT DOWN
+            ========================================================= */
 
         .af-counselling-section {
             position: relative;
@@ -770,8 +770,8 @@
 
 
         /* =========================================================
-           BOOKING FLOW
-        ========================================================= */
+               BOOKING FLOW
+            ========================================================= */
 
         .booking-flow-section {
             padding: 90px 20px;
@@ -851,8 +851,8 @@
 
 
         /* =========================================================
-           FAQ
-        ========================================================= */
+               FAQ
+            ========================================================= */
 
         .faq-section {
             padding: 85px 20px;
@@ -904,8 +904,8 @@
 
 
         /* =========================================================
-           CRISIS / URGENT SUPPORT
-        ========================================================= */
+               CRISIS / URGENT SUPPORT
+            ========================================================= */
 
         .urgent-support {
             max-width: 900px;
@@ -932,8 +932,8 @@
 
 
         /* =========================================================
-           EXPLORE MORE
-        ========================================================= */
+               EXPLORE MORE
+            ========================================================= */
 
         .explore-section {
             padding: 75px 20px;
@@ -990,8 +990,8 @@
 
 
         /* =========================================================
-           FINAL CTA
-        ========================================================= */
+               FINAL CTA
+            ========================================================= */
 
         .therapy-hero-banner {
             background: linear-gradient(90deg, #ff512f, #dd2476);
@@ -1094,8 +1094,8 @@
 
 
         /* =========================================================
-           RESPONSIVE
-        ========================================================= */
+               RESPONSIVE
+            ========================================================= */
 
         @media (max-width: 1100px) {
 
@@ -1427,8 +1427,8 @@
 
 
         <!-- =====================================================
-             HERO
-        ====================================================== -->
+                 HERO
+            ====================================================== -->
 
         <section class="therapy-hero">
 
@@ -1497,8 +1497,8 @@
 
 
         <!-- =====================================================
-             TRUST ROW
-        ====================================================== -->
+                 TRUST ROW
+            ====================================================== -->
 
         <div class="therapy-features-wrapper">
 
@@ -1571,8 +1571,8 @@
 
 
         <!-- =====================================================
-             WHAT WE CAN HELP YOU FIND SUPPORT FOR
-        ====================================================== -->
+                 WHAT WE CAN HELP YOU FIND SUPPORT FOR
+            ====================================================== -->
 
         <section class="support-section">
 
@@ -1665,8 +1665,8 @@
 
 
         <!-- =====================================================
-             WHAT IS AFFIRMSPACE COUNSELLING
-        ====================================================== -->
+                 WHAT IS AFFIRMSPACE COUNSELLING
+            ====================================================== -->
 
         <section class="about-counselling">
 
@@ -1714,13 +1714,13 @@
 
 
         <!-- =====================================================
-             MEET OUR COUNSELLORS
-             
-             IMPORTANT:
-             Replace the placeholder cards below with your REAL
-             counsellor names, photos, credentials and specialties.
-             Do NOT publish invented credentials.
-        ====================================================== -->
+                 MEET OUR COUNSELLORS
+                 
+                 IMPORTANT:
+                 Replace the placeholder cards below with your REAL
+                 counsellor names, photos, credentials and specialties.
+                 Do NOT publish invented credentials.
+            ====================================================== -->
 
         <section class="counsellors-section">
 
@@ -1791,8 +1791,8 @@
                             <div class="counsellor-card">
 
                                 @if (!empty($counsellor->image))
-                                    <img src="{{ asset($counsellor->image) }}" alt="{{ $counsellor->name }}"
-                                        class="counsellor-photo">
+                                    <img src="{{ \Illuminate\Support\Facades\Storage::url($counsellor->image) }}"
+                                        alt="{{ $counsellor->name }}" class="counsellor-photo">
                                 @else
                                     <div class="counsellor-placeholder">
                                         ♡
@@ -1801,7 +1801,7 @@
 
 
                                 <h3>
-                                    {{ $counsellor->name }}
+                                    {{ $counsellor->first_name }} {{ $counsellor->last_name }}
                                 </h3>
 
 
@@ -1812,9 +1812,9 @@
                                 @endif
 
 
-                                @if (!empty($counsellor->description))
+                                @if (!empty($counsellor->bio))
                                     <p>
-                                        {{ $counsellor->description }}
+                                        {{ $counsellor->bio }}
                                     </p>
                                 @endif
 
@@ -1846,8 +1846,8 @@
 
 
         <!-- =====================================================
-             SOMEWHERE TO PUT IT DOWN
-        ====================================================== -->
+                 SOMEWHERE TO PUT IT DOWN
+            ====================================================== -->
 
         <section class="af-counselling-section">
 
@@ -1883,8 +1883,7 @@
 
             <div class="af-counselling-visual">
 
-                <img src="{{ asset('images/counselling/new2.png') }}"
-                    alt="LGBTQ+ counselling support at AffirmSpace">
+                <img src="{{ asset('images/counselling/new2.png') }}" alt="LGBTQ+ counselling support at AffirmSpace">
 
             </div>
 
@@ -1896,17 +1895,17 @@
                     <svg viewBox="0 0 48 48" aria-hidden="true">
 
                         <path d="M24 5
-                            L39 11
-                            V22
-                            C39 32 32 39 24 43
-                            C16 39 9 32 9 22
-                            V11Z" fill="none" stroke="currentColor" stroke-width="2.5" />
+                                L39 11
+                                V22
+                                C39 32 32 39 24 43
+                                C16 39 9 32 9 22
+                                V11Z" fill="none" stroke="currentColor" stroke-width="2.5" />
 
                         <path d="M24 17
-                            C20 12 14 15 14 20
-                            C14 25 24 31 24 31
-                            C24 31 34 25 34 20
-                            C34 15 28 12 24 17Z" fill="none" stroke="currentColor" stroke-width="2" />
+                                C20 12 14 15 14 20
+                                C14 25 24 31 24 31
+                                C24 31 34 25 34 20
+                                C34 15 28 12 24 17Z" fill="none" stroke="currentColor" stroke-width="2" />
 
                     </svg>
 
@@ -1926,8 +1925,8 @@
 
 
         <!-- =====================================================
-             HOW BOOKING A SESSION WORKS
-        ====================================================== -->
+                 HOW BOOKING A SESSION WORKS
+            ====================================================== -->
 
         <section class="booking-flow-section">
 
@@ -2036,8 +2035,8 @@
 
 
         <!-- =====================================================
-             FAQ
-        ====================================================== -->
+                 FAQ
+            ====================================================== -->
 
         <section class="faq-section">
 
@@ -2190,8 +2189,8 @@
 
 
         <!-- =====================================================
-             LOOKING FOR SOMETHING ELSE?
-        ====================================================== -->
+                 LOOKING FOR SOMETHING ELSE?
+            ====================================================== -->
 
         <section class="explore-section">
 
@@ -2272,8 +2271,8 @@
 
 
         <!-- =====================================================
-             FINAL CTA
-        ====================================================== -->
+                 FINAL CTA
+            ====================================================== -->
 
         <div class="therapy-hero-banner">
 
@@ -2282,8 +2281,7 @@
 
                 <div class="hero-image-side">
 
-                    <img src="{{ asset('images/counselling/chair.png') }}" alt="Counselling support"
-                        class="hero-image">
+                    <img src="{{ asset('images/counselling/chair.png') }}" alt="Counselling support" class="hero-image">
 
                 </div>
 
