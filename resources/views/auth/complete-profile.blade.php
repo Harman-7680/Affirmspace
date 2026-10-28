@@ -429,6 +429,25 @@
             }
         });
     </script>
+
+    <script>
+        // Disable right-click
+        document.addEventListener("contextmenu", function(e) {
+            e.preventDefault();
+        }, false);
+
+        // Disable Ctrl+U, Ctrl+Shift+I, Ctrl+Shift+C, Ctrl+Shift+J, F12
+        document.addEventListener("keydown", function(e) {
+            // Ctrl+U or Ctrl+Shift+I or Ctrl+Shift+C or Ctrl+Shift+J
+            if (
+                (e.ctrlKey && e.key === "u") || (e.ctrlKey && e.key === "U") ||
+                (e.ctrlKey && e.shiftKey && ["I", "C", "J"].includes(e.key)) ||
+                e.key === "F12"
+            ) {
+                e.preventDefault();
+            }
+        });
+    </script>
 </body>
 
 </html>
