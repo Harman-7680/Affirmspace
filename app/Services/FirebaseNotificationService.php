@@ -29,11 +29,16 @@ class FirebaseNotificationService
                 ->withData($data);
 
             Log::info('FCM TOKEN DEBUG', [
-                'token'  => $deviceToken,
-                'length' => strlen($deviceToken),
+                'token_suffix' => substr($deviceToken, -8),
+                'length'       => strlen($deviceToken),
             ]);
 
-            Firebase::messaging()->send($message);
+            $response = Firebase::messaging()->send($message);
+
+            Log::info('FCM MESSAGE ACCEPTED', [
+                'message_id'   => $response,
+                'token_suffix' => substr($deviceToken, -8),
+            ]);
 
         } catch (\Throwable $e) {
 

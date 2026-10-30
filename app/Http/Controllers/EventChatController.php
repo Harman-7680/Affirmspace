@@ -3,6 +3,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Event;
 use App\Models\EventChat;
+use App\Models\UserDevice;
+use App\Services\FirebaseNotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -216,9 +218,53 @@ class EventChatController extends Controller
             'message'              => $request->message,
         ]);
 
+        // Message save hone ke baad notification
+        $message = EventChat::create([
+            'event_id'             => $event->id,
+            'sender_id'            => $authId,
+            'conversation_user_id' => $otherUserId,
+            'message'              => $request->message,
+        ]);
+
+        $senderName = trim($user->first_name . ' ' . $user->last_name);
+
+        $this->sendEventChatNotification(
+            $otherUserId,
+            $senderName,
+            'Sent you a message in ' . $event->name,
+            [
+                'type'       => 'event_chat',
+                'sender_id'  => (string) $authId,
+                'event_id'   => (string) $event->id,
+                'message_id' => (string) $message->id,
+            ]
+        );
+
         return redirect()->route('events.chats', [
             'event_id' => $event->id,
             'user_id'  => $otherUserId,
         ])->with('success', 'Message sent successfully.');
+    }
+
+    private function sendEventChatNotification($userId, $title, $body, array $data = [])
+    {
+        $tokens = UserDevice::where('user_id', $userId)
+            ->whereNotNull('device_token')
+            ->where('device_token', '!=', '')
+            ->pluck('device_token')
+            ->unique();
+
+        if ($tokens->isEmpty()) {
+            return;
+        }
+
+        foreach ($tokens as $token) {
+            app(FirebaseNotificationService::class)->send(
+                $token,
+                $title,
+                $body,
+                $data
+            );
+        }
     }
 }

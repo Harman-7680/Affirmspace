@@ -12,6 +12,7 @@ use App\Http\Controllers\Api\ApiEventController;
 use App\Http\Controllers\Api\ApiFriendController;
 use App\Http\Controllers\Api\ApiJitsiRoomController;
 use App\Http\Controllers\Api\ApiPostController;
+use App\Http\Controllers\Api\ApiPostShareController;
 use App\Http\Controllers\Api\ApiProfileController;
 use App\Http\Controllers\Api\ApiSocialLoginController;
 use App\Http\Controllers\Api\ApiStatusController;
@@ -117,6 +118,11 @@ Route::middleware('auth:sanctum', 'verified.both', 'counselor.docs', 'registrati
     Route::post('/mute-user/{id}', [PostActionController::class, 'muteUser']);
     Route::post('/unblock/{id}', [PostActionController::class, 'unblockUser']);
     Route::post('/unmute/{id}', [PostActionController::class, 'unmuteUser']);
+
+    // Get friends and groups for post sharing
+    Route::get('/post-share/recipients', [ApiPostShareController::class,'recipients',]);
+    // Share post with friends and groups
+    Route::post('/post-share', [ApiPostShareController::class,'share',]);
 
     // status related routes
     Route::post('/statuses', [ApiStatusController::class, 'store']);

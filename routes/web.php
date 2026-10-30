@@ -25,6 +25,7 @@ use App\Http\Controllers\JitsiRoomController;
 use App\Http\Controllers\LiveChatController;
 use App\Http\Controllers\PostActionController;
 use App\Http\Controllers\PostController;
+use App\Http\Controllers\PostShareController;
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\RegistrationPaymentController;
 use App\Http\Controllers\SocialLoginController;
@@ -285,6 +286,8 @@ Route::middleware('auth', 'verified')->group(function () {
     Route::post('/toggle-like', [PostController::class, 'toggleLike'])->name('toggle.like');
     Route::post('/comments', [PostController::class, 'comment_store'])->name('comments.store');
     Route::delete('/comments/{comment}', [PostController::class, 'destroy'])->name('comments.destroy');
+    Route::get('/post-share/recipients', [PostShareController::class, 'recipients'])->name('post-share.recipients');
+    Route::post('/post-share', [PostShareController::class, 'share'])->name('post-share.send');
 });
 
 // post action related routes
