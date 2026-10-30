@@ -9,13 +9,27 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-    {
-        Schema::table('comments', function (Blueprint $table) {
-            $table->unsignedBigInteger('post_id')->after('id');
+    // public function up()
+    // {
+    //     Schema::table('comments', function (Blueprint $table) {
+    //         $table->unsignedBigInteger('post_id')->after('id');
 
-            $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
-        });
+    //         $table->foreign('post_id')->references('id')->on('posts')->onDelete('cascade');
+    //     });
+    // }
+
+    public function up(): void
+    {
+        if (! Schema::hasColumn('comments', 'post_id')) {
+            Schema::table('comments', function (Blueprint $table) {
+                $table->unsignedBigInteger('post_id')->after('id');
+
+                $table->foreign('post_id')
+                    ->references('id')
+                    ->on('posts')
+                    ->onDelete('cascade');
+            });
+        }
     }
 
     /**
